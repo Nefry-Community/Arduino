@@ -7,15 +7,15 @@ ESP8266 Arduino core comes with libraries to communicate over WiFi using TCP and
 
 ### Installing with Boards Manager ###
 
-1.6.6ˆÈã‚ÌArduino IDE‚ğƒCƒ“ƒXƒg[ƒ‹‚µ‚½‚Ì‚¿AŠÂ‹«İ’è‚É Additional Boards Manager URLs ‚ÉBoards manager link‚ğ“ü—ÍB
-.ƒc[ƒ‹¨ƒ}ƒCƒRƒ“ƒ{[ƒh¨ƒ{[ƒhƒ}ƒl[ƒWƒƒ[‚ğŠJ‚«‚Ü‚·B
-ŒŸõ—“‚ÉhNefryh‚Æ“ü—Í‚µ‚Ä‚¢‚½‚¾‚­‚ÆAAdditional boards manager URLs ‚Å’Ç‰Á‚µ‚½
-URL ‚ğ©“®“I‚ÉŒŸõ‚µANefry ‚Æo‚é‚Ì‚Å‰E‰º‚É‚ ‚éhInstallh‚ğƒNƒŠƒbƒN‚µ‚ÄƒCƒ“ƒXƒg[ƒ‹Š®—¹‚Ü‚Å‚µ
-‚Î‚ç‚­‚¨‘Ò‚¿‚­‚¾‚³‚¢B
+1.6.6ä»¥ä¸Šã®Arduino IDEã‚’ã‚¤ãƒ³ã‚¹ãƒˆãƒ¼ãƒ«ã—ãŸã®ã¡ã€ç’°å¢ƒè¨­å®šã« Additional Boards Manager URLs ã«Boards manager linkã‚’å…¥åŠ›ã€‚
+.ãƒ„ãƒ¼ãƒ«â†’ãƒã‚¤ã‚³ãƒ³ãƒœãƒ¼ãƒ‰â†’ãƒœãƒ¼ãƒ‰ãƒãƒãƒ¼ã‚¸ãƒ£ãƒ¼ã‚’é–‹ãã¾ã™ã€‚
+æ¤œç´¢æ¬„ã«â€Nefryâ€ã¨å…¥åŠ›ã—ã¦ã„ãŸã ãã¨ã€Additional boards manager URLs ã§è¿½åŠ ã—ãŸ
+URL ã‚’è‡ªå‹•çš„ã«æ¤œç´¢ã—ã€Nefry ã¨å‡ºã‚‹ã®ã§å³ä¸‹ã«ã‚ã‚‹â€Installâ€ã‚’ã‚¯ãƒªãƒƒã‚¯ã—ã¦ã‚¤ãƒ³ã‚¹ãƒˆãƒ¼ãƒ«å®Œäº†ã¾ã§ã—
+ã°ã‚‰ããŠå¾…ã¡ãã ã•ã„ã€‚
 
 #### Available versions
 
-##### Stable version ![](http://arduino.esp8266.com/stable/badge.svg)
+##### Stable version 2016/05/05
 Boards manager link: `http://wamisnet.github.io/package_nefry_index.json`
 
 Documentation: [Reference](http://wamisnet.github.io/Nefry_manual.pdf)
