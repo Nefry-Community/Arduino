@@ -1,0 +1,135 @@
+menu.UploadSpeed=Upload Speed
+menu.CpuFrequency=CPU Frequency
+menu.FlashSize=Flash Size
+menu.FlashMode=Flash Mode
+menu.FlashFreq=Flash Frequency
+menu.ResetMethod=Reset Method
+menu.ESPModule=Module
+menu.Debug=Debug port
+menu.DebugLevel=Debug Level
+menu.LwIPVariant=lwIP Variant
+##############################################################
+nefry.name=Nefry
+
+nefry.upload.tool=esptool
+nefry.upload.speed=115200
+nefry.upload.resetmethod=ck
+nefry.upload.maximum_size=434160
+nefry.upload.maximum_data_size=81920
+nefry.upload.wait_for_upload_port=true
+nefry.serial.disableDTR=true
+nefry.serial.disableRTS=true
+
+nefry.build.mcu=esp8266
+nefry.build.f_cpu=80000000L
+nefry.build.board=ESP8266ESP01
+nefry.build.core=esp8266
+nefry.build.variant=Nefry
+nefry.build.flash_mode=qio
+nefry.build.flash_size=4M
+nefry.build.flash_freq=40
+nefry.build.debug_port=
+nefry.build.debug_level=
+nefry.build.lwip_lib=-llwip
+nefry.build.lwip_flags=
+
+nefry.upload.verbose=-vv
+
+nefry.build.flash_ld=eagle.flash.4m.ld
+nefry.build.spiffs_start=0x100000
+nefry.build.spiffs_end=0x3FB000
+nefry.build.spiffs_blocksize=8192
+nefry.upload.maximum_size=1044464
+
+##############################################################
+##############################################################
+generic.name=Generic ESP8266 Module
+
+generic.upload.tool=esptool
+generic.upload.speed=115200
+generic.upload.resetmethod=ck
+generic.upload.maximum_size=434160
+generic.upload.maximum_data_size=81920
+generic.upload.wait_for_upload_port=true
+generic.serial.disableDTR=true
+generic.serial.disableRTS=true
+
+generic.build.mcu=esp8266
+generic.build.f_cpu=80000000L
+generic.build.board=ESP8266_ESP01
+generic.build.core=esp8266
+generic.build.variant=generic
+generic.build.flash_mode=qio
+generic.build.spiffs_pagesize=256
+generic.build.debug_port=
+generic.build.debug_level=
+generic.build.lwip_lib=-llwip
+generic.build.lwip_flags=
+
+generic.menu.CpuFrequency.80=80 MHz
+generic.menu.CpuFrequency.80.build.f_cpu=80000000L
+generic.menu.CpuFrequency.160=160 MHz
+generic.menu.CpuFrequency.160.build.f_cpu=160000000L
+
+generic.menu.FlashFreq.40=40MHz
+generic.menu.FlashFreq.40.build.flash_freq=40
+generic.menu.FlashFreq.80=80MHz
+generic.menu.FlashFreq.80.build.flash_freq=80
+
+generic.menu.UploadSpeed.115200=115200
+generic.menu.UploadSpeed.115200.upload.speed=115200
+generic.menu.UploadSpeed.921600=921600
+generic.menu.UploadSpeed.921600.upload.speed=921600
+
+generic.menu.FlashSize.4M3M=4M (3M SPIFFS)
+generic.menu.FlashSize.4M3M.build.flash_size=4M
+generic.menu.FlashSize.4M3M.build.flash_ld=eagle.flash.4m.ld
+generic.menu.FlashSize.4M3M.build.spiffs_start=0x100000
+generic.menu.FlashSize.4M3M.build.spiffs_end=0x3FB000
+generic.menu.FlashSize.4M3M.build.spiffs_blocksize=8192
+generic.menu.FlashSize.4M3M.upload.maximum_size=1044464
+
+generic.menu.ResetMethod.ck=ck
+generic.menu.ResetMethod.ck.upload.resetmethod=ck
+generic.menu.ResetMethod.nodemcu=nodemcu
+generic.menu.ResetMethod.nodemcu.upload.resetmethod=nodemcu
+
+generic.menu.Debug.Disabled=Disabled
+generic.menu.Debug.Disabled.build.debug_port=
+generic.menu.Debug.Serial=Serial
+generic.menu.Debug.Serial.build.debug_port=-DDEBUG_ESP_PORT=Serial
+generic.menu.Debug.Serial1=Serial1
+generic.menu.Debug.Serial1.build.debug_port=-DDEBUG_ESP_PORT=Serial1
+
+generic.menu.DebugLevel.None____=None
+generic.menu.DebugLevel.None____.build.debug_level=
+generic.menu.DebugLevel.Core____=Core
+generic.menu.DebugLevel.Core____.build.debug_level=-DDEBUG_ESP_CORE
+generic.menu.DebugLevel.SSL_____=Core + SSL
+generic.menu.DebugLevel.SSL_____.build.debug_level=-DDEBUG_ESP_CORE -DDEBUG_ESP_SSL
+generic.menu.DebugLevel.SSL_MEM_=Core + SSL + TLS Mem
+generic.menu.DebugLevel.SSL_MEM_.build.debug_level=-DDEBUG_ESP_CORE -DDEBUG_ESP_SSL -DDEBUG_TLS_MEM
+generic.menu.DebugLevel.WiFic___=Core + WiFi
+generic.menu.DebugLevel.WiFic___.build.debug_level=-DDEBUG_ESP_CORE -DDEBUG_ESP_WIFI
+generic.menu.DebugLevel.WiFi____=WiFi
+generic.menu.DebugLevel.WiFi____.build.debug_level=-DDEBUG_ESP_WIFI
+generic.menu.DebugLevel.HTTPClient=HTTPClient
+generic.menu.DebugLevel.HTTPClient.build.debug_level=-DDEBUG_ESP_HTTP_CLIENT
+generic.menu.DebugLevel.HTTPClient2=HTTPClient + SSL
+generic.menu.DebugLevel.HTTPClient2.build.debug_level=-DDEBUG_ESP_HTTP_CLIENT -DDEBUG_ESP_SSL
+generic.menu.DebugLevel.HTTPUpdate=HTTPUpdate
+generic.menu.DebugLevel.HTTPUpdate.build.debug_level=-DDEBUG_ESP_HTTP_UPDATE
+generic.menu.DebugLevel.HTTPUpdate2=HTTPClient + HTTPUpdate
+generic.menu.DebugLevel.HTTPUpdate2.build.debug_level=-DDEBUG_ESP_HTTP_UPDATE -DDEBUG_ESP_HTTP_UPDATE
+generic.menu.DebugLevel.HTTPUpdate3=HTTPClient + HTTPUpdate + Updater
+generic.menu.DebugLevel.HTTPUpdate3.build.debug_level=-DDEBUG_ESP_HTTP_UPDATE -DDEBUG_ESP_HTTP_UPDATE -DDEBUG_ESP_UPDATER
+generic.menu.DebugLevel.HTTPServer=HTTPServer
+generic.menu.DebugLevel.HTTPServer.build.debug_level=-DDEBUG_ESP_HTTP_SERVER
+generic.menu.DebugLevel.UPDATER=Updater
+generic.menu.DebugLevel.UPDATER.build.debug_level=-DDEBUG_ESP_UPDATER
+generic.menu.DebugLevel.OTA_____=OTA
+generic.menu.DebugLevel.OTA_____.build.debug_level=-DDEBUG_ESP_OTA
+generic.menu.DebugLevel.OTA2____=OTA + Updater
+generic.menu.DebugLevel.OTA2____.build.debug_level=-DDEBUG_ESP_OTA -DDEBUG_ESP_UPDATER
+generic.menu.DebugLevel.all_____=All
+generic.menu.DebugLevel.all_____.build.debug_level=-DDEBUG_ESP_CORE -DDEBUG_ESP_SSL -DDEBUG_ESP_WIFI -DDEBUG_ESP_HTTP_CLIENT -DDEBUG_ESP_HTTP_UPDATE -DDEBUG_ESP_HTTP_SERVER -DDEBUG_ESP_UPDATER -DDEBUG_ESP_OTA -DDEBUG_TLS_MEM
