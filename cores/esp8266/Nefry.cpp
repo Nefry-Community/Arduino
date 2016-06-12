@@ -1,22 +1,10 @@
-/*
-Nefry.h - Nefry Library
+/**
+Nefry lib
 
-Copyright (c) 2015 wami. All rights reserved.
-This file is part of the esp8266 core and Nefry library for Arduino environment.
+Copyright (c) 2015 wami
 
-This library is free software; you can redistribute it and/or
-modify it under the terms of the GNU Lesser General Public
-License as published by the Free Software Foundation; either
-version 2.1 of the License, or (at your option) any later version.
-
-This library is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public
-License along with this library; if not, write to the Free Software
-Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+This software is released under the MIT License.
+http://opensource.org/licenses/mit-license.php
 */
 
 #include "Nefry.h"
@@ -57,7 +45,10 @@ struct WiFiConfStruct {
 	0
 };
 Adafruit_NeoPixel _NefryLED[17];
-
+String Nefry_lib::getVersion()
+{
+	return "02";
+}
 bool Nefry_lib::push_SW() {
 	pinMode(4, INPUT_PULLUP);
 	if (digitalRead(4) == LOW)return true;
@@ -67,7 +58,7 @@ bool Nefry_lib::push_sw_() {
 	pinMode(4, INPUT_PULLUP);
 	if (digitalRead(4) == LOW) {
 		pushSW_flg = 1;
-		Nefry_LED(0xff, 0x00, 0x00);
+		setLed(0xff, 0x00, 0x00);
 		delay(1000);
 		return true;
 	}
@@ -75,7 +66,7 @@ bool Nefry_lib::push_sw_() {
 }
 void Nefry_lib::module_set() {
 	for (int i = 0; i < 8; i++) {
-		sprintf(module_input[i], "memo%d", i);
+		sprintf(module_input[i], "memo %d", i);
 	}
 	for (int i = 10; i < 18; i++) {
 		sprintf(module_input[i], "mode %d", i - 10);
@@ -90,8 +81,8 @@ void Nefry_lib::ndelay(unsigned long ms) {
 		//esp_yield();
 	}
 }
-void Nefry_lib::setHtmlConf(const char set[15], const int num) {
-	if (0 <= num&&num > 20)
+void Nefry_lib::setConfHtml(const char set[15], const int num) {
+	if (0 <= num&&num < 20)
 		strcpy(module_input[num], set);
 }
 void Nefry_lib::nefry_init() {
@@ -100,9 +91,9 @@ void Nefry_lib::nefry_init() {
 	pinMode(4, INPUT_PULLUP);
 	push_sw_();
 	module_set();
-	Nefry_LED_begin(1, 0, NEO_RGB + NEO_KHZ800);
+	beginLed(1, 0, NEO_RGB + NEO_KHZ800);
 	nefry_server = ESP8266WebServer(80);
-	Nefry_LED(0x00, 0x0f, 0x00);
+	setLed(0x00, 0x0f, 0x00);
 	Serial.begin(115200);
 	EEPROM.begin(1024);
 	delay(10);
@@ -112,7 +103,7 @@ void Nefry_lib::nefry_init() {
 		resetModule();
 		saveConf();
 	}
-	Nefry_LED(0x00, 0x2f, 0x00);
+	setLed(0x00, 0x2f, 0x00);
 	// scan Access Points
 	scanWiFi();
 	push_sw_();
@@ -131,11 +122,11 @@ void Nefry_lib::nefry_init() {
 	else {
 		WiFi.softAP(WiFiConf.module_id, WiFiConf.module_wifi_pwd);
 	}
-	Nefry_LED(0x00, 0x4f, 0x00);
+	setLed(0x00, 0x4f, 0x00);
 	printIP();
 	push_sw_();
 	// setup Web Interface
-
+	CaptivePortal();
 	nefry_server.begin();
 	setupWeb();
 	nefry_console();
@@ -143,18 +134,18 @@ void Nefry_lib::nefry_init() {
 	setupWeb_local_Update();
 	//user_webpage();
 	Serial.println("\nServer started");
-	Nefry_LED(0x00, 0x6f, 0x00);
+	setLed(0x00, 0x6f, 0x00);
 	// start mDNS responder
 	if (!MDNS.begin("nefry")) {
 		Serial.println("Error setting up MDNS responder!");
-		Nefry_LED(0xff, 0x0, 0x00);
+		setLed(0xff, 0x0, 0x00);
 		delay(1000);
 	}
 	Serial.println("\nmDNS responder started");
 	// Add service to MDNS-SD
 	MDNS.addService("http", "tcp", 80);
 	push_sw_();
-	Nefry_LED(0x00, 0xff, 0xff);
+	setLed(0x00, 0xff, 0xff);
 	delay(1000);
 	if (pushSW_flg) {
 		WiFi.softAP(WiFiConf.module_id);
@@ -433,6 +424,7 @@ void Nefry_lib::setupWiFiConf(void) {
 		content += "</head><body><div><h1>Nefry Web Update</h1><p>";
 		if (program_domain.length() > 0) {
 			if (program_url.length() > 0)program_url = escapeParameter(program_url);
+			print(program_url);
 			program_url.concat("/arduino.bin");
 			switch (ESPhttpUpdate.update(program_domain, 80, program_url)) {
 			case HTTP_UPDATE_FAILED:
@@ -450,7 +442,7 @@ void Nefry_lib::setupWiFiConf(void) {
 				content += "[update] Update ok.";// may not called we reboot the ESP
 				content += "</br></p><a href='/'>Back to top</a></div><body></html>";
 				nefry_server.send(200, "text/html", content);
-				Nefry_LED(0x00, 0xff, 0xff);
+				setLed(0x00, 0xff, 0xff);
 				for (int i = 0; i < 20; i++) {
 					delay(100);
 					nefry_loop();
@@ -684,6 +676,7 @@ void Nefry_lib::setupWeb(void) {
 	});
 }
 void Nefry_lib::nefry_loop() {
+	_dnsServer.processNextRequest();
 	nefry_server.handleClient();
 }
 String Nefry_lib::escapeParameter(String param) {
@@ -832,9 +825,9 @@ void Nefry_lib::saveConf(void) {
 	EEPROM.commit();
 	//printWiFiConf();
 }
-bool Nefry_lib::memory_write(const char *pt, int num) {
+bool Nefry_lib::setConfStr(const char *pt, int num) {
 	Serial.println("memory write");
-	switch (num) {
+	switch (num + 1) {
 	case 1:
 		if (strcmp(WiFiConf.memo1, pt) != 0) {
 			strcpy(WiFiConf.memo1, pt);
@@ -890,9 +883,9 @@ bool Nefry_lib::memory_write(const char *pt, int num) {
 	return true;
 }
 
-char* Nefry_lib::memory_read(const int num) {
+char* Nefry_lib::getConfStr(const int num) {
 	Serial.println("memory read");
-	switch (num) {
+	switch (num + 1) {
 	case 1:
 		return WiFiConf.memo1;
 		break;
@@ -920,7 +913,7 @@ char* Nefry_lib::memory_read(const int num) {
 	}
 	return (char*)"";
 }
-bool Nefry_lib::memory_write_mode(const int pt, const int num) {
+bool Nefry_lib::setConfValue(const int pt, const int num) {
 	if (0 <= num && num <= 7) {
 		if (WiFiConf.mode[num] != pt) {
 			WiFiConf.mode[num] = pt;
@@ -932,7 +925,7 @@ bool Nefry_lib::memory_write_mode(const int pt, const int num) {
 	else
 		return false;
 }
-int Nefry_lib::memory_read_mode(const int num) {
+int Nefry_lib::getConfValue(const int num) {
 	Serial.println("memory read");
 	if (0 <= num && num <= 7)
 		return WiFiConf.mode[num];
@@ -940,22 +933,37 @@ int Nefry_lib::memory_read_mode(const int num) {
 		return 0;
 }
 
-void Nefry_lib::Nefry_LED(const char r, const char g, const char b, const char w, const char pin, const int num) {
+void Nefry_lib::setLed(const char r, const char g, const char b, const char w, const char pin, const int num) {
 	_NefryLED[pin].setBrightness(w);
 	_NefryLED[pin].setPixelColor(num, r, g, b);
 	_NefryLED[pin].show();
 }
+
+
+void Nefry_lib::CaptivePortal() {
+	_dnsServer.start(53, "*", IPAddress(192, 168, 4, 1));
+	
+	nefry_server.onNotFound([&]() {
+		IPAddress ip = WiFi.localIP();
+		String responseHTML = ""
+			"<!DOCTYPE html><html><head><title>CaptivePortal</title></head><meta http-equiv=\"Refresh\" content=\"1; URL = http://192.168.4.1\"><body>"
+			"<h1>Move to main page!</h1><a href=\"http://192.168.4.1\">Move to Top page!</a>";
+		"</body></html>";
+		nefry_server.send(200, "text/html", responseHTML);
+	});
+}
+
 void Nefry_lib::Nefry_LED_blink(const char r, const char g, const char b, const int wait, const int loop, const char pin) {
 	int i = 0;
 	while (i < loop) {
-		Nefry_LED(r, g, b, 122, pin);
+		setLed(r, g, b, 122, pin);
 		delay(wait);
-		Nefry_LED(r, g, b, 0, pin);
+		setLed(r, g, b, 0, pin);
 		delay(wait);
 		i++;
 	}
 }
-void Nefry_lib::Nefry_LED_begin(const int num, const int pin, uint8_t t = NEO_GRB + NEO_KHZ800) {
+void Nefry_lib::beginLed(const int num, const int pin, uint8_t t = NEO_GRB + NEO_KHZ800) {
 	_NefryLED[pin] = Adafruit_NeoPixel(num, pin, t);
 	_NefryLED[pin].begin();
 }
@@ -967,13 +975,13 @@ void Nefry_lib::sleep(const int sec) {
 	ESP.deepSleep(sec * 1000 * 1000, WAKE_RF_DEFAULT);
 	delay(1000);
 }
-int Nefry_lib::Nefry_login(const char *UserID, const char *User_pass) {
+int Nefry_lib::login(const char *UserID, const char *User_pass) {
 	if (strcmp(UserID, WiFiConf.Nefry_user) == 0)
 		if (strcmp(User_pass, WiFiConf.Nefry_user_pass) == 0)
 			return true;
 	return false;
 }
-int Nefry_lib::Nefry_Auth(const char *Nefryclass, const char *NefryID) {
+int Nefry_lib::Auth(const char *Nefryclass, const char *NefryID) {
 	if (strcmp(NefryID, WiFiConf.module_id) == 0)return true;
 	if (strcmp(Nefryclass, WiFiConf.module_class) == 0)return true;
 	return false;
@@ -984,21 +992,22 @@ void Nefry_lib::setConf(char *old, const char *newdata) {
 		saveConf();
 	}
 }
-void Nefry_lib::setWifiConf(const char SSID[32], const char pass[64]) {
+void Nefry_lib::setConfWifi(const char SSID[32], const char pass[64]) {
 	setConf(WiFiConf.sta_ssid, SSID);
 	setConf(WiFiConf.sta_pwd, pass);
 }
-void Nefry_lib::setModuleConf(const char module_id_[32], const char module_class_[32], const char module_wifi_pass[64]) {
+void Nefry_lib::setConfModule(const char module_id_[32], const char module_class_[32], const char module_wifi_pass[64]) {
 	setConf(WiFiConf.module_class, module_class_);
 	setConf(WiFiConf.module_wifi_pwd, module_wifi_pass);
 	if (strlen(module_id_) == 0) {
 		resetModule();
 		saveConf();
-	} else {
+	}
+	else {
 		setConf(WiFiConf.module_id, module_id_);
 	}
 }
-void Nefry_lib::setUserConf(const char user[32], const char pass[32]) {
+void Nefry_lib::setConfUser(const char user[32], const char pass[32]) {
 	setConf(WiFiConf.Nefry_user, user);
 	setConf(WiFiConf.Nefry_user_pass, pass);
 }

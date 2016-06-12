@@ -2,8 +2,8 @@
  main.cpp - platform initialization and context switching
  emulation
 
- Copyright (c) 2015 wami. All rights reserved.
- This file is part of the esp8266 core and Nefry library for Arduino environment.
+ Copyright (c) 2014 Ivan Grokhotkov. All rights reserved.
+ This file is part of the esp8266 core for Arduino environment.
 
  This library is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public

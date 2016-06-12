@@ -1,23 +1,3 @@
-/*
-Nefry.h - Nefry Library
-
-Copyright (c) 2015 wami. All rights reserved.
-This file is part of the esp8266 core and Nefry library for Arduino environment.
-
-This library is free software; you can redistribute it and/or
-modify it under the terms of the GNU Lesser General Public
-License as published by the Free Software Foundation; either
-version 2.1 of the License, or (at your option) any later version.
-
-This library is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public
-License along with this library; if not, write to the Free Software
-Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-*/
 #ifndef Nefry_h
 #define Nefry_h
 #include <ESP.h>
@@ -28,6 +8,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include <EEPROM.h>
 #include <Adafruit_NeoPixel.h>
 #include <ESP8266httpUpdate.h>	
+#include <DNSServer.h>
 
 #define WIFI_CONF_FORMAT {0, 0, 0, 1}
 #define NAME_PREF "Nefry-"
@@ -77,18 +58,17 @@ class Nefry_lib
 {
 public:
 	bool pushSW_flg;
-	String network_html, network_list, input_console;
-	char module_input[20][15];
+	
 	void
 		reset(),
 		sleep(const int sec),
-		setWifiConf(const char SSID[32], const char pass[64]),
-		setModuleConf(const char module_id_[32], const char module_class_[32], const char module_wifi_pass_[64]),
-		setUserConf(const char user[32], const char pass[32]),
-		setHtmlConf(const char set[15],const int num),
-		Nefry_LED_begin(const int num,const int pin, uint8_t t),
-		Nefry_LED(const char r, char g,const char b,const char w = 122,const char pin = 0,const int num = 0),
-		Nefry_LED_blink(const char r,const char g,const char b,const int wait,const int loop,const char pin = 0),
+		setConfWifi(const char SSID[32], const char pass[64]),
+		setConfModule(const char module_id_[32], const char module_class_[32], const char module_wifi_pass_[64]),
+		setConfUser(const char user[32], const char pass[32]),
+		setConfHtml(const char set[15],const int num),
+		beginLed(const int num,const int pin, uint8_t t),
+		setLed(const char r, char g,const char b,const char w = 122,const char pin = 0,const int num = 0),
+		
 		println(float text),
 		println(double text),
 		println(char text),
@@ -107,25 +87,32 @@ public:
 		print(unsigned long text),
 		print(String text),
 		println(String text),
-		nefry_init(),
-		nefry_loop(),
 		ndelay(unsigned long ms);
 	int available(),
-		Nefry_login(const char *UserID,const char *User_pass),
-		Nefry_Auth(const char *Nefryclass,const char *NefryID), 
-		memory_read_mode(const int num);
+		login(const char *UserID,const char *User_pass),
+		Auth(const char *Nefryclass,const char *NefryID), 
+		getConfValue(const int num);
 	
 	bool push_SW(),
-		memory_write_mode(const int pt,const int num),
-		memory_write(const char *pt,const int num);
-	char* memory_read(const int num);
-	String read();
+		setConfValue(const int pt,const int num),
+		setConfStr(const char *pt,const int num);
+	char* getConfStr(const int num);
+		
+	String read(),
+		getVersion();
 	//void webpage(const char url[20],String page,String link);
 
 protected:
 	ESP8266WebServer nefry_server;
-
+	DNSServer _dnsServer;
 private:
+	void nefry_init();
+	void nefry_loop();
+	void CaptivePortal();
+	void handleNotFound();
+	String network_html, network_list, input_console;
+	void Nefry_LED_blink(const char r, const char g, const char b, const int wait, const int loop, const char pin = 0);
+	char module_input[20][15];
 	bool push_sw_();
 	void nefry_console();
 	void module_set();

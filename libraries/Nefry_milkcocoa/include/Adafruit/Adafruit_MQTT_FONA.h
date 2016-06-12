@@ -41,25 +41,17 @@ class Adafruit_MQTT_FONA : public Adafruit_MQTT {
     fona(f)
   {}
 
-  Adafruit_MQTT_FONA(Adafruit_FONA *f, const char *server, uint16_t port,
-                     const char *user, const char *pass):
-    Adafruit_MQTT(server, port, user, pass),
-    fona(f)
-  {}
-
   bool connectServer() {
     char server[40];
     strncpy_P(server, servername, 40);
-#ifdef ADAFRUIT_SLEEPYDOG_H
     Watchdog.reset();
-#endif
 
     // connect to server
     DEBUG_PRINTLN(F("Connecting to TCP"));
     return fona->TCPconnect(server, portnum);
   }
 
-  bool disconnectServer() {
+  bool disconnect() {
     return fona->TCPclose();
   }
 
@@ -118,9 +110,7 @@ class Adafruit_MQTT_FONA : public Adafruit_MQTT {
         }
 
       }
-#ifdef ADAFRUIT_SLEEPYDOG_H
       Watchdog.reset();
-#endif
       timeout -= MQTT_FONA_INTERAVAILDELAY;
       timeout -= MQTT_FONA_QUERYDELAY; // this is how long it takes to query the FONA for avail()
       delay(MQTT_FONA_INTERAVAILDELAY);

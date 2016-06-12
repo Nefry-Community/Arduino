@@ -17,11 +17,11 @@ void loop() {
   //D4がLOWになったときにNefryのLEDが青色に光る
   if(digitalRead(D4)==LOW){
     //赤色になる（r,g,b）の順で色を指定できる
-    Nefry.Nefry_LED(0,0,255);
+    Nefry.setLed(0,0,255);
     Nefry.println("D4 LOW");
   }else{
     //緑色になる
-    Nefry.Nefry_LED(0,255,255);
+    Nefry.setLed(0,255,255);
   } 
   delay(100);
 }

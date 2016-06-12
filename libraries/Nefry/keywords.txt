@@ -10,9 +10,8 @@ Nefry	KEYWORD1
 # Methods and Functions 
 #######################################	
 
-Nefry_LED				KEYWORD2
-Nefry_LED_begin			KEYWORD2
-Nefry_LED_blink			KEYWORD2
+setLed					KEYWORD2
+beginLed				KEYWORD2
 pushSW_flg				KEYWORD2
 reset					KEYWORD2
 sleep					KEYWORD2
@@ -21,17 +20,17 @@ print					KEYWORD2
 available				KEYWORD2
 read					KEYWORD2
 push_SW					KEYWORD2
-memory_write			KEYWORD2
-memory_read				KEYWORD2
-Nefry_login				KEYWORD2
-Nefry_Auth				KEYWORD2
-memory_write_mode		KEYWORD2
-memory_read_mode		KEYWORD2
-setHtmlConf				KEYWORD2
+getConfValue			KEYWORD2
+getConfStr				KEYWORD2
+login					KEYWORD2
+Auth					KEYWORD2
+setConfValue			KEYWORD2
+setConfStr				KEYWORD2
+setConfHtml				KEYWORD2
 ndelay					KEYWORD2
-setWifiConf				KEYWORD2
-setModuleConf			KEYWORD2
-setUserConf				KEYWORD2
+setConfWifi				KEYWORD2
+setConfModule			KEYWORD2
+setConfUser				KEYWORD2
 
 #######################################
 # Constants

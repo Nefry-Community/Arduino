@@ -4,9 +4,9 @@ void setup() {
 }
 void loop() {
   Nefry.println("Sleep!");
-  Nefry.Nefry_LED(0, 0, 255);//青色に点灯します。
+  Nefry.setLed(0, 0, 255);//青色に点灯します。
   delay(5000);
-  Nefry.Nefry_LED(0, 0, 0, 0); //消灯します。
+  Nefry.setLed(0, 0, 0, 0); //消灯します。
   Nefry.sleep(30);//秒数で指定します。
 }
 

@@ -29,6 +29,7 @@ SOFTWARE.
 #include "include/Adafruit/Adafruit_MQTT.h"
 #include "include/Adafruit/Adafruit_MQTT_Client.h"
 #include "include/aJson/aJson.h"
+#include <Nefry.h>
 
 #define MILKCOCOA_SUBSCRIBERS 8
 
@@ -62,7 +63,8 @@ class MilkcocoaSubscriber {
 };
 
 class Milkcocoa {
- public:
+ public: 
+  Milkcocoa();
   Milkcocoa(Client *client, const char *host, uint16_t port, const char *_app_id, const char *client_id);
   Milkcocoa(Client *client, const char *host, uint16_t port, const char *_app_id, const char *client_id, const char *_session);
   static Milkcocoa* createWithApiKey(Client *client, const char *host, uint16_t port, const char *app_id, const char *client_id, const char *key, const char *secret);

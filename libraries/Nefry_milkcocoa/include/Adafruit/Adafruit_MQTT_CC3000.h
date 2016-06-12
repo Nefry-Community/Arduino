@@ -19,92 +19,100 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-#ifndef _ADAFRUIT_MQTT_FONA_H_
-#define _ADAFRUIT_MQTT_FONA_H_
+#ifndef _ADAFRUIT_MQTT_CC3000_H_
+#define _ADAFRUIT_MQTT_CC3000_H_
 
-#include <Adafruit_FONA.h>
+#include <Adafruit_SleepyDog.h>
+#include <Adafruit_CC3000.h>
 #include "Adafruit_MQTT.h"
 
-#define MQTT_FONA_INTERAVAILDELAY 100
-#define MQTT_FONA_QUERYDELAY 500
+
+// delay in ms between calls of available()
+#define MQTT_CC3000_INTERAVAILDELAY 10
 
 
-// FONA-specific version of the Adafruit_MQTT class.
+// CC3000-specific version of the Adafruit_MQTT class.
 // Note that this is defined as a header-only class to prevent issues with using
-// the library on non-FONA platforms (since Arduino will include all .cpp files
+// the library on non-CC3000 platforms (since Arduino will include all .cpp files
 // in the compilation of the library).
-class Adafruit_MQTT_FONA : public Adafruit_MQTT {
+class Adafruit_MQTT_CC3000 : public Adafruit_MQTT {
  public:
-  Adafruit_MQTT_FONA(Adafruit_FONA *f, const char *server, uint16_t port,
+  Adafruit_MQTT_CC3000(Adafruit_CC3000 *cc3k, const char *server, uint16_t port,
                        const char *cid, const char *user, const char *pass):
     Adafruit_MQTT(server, port, cid, user, pass),
-    fona(f)
-  {}
-
-  Adafruit_MQTT_FONA(Adafruit_FONA *f, const char *server, uint16_t port,
-                     const char *user, const char *pass):
-    Adafruit_MQTT(server, port, user, pass),
-    fona(f)
+    cc3000(cc3k)
   {}
 
   bool connectServer() {
-    char server[40];
-    strncpy_P(server, servername, 40);
-#ifdef ADAFRUIT_SLEEPYDOG_H
+    uint32_t ip = 0;
+
     Watchdog.reset();
-#endif
+
+    // look up IP address
+    if (serverip == 0) {
+      // Try looking up the website's IP address using CC3K's built in getHostByName
+      strcpy_P((char *)buffer, servername);
+      Serial.print((char *)buffer); Serial.print(F(" -> "));
+      uint8_t dnsretries = 5;
+
+      Watchdog.reset();
+      while (ip == 0) {
+        if (! cc3000->getHostByName((char *)buffer, &ip)) {
+          Serial.println(F("Couldn't resolve!"));
+          dnsretries--;
+          Watchdog.reset();
+        }
+        //Serial.println("OK"); Serial.println(ip, HEX);
+        if (!dnsretries) return false;
+        delay(500);
+      }
+
+      serverip = ip;
+      cc3000->printIPdotsRev(serverip);
+      Serial.println();
+    }
+
+    Watchdog.reset();
 
     // connect to server
     DEBUG_PRINTLN(F("Connecting to TCP"));
-    return fona->TCPconnect(server, portnum);
+    mqttclient = cc3000->connectTCP(serverip, portnum);
+
+    return mqttclient.connected();
   }
 
-  bool disconnectServer() {
-    return fona->TCPclose();
+  bool disconnect() {
+    if (connected()) {
+      return (mqttclient.close() == 0);
+    }
+    else {
+      return true;
+    }
   }
 
   bool connected() {
-    // Return true if connected, false if not connected.
-    return fona->TCPconnected();
+    return mqttclient.connected();
   }
 
   uint16_t readPacket(uint8_t *buffer, uint8_t maxlen, int16_t timeout,
                       bool checkForValidPubPacket = false) {
-    uint8_t *buffp = buffer;
-    DEBUG_PRINTLN(F("Reading a packet.."));
-
-    if (!fona->TCPconnected()) return 0;
-
-
     /* Read data until either the connection is closed, or the idle timeout is reached. */
     uint16_t len = 0;
     int16_t t = timeout;
-    uint16_t avail;
 
-    while (fona->TCPconnected() && (timeout >= 0)) {
-      DEBUG_PRINT('.');
-      while (avail = fona->TCPavailable()) {
-        DEBUG_PRINT('!');
-
-        if (len + avail > maxlen) {
-	  avail = maxlen - len;
-	  if (avail == 0) return len;
-        }
-
-        // try to read the data into the end of the pointer
-        if (! fona->TCPread(buffp, avail)) return len;
-
-        // read it! advance pointer
-        buffp += avail;
-        len += avail;
+    while (mqttclient.connected() && (timeout >= 0)) {
+      //DEBUG_PRINT('.');
+      while (mqttclient.available()) {
+        //DEBUG_PRINT('!');
+        char c = mqttclient.read();
         timeout = t;  // reset the timeout
-
+        buffer[len] = c;
         //DEBUG_PRINTLN((uint8_t)c, HEX);
-
+        len++;
         if (len == maxlen) {  // we read all we want, bail
           DEBUG_PRINT(F("Read packet:\t"));
           DEBUG_PRINTBUFFER(buffer, len);
-    return len;
+          return len;
         }
 
         // special case where we just one one publication packet at a time
@@ -116,26 +124,20 @@ class Adafruit_MQTT_FONA : public Adafruit_MQTT {
             return len;
           }
         }
-
       }
-#ifdef ADAFRUIT_SLEEPYDOG_H
       Watchdog.reset();
-#endif
-      timeout -= MQTT_FONA_INTERAVAILDELAY;
-      timeout -= MQTT_FONA_QUERYDELAY; // this is how long it takes to query the FONA for avail()
-      delay(MQTT_FONA_INTERAVAILDELAY);
+      timeout -= MQTT_CC3000_INTERAVAILDELAY;
+      delay(MQTT_CC3000_INTERAVAILDELAY);
     }
-
     return len;
   }
 
   bool sendPacket(uint8_t *buffer, uint8_t len) {
-    DEBUG_PRINTLN(F("Writing packet"));
-    if (fona->TCPconnected()) {
-      boolean ret = fona->TCPsend((char *)buffer, len);
-      //DEBUG_PRINT(F("sendPacket returned: ")); DEBUG_PRINTLN(ret);
-      if (!ret) {
-        DEBUG_PRINTLN("Failed to send packet.")
+    if (mqttclient.connected()) {
+      uint16_t ret = mqttclient.write(buffer, len);
+      DEBUG_PRINT(F("sendPacket returned: ")); DEBUG_PRINTLN(ret);
+      if (ret != len) {
+        DEBUG_PRINTLN("Failed to send complete packet.")
         return false;
       }
     } else {
@@ -147,7 +149,8 @@ class Adafruit_MQTT_FONA : public Adafruit_MQTT {
 
  private:
   uint32_t serverip;
-  Adafruit_FONA *fona;
+  Adafruit_CC3000 *cc3000;
+  Adafruit_CC3000_Client mqttclient;
 };
 
 

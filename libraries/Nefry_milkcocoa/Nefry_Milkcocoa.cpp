@@ -22,7 +22,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-#include "Milkcocoa.h"
+#include "Nefry_Milkcocoa.h"
 #include "stdio.h"
 
 
@@ -87,35 +87,44 @@ char *DataElement::toCharArray() {
 	return aJson.print(paJsonObj);
 }
 
-Milkcocoa::Milkcocoa(Client *client, const char *host, uint16_t port, const char *_app_id, const char *client_id) {
-	app_id = _app_id;
-	mqtt = new Adafruit_MQTT_Client(client, host, port, client_id, "sdammy", app_id);
 
-	for (uint8_t i = 0; i < MILKCOCOA_SUBSCRIBERS; i++) {
-		milkcocoaSubscribers[i] = 0;
-	}
 
-}
-Milkcocoa::Milkcocoa() {}
-Milkcocoa::Milkcocoa(Client *client, const char *host, uint16_t port, const char *_app_id, const char *client_id, const char *_session) {
+Nefry_Milkcocoa::Nefry_Milkcocoa() {}
+
+Nefry_Milkcocoa::Nefry_Milkcocoa(Client *client, uint16_t port, const char *_app_id, const char *_session) {
 	sprintf(session, "%s", _session);
 	app_id = _app_id;
-	mqtt = new Adafruit_MQTT_Client(client, host, port, client_id, session, app_id);
+	randomSeed(analogRead(A0));
+	sprintf(_app_id_, "%s.mlkcca.com", _app_id);
+	sprintf(_client_id, "%s%d%s", __TIME__, random(99999), _app_id);
+	delay(50);
+	mqtt = new Adafruit_MQTT_Client(client, _app_id_, port, _client_id, session, app_id);
 
 	for (uint8_t i = 0; i < MILKCOCOA_SUBSCRIBERS; i++) {
 		milkcocoaSubscribers[i] = 0;
 	}
-
 }
 
-Milkcocoa* Milkcocoa::createWithApiKey(Client *client, const char *host, uint16_t port, const char *app_id, const char *client_id, const char *key, const char *secret)
+WiFiClient _client;
+Nefry_Milkcocoa* Nefry_Milkcocoa::begin(const char * appid, const char *key, const char *secret)
 {
-	char session[60];
-	sprintf(session, "k%s:%s", key, secret);
-	return new Milkcocoa(client, host, port, app_id, client_id, session);
+	if (strlen(appid) != 0 && strlen(key) != 0 && strlen(secret) != 0) {
+		char _session[60];
+		sprintf(_session, "k%s:%s", key, secret);
+		delay(20);
+		
+		return new Nefry_Milkcocoa(&_client, 1883, appid, _session);
+	} else {
+		Nefry.println("Milkcocoa Send Data Lack");
+		while (true){
+			Nefry.setLed(255, 0, 0);
+			Nefry.ndelay(10);
+		}
+	}
+
 }
 
-bool Milkcocoa::connect(uint16_t timeout) {
+bool Nefry_Milkcocoa::connect(uint16_t timeout) {
 	int ret;
 	int cnt = 0;
 
@@ -140,7 +149,7 @@ bool Milkcocoa::connect(uint16_t timeout) {
 	return true;
 }
 
-bool Milkcocoa::push(const char *path, DataElement *pdataelement) {
+bool Nefry_Milkcocoa::push(const char *path, DataElement *pdataelement) {
 	char topic[100];
 	bool ret;
 	char *send_array;
@@ -152,7 +161,7 @@ bool Milkcocoa::push(const char *path, DataElement *pdataelement) {
 	return ret;
 }
 
-bool Milkcocoa::send(const char *path, DataElement *pdataelement) {
+bool Nefry_Milkcocoa::send(const char *path, DataElement *pdataelement) {
 	char topic[100];
 	bool ret;
 	char *send_array;
@@ -163,8 +172,13 @@ bool Milkcocoa::send(const char *path, DataElement *pdataelement) {
 	free(send_array);
 	return ret;
 }
-
-bool Milkcocoa::loop(uint16_t timeout) {
+void Nefry_Milkcocoa::print() {
+	Nefry.setConfHtml("AppID", 0);
+	Nefry.setConfHtml("APIKey", 1);
+	Nefry.setConfHtml("APISecret", 2);
+	Nefry.setConfHtml("DataStore", 3);
+}
+bool Nefry_Milkcocoa::loop(uint16_t timeout) {
 	if (!connect(timeout)) {
 		return false;
 	}
@@ -181,7 +195,7 @@ bool Milkcocoa::loop(uint16_t timeout) {
 	return true;
 }
 
-bool Milkcocoa::on(const char *path, const char *event, GeneralFunction cb) {
+bool Nefry_Milkcocoa::on(const char *path, const char *event, GeneralFunction cb) {
 	MilkcocoaSubscriber *sub = new MilkcocoaSubscriber(cb);
 	sprintf(sub->topic, "%s/%s/%s", app_id, path, event);
 

@@ -1,0 +1,28 @@
+#######################################
+# Syntax Coloring Map For nefry
+####################################### 
+# Class
+#######################################
+
+Nefry_Milkcocoa 	Å@Å@   	KEYWORD1
+DataElement			KEYWORD1
+
+#######################################
+# Methods and Functions 
+#######################################	
+
+setValue			KEYWORD2
+getFloat			KEYWORD2
+getInt				KEYWORD2
+getString			KEYWORD2
+on				KEYWORD2
+send				KEYWORD2
+push				KEYWORD2
+createWithApiKey		KEYWORD2
+createWithNefry			KEYWORD2
+connect				KEYWORD2
+
+#######################################
+# Constants
+#######################################
+ 
