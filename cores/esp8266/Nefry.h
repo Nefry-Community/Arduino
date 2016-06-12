@@ -1,6 +1,6 @@
 #ifndef Nefry_h
 #define Nefry_h
-#include <ESP.h>
+#include <Esp.h>
 #include <ESP8266WiFi.h>
 #include <ESP8266mDNS.h>
 #include <ESP8266WebServer.h>
@@ -87,6 +87,8 @@ public:
 		print(unsigned long text),
 		print(String text),
 		println(String text),
+		nefry_init(),
+		nefry_loop(),
 		ndelay(unsigned long ms);
 	int available(),
 		login(const char *UserID,const char *User_pass),
@@ -106,8 +108,6 @@ protected:
 	ESP8266WebServer nefry_server;
 	DNSServer _dnsServer;
 private:
-	void nefry_init();
-	void nefry_loop();
 	void CaptivePortal();
 	void handleNotFound();
 	String network_html, network_list, input_console;

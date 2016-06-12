@@ -1,7 +1,10 @@
-1.2.0 追加機能
+﻿1.2.0 追加機能
 
 Captive Portal
 DNS
 Nefry_Milkcocoaライブラリー
 Nefry変数名変更
 Nefryサンプルプログラム変更
+
+1.2.1 
+Macにてコンパイルエラーが起こったため修正
