@@ -751,13 +751,47 @@ void Nefry_lib::println(String text) {
 
 void Nefry_lib::nefry_console() {
 	nefry_server.on("/console", [&]() {
-		String content = "<!DOCTYPE HTML><html><head><meta charset=\"UTF-8\"><meta http-equiv=\"Refresh\" content=\"5\">";
+		String content = "<!DOCTYPE HTML><html><head><meta charset=\"UTF-8\">";
 		content += "<title>Nefry Console</title><link rel = \"stylesheet\" type = \"text/css\" href = \"/nefry_css\">";
+		content += "";
+		content += "<script type = \"text/javascript\">\n";
+		content += "	function loadDoc() {\n";
+		content += "	if (window.XMLHttpRequest) {\n";
+		content += "		xmlhttp = new XMLHttpRequest();\n";
+		content += "	} else {\n";
+		content += "		xmlhttp = new ActiveXObject(\"Microsoft.XMLHTTP\");\n";
+		content += "	}\n";
+		content += "	xmlhttp.onreadystatechange = function() {\n";
+		content += "		if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {\n";
+		content += "			document.getElementById(\"ajaxDiv\").innerHTML=xmlhttp.responseText;\n";
+		content += "			console.log(\"get\");\n";
+		content += "		}\n";
+		content += "	}\n";
+		content += "	xmlhttp.open(\"GET\",\"tout\",true);\n";
+		content += "	xmlhttp.send();\n";
+		content += "}\n";
+		content += "var timer; \n";
+		content += "timer = setInterval(\"loadDoc()\",2000);\n";
+		content += "function reload(time) {\n";
+		content += "	clearInterval(timer); \n";
+		content += "	timer = setInterval(\"loadDoc()\",time);\n";
+		content += "}\n";
+		content += "</script>\n";
 		content += "</head><body><div><h1>Nefry Console</h1>";
 		content += "<p>It can be used as a terminal.</p>";
 		content += "<form method='get' action='set_console'><div class=\"row\"> <label for=\"console\">console:</label> <div> <input name=\"console\" id=\"console\" maxlength=\"100\" value=\"\"> </div></div>";
 		content += "<div class=\"footer\"> <input type=\"submit\" value=\"Send\"> </div></form>";
-		content += "<p><div>";
+		content += "<p><div><div id=\"ajaxDiv\"></div><button type=\"button\" onclick=\"loadDoc()\">reload</button>";
+		content += "<button type = \"button\" onclick=\"reload(500);\">0.5sec reload</button>";
+		content += "<button type = \"button\" onclick=\"reload(2000);\">2sec reload</button>";
+		content += "<button type = \"button\" onclick=\"reload(5000);\">5sec reload</button>";
+		content += "<button type = \"button\" onclick=\"clearInterval(timer);\">stop</button>";
+		content += "</div></p></br><a href=\"/\">Back to top</a></div>";
+		content += "</body></html>";
+		nefry_server.send(200, "text/html", content);
+	});
+	nefry_server.on("/tout", HTTP_GET, [&]() {
+		String content;
 		int i;
 		i = printcun;
 		if (mojicount < max_console)i = 0;
@@ -765,8 +799,6 @@ void Nefry_lib::nefry_console() {
 			if (i > max_console)i = 0;
 			content += printweb[i];
 		}
-		content += "</div></p></br><a href=\"/\">Back to top</a></div>";
-		content += "</body></html>";
 		nefry_server.send(200, "text/html", content);
 	});
 
@@ -942,7 +974,7 @@ void Nefry_lib::setLed(const char r, const char g, const char b, const char w, c
 
 void Nefry_lib::CaptivePortal() {
 	_dnsServer.start(53, "*", IPAddress(192, 168, 4, 1));
-	
+
 	nefry_server.onNotFound([&]() {
 		IPAddress ip = WiFi.localIP();
 		String responseHTML = ""
