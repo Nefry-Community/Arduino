@@ -42,6 +42,39 @@ nefry.build.spiffs_blocksize=8192
 nefry.upload.maximum_size=1044464
 
 ##############################################################
+
+cocoabit.name=CocoaBit
+
+cocoabit.upload.tool=esptool
+cocoabit.upload.speed=115200
+cocoabit.upload.resetmethod=ck
+cocoabit.upload.maximum_size=434160
+cocoabit.upload.maximum_data_size=81920
+cocoabit.upload.wait_for_upload_port=true
+cocoabit.serial.disableDTR=true
+cocoabit.serial.disableRTS=true
+
+cocoabit.build.mcu=esp8266
+cocoabit.build.f_cpu=80000000L
+cocoabit.build.board=ESP8266ESP01
+cocoabit.build.core=esp8266
+cocoabit.build.variant=cocoabit
+cocoabit.build.flash_mode=qio
+cocoabit.build.flash_size=4M
+cocoabit.build.flash_freq=40
+cocoabit.build.debug_port=
+cocoabit.build.debug_level=
+cocoabit.build.lwip_lib=-llwip
+cocoabit.build.lwip_flags=
+
+cocoabit.upload.verbose=-vv
+
+cocoabit.build.flash_ld=eagle.flash.4m.ld
+cocoabit.build.spiffs_start=0x100000
+cocoabit.build.spiffs_end=0x3FB000
+cocoabit.build.spiffs_blocksize=8192
+cocoabit.upload.maximum_size=1044464
+
 ##############################################################
 generic.name=Generic ESP8266 Module
 
