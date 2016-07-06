@@ -63,6 +63,7 @@ public:
 	void
 		reset(),
 		sleep(const int sec),
+		setConfHtmlPrint(const bool data, const int num),
 		setConfWifi(const char SSID[32], const char pass[64]),
 		setConfModule(const char module_id_[32], const char module_class_[32], const char module_wifi_pass_[64]),
 		setConfUser(const char user[32], const char pass[32]),
@@ -97,6 +98,7 @@ public:
 		getConfValue(const int num);
 
 	bool push_SW(),
+		getConfHtmlPrint(const bool data, const int num),
 		setConfValue(const int pt, const int num),
 		setConfStr(const char *pt, const int num),
 		login(const char *UserID, const char *User_pass),

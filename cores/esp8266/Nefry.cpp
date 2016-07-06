@@ -19,6 +19,7 @@ struct WiFiConfStruct {
 	char Nefry_user[32];
 	char Nefry_user_pass[32];
 	int mode[8];
+	bool htmlPrint[20];
 	char str128[3][128];
 	char str64[5][64];
 } WiFiConf = {
@@ -30,6 +31,7 @@ struct WiFiConfStruct {
 	"",
 	"",
 	"",
+	0,
 	0
 };
 Adafruit_NeoPixel _NefryLED[17];
@@ -82,7 +84,14 @@ bool Nefry_lib::Auth(const char *Nefryclass, const char *NefryID) {
 }
 
 //SetConf
-
+void Nefry_lib::setConfHtmlPrint(const bool data, const int num) {
+	if (0 <= num&&num < 20)
+		WiFiConf.htmlPrint[num]=data;
+}
+bool Nefry_lib::getConfHtmlPrint(const bool data, const int num) {
+	if (0 <= num&&num < 20)
+		return WiFiConf.htmlPrint[num];
+}
 void Nefry_lib::setConfHtml(const char set[15], const int num) {
 	if (0 <= num&&num < 20)
 		strcpy(module_input[num], set);
@@ -171,68 +180,46 @@ int Nefry_lib::getConfValue(const int num) {
 //web
 String ipaddress;
 void Nefry_lib::setupWebModuleConf(void) {
-
 	nefry_server.on("/module_id", [&]() {
 		char defaultId[sizeof(WiFiConf.module_id)];
 		setDefaultModuleId(defaultId);
 		String content = "<!DOCTYPE HTML><html><head><meta charset=\"UTF-8\">";
-		content += "<title>Nefry Module ID</title><link rel = \"stylesheet\" type = \"text/css\" href = \"/nefry_css\">";
+		content += "<title>Nefry Module ID</title><link rel = \"stylesheet\" type = \"text/css\" href = \"/nefry_css\"><link rel=\"stylesheet\" type=\"text/css\" href = \"/nefry_content\">";
 		content += "</head><body><div><h1>Nefry Module Setup</h1>";
-		content += "<p>Module ID: ";
-		content += WiFiConf.module_id;
-		content += "</p>";
-		content += "<form method='get' action='set_module_id'><div class=\"row\"> <label for=\"module_id\">New Module ID: </label> <div> <input name=\"module_id\" id=\"module_id\" maxlength=\"32\" value=\"";
+		content += "<div class=\"moduleid\">Module ID: </div>";
+		content += "<form method='get' action='set_module_id'><div class=\"row\"> <label>NewModuleID: </label> <div> <input name=\"id\" maxlength=\"32\" value=\"";
 		content += WiFiConf.module_id;
 		content += "\"></div></div>";
-		content += "<div class = \"row\"> <label for=\"module_id\">Module class: </label> <div> <input name=\"module_class\" id=\"module_class\" maxlength=\"32\" value=\"";
+		content += "<div class = \"row\"><label>Module class: </label> <div> <input name=\"cls\" maxlength=\"32\" value=\"";
 		content += WiFiConf.module_class;
 		content += "\"></div></div>";
-		content += "<div class=\"row\"> <label for=\"pwd\">Nefry wifi Pass: </label> <div> <input type=\"password\" name=\"pwd\" id=\"pwd\"maxlength=\"64\"> </div></div>";
-		content += "<div class = \"row\"> <label for=\"module_id\">Nefry User: </label> <div> <input name=\"user\" id=\"user\" maxlength=\"32\" value=\"";
+		content += "<div class=\"row\"><label>Nefry WiFi Pass: </label> <div> <input type=\"password\" name=\"pwd\" maxlength=\"64\"> </div></div>";
+		content += "<div class = \"row\"><label>Nefry User: </label> <div> <input name=\"user\" maxlength=\"32\" value=\"";
 		content += WiFiConf.Nefry_user;
 		content += "\"></div></div>";
-		content += "<div class = \"row\"> <label for=\"module_id\">Nefry User Pass: </label> <div> <input name=\"user_pass\" id=\"user_pass\" maxlength=\"32\" value=\"\"></div></div>";
-		content += "<div class = \"row\"> <label for=\"module_id\">";
-		content += module_input[0];
-		content += "</label> <div> <input name=\"memo1\" id=\"memo1\" maxlength=\"128\" value=\"";
-		content += WiFiConf.str128[0];
-		content += "\"></div></div>";
-		content += "<div class = \"row\"> <label for=\"module_id\">";
-		content += module_input[1];
-		content += "</label> <div> <input name=\"memo2\" id=\"memo2\" maxlength=\"128\" value=\"";
-		content += WiFiConf.str128[1];
-		content += "\"></div></div>";
-		content += "<div class = \"row\"> <label for=\"module_id\">";
-		content += module_input[2];
-		content += "</label> <div> <input name=\"memo3\" id=\"memo3\" maxlength=\"128\" value=\"";
-		content += WiFiConf.str128[2];
-		content += "\"></div></div>";
-		content += "<div class = \"row\"> <label for=\"module_id\">";
-		content += module_input[3];
-		content += "</label> <div> <input name=\"memo4\" id=\"memo4\" maxlength=\"64\" value=\"";
-		content += WiFiConf.str64[0];
-		content += "\"></div></div>";
-		content += "<div class = \"row\"> <label for=\"module_id\">";
-		content += module_input[4];
-		content += "</label> <div> <input name=\"memo5\" id=\"memo5\" maxlength=\"64\" value=\"";
-		content += WiFiConf.str64[1];
-		content += "\"></div></div>";
-		content += "<div class = \"row\"> <label for=\"module_id\">";
-		content += module_input[5];
-		content += "</label> <div> <input name=\"memo6\" id=\"memo6\" maxlength=\"64\" value=\"";
-		content += WiFiConf.str64[2];
-		content += "\"></div></div>";
-		content += "<div class = \"row\"> <label for=\"module_id\">";
-		content += module_input[6];
-		content += "</label> <div> <input name=\"memo7\" id=\"memo7\" maxlength=\"64\" value=\"";
-		content += WiFiConf.str64[3];
-		content += "\"></div></div>";
-		content += "<div class = \"row\"> <label for=\"module_id\">";
-		content += module_input[7];
-		content += "</label> <div> <input name=\"memo8\" id=\"memo8\" maxlength=\"64\" value=\"";
-		content += WiFiConf.str64[4];
-		content += "\"></div></div>";
-
+		content += "<div class = \"row\"><label>Nefry User Pass: </label> <div> <input type=\"password\" name=\"uPas\"maxlength=\"32\" value=\"\"></div></div>";
+		for (int i = 0; i < 3; i++) {
+			if (WiFiConf.htmlPrint[i]) {
+				content += "<div class = \"row\"><label>";
+				content += module_input[i];
+				content += "</label> <div> <input name=\"memo";
+				content += i;
+				content += "\" maxlength=\"128\" value=\"";
+				content += WiFiConf.str128[i];
+				content += "\"></div></div>";
+			}
+		}
+		for (int i = 3; i < 8; i++) {
+			if (WiFiConf.htmlPrint[i]) {
+				content += "<div class = \"row\"><label>";
+				content += module_input[i];
+				content += "</label> <div> <input name=\"memo";
+				content += i;
+				content += "\" maxlength=\"64\" value=\"";
+				content += WiFiConf.str64[i - 3];
+				content += "\"></div></div>";
+			}
+		}
 		content += "<div class = \"footer\"><input type='submit' value=\"Save\"onclick='return confirm(&quot;Are you sure you want to change the Module ID?&quot;);'></div></form>";
 		content += "<form method = 'get' action = 'reset'><div class = \"footer\"><input type='submit' value=\"Restart\"></div></form>";
 		content += " <p>Empty will reset to default ID '";
@@ -242,19 +229,19 @@ void Nefry_lib::setupWebModuleConf(void) {
 	});
 
 	nefry_server.on("/set_module_id", [&]() {
-		String new_id = nefry_server.arg("module_id");
+		String new_id = nefry_server.arg("id");
+		String new_class = nefry_server.arg("cls");
 		String new_pwd = nefry_server.arg("pwd");
-		String new_class = nefry_server.arg("module_class");
 		String new_user = nefry_server.arg("user");
-		String new_user_pass = nefry_server.arg("user_pass");
-		String memo1 = nefry_server.arg("memo1");
-		String memo2 = nefry_server.arg("memo2");
-		String memo3 = nefry_server.arg("memo3");
-		String memo4 = nefry_server.arg("memo4");
-		String memo5 = nefry_server.arg("memo5");
-		String memo6 = nefry_server.arg("memo6");
-		String memo7 = nefry_server.arg("memo7");
-		String memo8 = nefry_server.arg("memo8");
+		String new_user_pass = nefry_server.arg("uPas");
+		for (int i = 0; i < 3; i++) {
+			String memo1 = nefry_server.arg("memo" + i);
+			memo1.toCharArray(WiFiConf.str128[i], sizeof(WiFiConf.str128[i]));
+		}
+		for (int i = 3; i < 8; i++) {
+			String memo1 = nefry_server.arg("memo" + i);
+			memo1.toCharArray(WiFiConf.str64[i-3], sizeof(WiFiConf.str64[i-3]));
+		}
 
 		String content = "<!DOCTYPE HTML><html><head><meta charset=\"UTF-8\">";
 		content += "<title>Nefry Module Set</title>";
@@ -272,14 +259,6 @@ void Nefry_lib::setupWebModuleConf(void) {
 		}
 		new_user.toCharArray(WiFiConf.Nefry_user, sizeof(WiFiConf.Nefry_user));
 		new_class.toCharArray(WiFiConf.module_class, sizeof(WiFiConf.module_class));
-		memo1.toCharArray(WiFiConf.str128[0], sizeof(WiFiConf.str128[0]));
-		memo2.toCharArray(WiFiConf.str128[1], sizeof(WiFiConf.str128[0]));
-		memo3.toCharArray(WiFiConf.str128[2], sizeof(WiFiConf.str128[0]));
-		memo4.toCharArray(WiFiConf.str64[0], sizeof(WiFiConf.str64[0]));
-		memo5.toCharArray(WiFiConf.str64[1], sizeof(WiFiConf.str64[0]));
-		memo6.toCharArray(WiFiConf.str64[2], sizeof(WiFiConf.str64[0]));
-		memo7.toCharArray(WiFiConf.str64[3], sizeof(WiFiConf.str64[0]));
-		memo8.toCharArray(WiFiConf.str64[4], sizeof(WiFiConf.str64[0]));
 
 		saveConf();
 		content += "<p>Set Module ID to '";
@@ -293,53 +272,22 @@ void Nefry_lib::setupWebModuleConf(void) {
 	nefry_server.on("/module_id_next", [&]() {
 
 		String content = "<!DOCTYPE HTML><html><head><meta charset=\"UTF-8\">";
-		content += "<title>Nefry Module ID</title><link rel = \"stylesheet\" type = \"text/css\" href = \"/nefry_css\">";
+		content += "<title>Nefry Module ID</title><link rel = \"stylesheet\" type = \"text/css\" href = \"/nefry_css\"><link rel=\"stylesheet\" type=\"text/css\" href = \"/nefry_content\">";
 		content += "</head><body><div><h1>Nefry Module Setup</h1>";
-		content += "<p>Module ID: ";
-		content += WiFiConf.module_id;
-		content += "</p>";
+		content += "<div class=\"moduleid\">Module ID: </div>";
 		content += "<form method='get' action='set_module_id_next'>";
-
-		content += "<div class = \"row\"> <label for=\"module_id\">";
-		content += module_input[10];
-		content += "</label> <div> <input name=\"mode0\" id=\"mode0\" type=\"number\" value=\"";
-		content += WiFiConf.mode[0];
-		content += "\"></div></div>";
-		content += "<div class = \"row\"> <label for=\"module_id\">";
-		content += module_input[11];
-		content += "</label> <div> <input name=\"mode1\" id=\"mode1\" type=\"number\" value=\"";
-		content += WiFiConf.mode[1];
-		content += "\"></div></div>";
-		content += "<div class = \"row\"> <label for=\"module_id\">";
-		content += module_input[12];
-		content += "</label> <div> <input name=\"mode2\" id=\"mode2\" type=\"number\" value=\"";
-		content += WiFiConf.mode[2];
-		content += "\"></div></div>";
-		content += "<div class = \"row\"> <label for=\"module_id\">";
-		content += module_input[13];
-		content += "</label> <div> <input name=\"mode3\" id=\"mode3\" type=\"number\" value=\"";
-		content += WiFiConf.mode[3];
-		content += "\"></div></div>";
-		content += "<div class = \"row\"> <label for=\"module_id\">";
-		content += module_input[14];
-		content += "</label> <div> <input name=\"mode4\" id=\"mode4\" type=\"number\" value=\"";
-		content += WiFiConf.mode[4];
-		content += "\"></div></div>";
-		content += "<div class = \"row\"> <label for=\"module_id\">";
-		content += module_input[15];
-		content += "</label> <div> <input name=\"mode5\" id=\"mode5\" type=\"number\" value=\"";
-		content += WiFiConf.mode[5];
-		content += "\"></div></div>";
-		content += "<div class = \"row\"> <label for=\"module_id\">";
-		content += module_input[16];
-		content += "</label> <div> <input name=\"mode6\" id=\"mode6\" type=\"number\" value=\"";
-		content += WiFiConf.mode[6];
-		content += "\"></div></div>";
-		content += "<div class = \"row\"> <label for=\"module_id\">";
-		content += module_input[17];
-		content += "</label> <div> <input name=\"mode7\" id=\"mode7\" type=\"number\" value=\"";
-		content += WiFiConf.mode[7];
-		content += "\"></div></div>";
+		for (int i = 0; i < 8; i++) {
+			if (WiFiConf.htmlPrint[i + 10]) {
+				content += "<div class = \"row\"> <label>";
+				content += module_input[10 + i];
+				content += "</label> <div> <input name=\"mode0\" id=\"mode";
+				content += i;
+				content += "\" type=\"number\" value=\"";
+				content += WiFiConf.mode[i];
+				content += "\"></div></div>";
+			}
+		}
+	
 		content += "<div class = \"footer\"><input type='submit' value=\"Save\"onclick='return confirm(&quot;Are you sure you want to change the Module ID?&quot;);'></div></form>";
 		content += "<form method = 'get' action = 'reset'><div class = \"footer\"><input type='submit' value=\"Restart\"></div></form>";
 		content += "</br>macAddress : ";
@@ -362,28 +310,16 @@ void Nefry_lib::setupWebModuleConf(void) {
 	});
 
 	nefry_server.on("/set_module_id_next", [&]() {
-		String mode0 = nefry_server.arg("mode0");
-		String mode1 = nefry_server.arg("mode1");
-		String mode2 = nefry_server.arg("mode2");
-		String mode3 = nefry_server.arg("mode3");
-		String mode4 = nefry_server.arg("mode4");
-		String mode5 = nefry_server.arg("mode5");
-		String mode6 = nefry_server.arg("mode6");
-		String mode7 = nefry_server.arg("mode7");
+		for (int i = 0; i < 8; i++) {
+			String mode0 = nefry_server.arg("mode"+i);
+			WiFiConf.mode[i] = mode0.toInt();
+		}
+		saveConf();
 		String content = "<!DOCTYPE HTML><html><head><meta charset=\"UTF-8\">";
 		content += "<title>Nefry Module Set</title>";
 		content += "<link rel = \"stylesheet\" type = \"text/css\" href = \"/nefry_css\">";
 		content += "</head><body><div><h1>Nefry Module Set</h1>";
-
-		WiFiConf.mode[0] = mode0.toInt();
-		WiFiConf.mode[1] = mode1.toInt();
-		WiFiConf.mode[2] = mode2.toInt();
-		WiFiConf.mode[3] = mode3.toInt();
-		WiFiConf.mode[4] = mode4.toInt();
-		WiFiConf.mode[5] = mode5.toInt();
-		WiFiConf.mode[6] = mode6.toInt();
-		WiFiConf.mode[7] = mode7.toInt();
-		saveConf();
+		
 		content += "<p>Set Module ID to '";
 		content += WiFiConf.module_id;
 		content += "' ... Restart. </p>";
@@ -761,11 +697,11 @@ void Nefry_lib::setupModule(void) {
 	pinMode(4, INPUT_PULLUP);
 	push_sw_();
 	module_set();
-	beginLed(1, 0, NEO_RGB + NEO_KHZ800);
+	beginLed(1, 0, RGBLEDState);
 	nefry_server = ESP8266WebServer(80);
 	setLed(0x00, 0x0f, 0x00);
 	Serial.begin(115200);
-	EEPROM.begin(1024);
+	EEPROM.begin(1032);
 	if (!loadConf()) {
 		resetModule();
 		saveConf();
