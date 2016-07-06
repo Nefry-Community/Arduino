@@ -91,6 +91,7 @@ void ESP8266WebServer::addHandler(RequestHandler* handler) {
     _addRequestHandler(handler);
 }
 
+
 void ESP8266WebServer::_addRequestHandler(RequestHandler* handler) {
     if (!_lastHandler) {
       _firstHandler = handler;

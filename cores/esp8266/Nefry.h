@@ -9,6 +9,7 @@
 #include <Adafruit_NeoPixel.h>
 #include <ESP8266httpUpdate.h>	
 #include <DNSServer.h>
+#include <FS.h>
 
 #define WIFI_CONF_FORMAT {0, 0, 0, 1}
 #define NAME_PREF "Nefry-"
@@ -58,17 +59,17 @@ class Nefry_lib
 {
 public:
 	bool pushSW_flg;
-	
+
 	void
 		reset(),
 		sleep(const int sec),
 		setConfWifi(const char SSID[32], const char pass[64]),
 		setConfModule(const char module_id_[32], const char module_class_[32], const char module_wifi_pass_[64]),
 		setConfUser(const char user[32], const char pass[32]),
-		setConfHtml(const char set[15],const int num),
-		beginLed(const int num,const int pin, uint8_t t),
-		setLed(const char r, char g,const char b,const char w = 122,const char pin = 0,const int num = 0),
-		
+		setConfHtml(const char set[15], const int num),
+		beginLed(const int num, const int pin, uint8_t t),
+		setLed(const char r, char g, const char b, const char w = 122, const char pin = 0, const int num = 0),
+
 		println(float text),
 		println(double text),
 		println(char text),
@@ -89,17 +90,20 @@ public:
 		println(String text),
 		nefry_init(),
 		nefry_loop(),
-		ndelay(unsigned long ms);
+		ndelay(unsigned long ms),
+		setWebUpdate(String program_domain,String program_url);
+
 	int available(),
-		login(const char *UserID,const char *User_pass),
-		Auth(const char *Nefryclass,const char *NefryID), 
 		getConfValue(const int num);
-	
+
 	bool push_SW(),
-		setConfValue(const int pt,const int num),
-		setConfStr(const char *pt,const int num);
+		setConfValue(const int pt, const int num),
+		setConfStr(const char *pt, const int num),
+		login(const char *UserID, const char *User_pass),
+		Auth(const char *Nefryclass, const char *NefryID);
+
 	char* getConfStr(const int num);
-		
+
 	String read(),
 		getVersion();
 	//void webpage(const char url[20],String page,String link);
@@ -108,28 +112,36 @@ protected:
 	ESP8266WebServer nefry_server;
 	DNSServer _dnsServer;
 private:
-	void CaptivePortal();
-	void handleNotFound();
+	void cssAdd(const char* id, String data, bool afterflg = 1);
+	bool checkWebVersionFile();
+	void downloadWebFile();
+	void spiffsWeb(const char *fname, String stradd = "");
 	String network_html, network_list, input_console;
 	void Nefry_LED_blink(const char r, const char g, const char b, const int wait, const int loop, const char pin = 0);
 	char module_input[20][15];
 	bool push_sw_();
-	void nefry_console();
 	void module_set();
-	void printWiFiConf(void);
 	bool loadConf();
 	void saveConf(void);
 	void setDefaultModuleId(char* dst);
 	void resetModule(void);
 	void scanWiFi(void);
 	int  waitConnected(void);
-	void printIP(void);
-	void setupWiFiConf(void);
-	void setupWeb_local_Update(void);
-	void setupWeb(void);
+	void printModule(void);
+
+	void setupWeb(void),
+		setupWebModuleConf(void),
+		setupWebLocalUpdate(void),
+		setupWebOnlineUpdate(void),
+		setupWebConsole(void),
+		setupWebCaptivePortal(void),
+		setupWebMain(void),
+		setupWebCss(void),
+		setupWebWiFiConf(void),
+		setupModule(void),
+		setupWifi(void);
 	String escapeParameter(String param);
 	void setConf(char *old, const char *newdata);
-	//void user_webpage();
 
 };
 extern Nefry_lib Nefry;
