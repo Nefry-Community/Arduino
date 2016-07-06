@@ -43,6 +43,8 @@ static const uint8_t MISO  = 12;
 static const uint8_t SCK   = 14;
 
 static const uint8_t BUILTIN_LED = 1;
+static const uint8_t  RGBLEDState = 0;
+static const uint8_t  boardId = 0;//General
 
 static const uint8_t A0 = 17;
 

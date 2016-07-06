@@ -46,7 +46,7 @@ static const uint8_t SW = 4;
 static const uint8_t RGB_LED = 0;
 
 static const uint8_t  RGBLEDState = 0;
-static const uint8_t  boardId = 1;//Nefry v1
+static const uint8_t  boardId = 2;//cocoabit
 
 static const uint8_t BUILTIN_LED = 0;
 
