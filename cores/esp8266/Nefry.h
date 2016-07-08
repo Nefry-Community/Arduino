@@ -98,7 +98,8 @@ public:
 		getConfValue(const int num);
 
 	bool push_SW(),
-		getConfHtmlPrint(const bool data, const int num),
+		autoConnect(int sec=2),
+		getConfHtmlPrint(const int num),
 		setConfValue(const int pt, const int num),
 		setConfStr(const char *pt, const int num),
 		login(const char *UserID, const char *User_pass),
