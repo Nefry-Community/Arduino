@@ -34,6 +34,8 @@
 #define digitalPinToInterrupt(p)  	(((p) < EXTERNAL_NUM_INTERRUPTS)?p:NOT_A_PIN)
 #define digitalPinHasPWM(p)         (((p) < NUM_DIGITAL_PINS)?p:NOT_A_PIN)
 
+#define NEO_GRB  ((1 << 6) | (1 << 4) | (0 << 2) | (2))
+
 static const uint8_t SDA = 2;
 static const uint8_t SCL = 5;
 
@@ -45,7 +47,7 @@ static const uint8_t SCK   = 14;
 static const uint8_t SW = 4;
 static const uint8_t RGB_LED = 0;
 
-static const uint8_t  RGBLEDState = 0;
+static const uint8_t  RGBLEDState = NEO_GRB;
 static const uint8_t  boardId = 2;//cocoabit
 
 static const uint8_t BUILTIN_LED = 0;
