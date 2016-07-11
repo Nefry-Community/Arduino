@@ -177,6 +177,8 @@ void Nefry_Milkcocoa::print() {
 	Nefry.setConfHtml("APIKey", 1);
 	Nefry.setConfHtml("APISecret", 2);
 	Nefry.setConfHtml("DataStore", 3);
+	for (int i = 0; i < 4;i++)
+	Nefry.setConfHtmlPrint(1, i);
 }
 bool Nefry_Milkcocoa::loop(uint16_t timeout) {
 	if (!connect(timeout)) {
