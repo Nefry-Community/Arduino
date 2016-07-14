@@ -330,7 +330,7 @@ void Nefry_lib::setupWebModuleConf(void) {
 			webarg[4] = '0' + i;
 			print(webarg);
 			String memo1 = nefry_server.arg(webarg);
-			WiFiConf.mode[i] = mode0.toInt();
+			WiFiConf.mode[i] = memo1.toInt();
 		}
 		saveConf();
 		String content = "<!DOCTYPE HTML><html><head><meta charset=\"UTF-8\">";
