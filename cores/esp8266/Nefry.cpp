@@ -1064,6 +1064,7 @@ int Nefry_lib::waitConnected(void) {
 		}
 		Nefry_LED_blink(0x00, 0x4f, 0x00, 200, 1);
 		Serial.print(".");
+		push_sw_();
 		wait++;
 		delay(250);
 	}
