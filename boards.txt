@@ -42,6 +42,39 @@ nefry.build.spiffs_blocksize=8192
 nefry.upload.maximum_size=1044464
 
 ##############################################################
+nefryv2.name=Nefry V2
+
+nefryv2.upload.tool=esptool
+nefryv2.upload.speed=115200
+nefryv2.upload.resetmethod=ck
+nefryv2.upload.maximum_size=434160
+nefryv2.upload.maximum_data_size=81920
+nefryv2.upload.wait_for_upload_port=true
+nefryv2.serial.disableDTR=true
+nefryv2.serial.disableRTS=true
+
+nefryv2.build.mcu=esp8266
+nefryv2.build.f_cpu=80000000L
+nefryv2.build.board=ESP8266ESP01
+nefryv2.build.core=esp8266
+nefryv2.build.variant=Nefryv2
+nefryv2.build.flash_mode=qio
+nefryv2.build.flash_size=4M
+nefryv2.build.flash_freq=40
+nefryv2.build.debug_port=
+nefryv2.build.debug_level=
+nefryv2.build.lwip_lib=-llwip
+nefryv2.build.lwip_flags=
+
+nefryv2.upload.verbose=-vv
+
+nefryv2.build.flash_ld=eagle.flash.4m.ld
+nefryv2.build.spiffs_start=0x100000
+nefryv2.build.spiffs_end=0x3FB000
+nefryv2.build.spiffs_blocksize=8192
+nefryv2.upload.maximum_size=1044464
+
+##############################################################
 
 cocoabit.name=CocoaBit
 
