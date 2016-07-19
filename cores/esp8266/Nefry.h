@@ -12,7 +12,6 @@
 #include <FS.h>
 
 #define WIFI_CONF_FORMAT {0, 0, 0, 1}
-#define NAME_PREF "Nefry-"
 #define WIFI_CONF_START 0
 
 #define NEO_KHZ800 0x0000 

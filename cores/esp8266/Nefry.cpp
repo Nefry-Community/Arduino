@@ -680,7 +680,7 @@ void Nefry_lib::downloadWebFile() {
 void Nefry_lib::setupWeb(void) {
 	nefry_server.begin();
 	//if (checkWebVersionFile()) {
-	Serial.println("version file ok");
+	//Serial.println("version file ok");
 	setupWebModuleConf();
 	setupWebLocalUpdate();
 	setupWebOnlineUpdate();
@@ -749,6 +749,8 @@ void Nefry_lib::nefry_init() {
 	delay(1000);
 	if (pushSW_flg) {
 		WiFi.softAP(WiFiConf.module_id);
+		for (int i = 0; i < 20;i++)
+			setConfHtmlPrint(1, i);
 	}
 }
 
@@ -797,6 +799,8 @@ bool Nefry_lib::autoConnect(int sec) {
 
 void Nefry_lib::setupModule(void) {
 	beginLed(1, 0, RGBLEDState);
+	Serial.begin(115200);
+	Serial.println("\n\nStartup");
 	setLed(0x00, 0x0f, 0x00);
 	SPIFFS.begin();
 	ESP.wdtDisable();
@@ -806,7 +810,6 @@ void Nefry_lib::setupModule(void) {
 	push_sw_();
 	module_set();
 	nefry_server = ESP8266WebServer(80);
-	Serial.begin(115200);
 	EEPROM.begin(1032);
 	setLed(0x00, 0x4f, 0x00);
 	if (!loadConf()) {
@@ -964,7 +967,10 @@ void Nefry_lib::module_set() {
 void Nefry_lib::setDefaultModuleId(char* dst) {
 	uint8_t macAddr[WL_MAC_ADDR_LENGTH];
 	WiFi.macAddress(macAddr);
-	sprintf(dst, "%s%02x%02x", NAME_PREF, macAddr[WL_MAC_ADDR_LENGTH - 2], macAddr[WL_MAC_ADDR_LENGTH - 1]);
+	if (boardId==2)
+		sprintf(dst, "Cocoabit-%02x%02x", macAddr[WL_MAC_ADDR_LENGTH - 2], macAddr[WL_MAC_ADDR_LENGTH - 1]);
+	else
+		sprintf(dst, "Nefry-%02x%02x", macAddr[WL_MAC_ADDR_LENGTH - 2], macAddr[WL_MAC_ADDR_LENGTH - 1]);
 }
 
 void Nefry_lib::resetModule(void) {
