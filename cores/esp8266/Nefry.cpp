@@ -291,7 +291,7 @@ void Nefry_lib::setupWebModuleConf(void) {
 			if (htmlPrint[i + 10] == 1) {
 				content += "<div class = \"row\"> <label>";
 				content += module_input[10 + i];
-				content += "</label> <div> <input name=\"mode0\" id=\"mode";
+				content += "</label> <div> <input name=\"mode";
 				content += i;
 				content += "\" type=\"number\" value=\"";
 				content += WiFiConf.mode[i];
