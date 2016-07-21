@@ -845,6 +845,7 @@ void Nefry_lib::setupModule(void) {
 		resetModule();
 		saveConf();
 	}
+	delay(1);
 	pushSW_flg = WiFiConf.mode[9];//webオンライン書き込みモード変更
 	Serial.print(WiFiConf.mode[9]);
 	WiFiConf.mode[9] = 0;
