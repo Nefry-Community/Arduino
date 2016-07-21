@@ -62,6 +62,7 @@ public:
 	void
 		reset(),
 		sleep(const int sec),
+		setProgramName(const char * pn),
 		setConfHtmlPrint(const bool data, const int num),
 		setConfWifi(const char SSID[32], const char pass[64]),
 		setConfModule(const char module_id_[32], const char module_class_[32], const char module_wifi_pass_[64]),
@@ -105,9 +106,11 @@ public:
 		Auth(const char *Nefryclass, const char *NefryID);
 
 	char* getConfStr(const int num);
+		
 
 	String read(),
-		getVersion();
+		getVersion(),
+		getProgramName();
 	//void webpage(const char url[20],String page,String link);
 
 protected:

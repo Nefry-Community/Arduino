@@ -18,7 +18,7 @@ struct WiFiConfStruct {
 	char module_wifi_pwd[64];//6
 	char Nefry_user[32];//7
 	char Nefry_user_pass[32];//8
-	int mode[8];//9
+	int mode[10];//9
 	char str128[3][128];
 	char str64[5][64];
 } WiFiConf = {
@@ -37,6 +37,13 @@ Adafruit_NeoPixel _NefryLED[17];
 //public
 
 //etc
+const char * program;
+String Nefry_lib::getProgramName() {
+	return program;
+}
+void Nefry_lib::setProgramName(const char *pn) {
+	program = pn;
+}
 
 String Nefry_lib::getVersion() {
 	return LIBVERSION;
@@ -58,9 +65,11 @@ void Nefry_lib::ndelay(unsigned long ms) {
 }
 
 void Nefry_lib::reset() {
+	pinMode(16, OUTPUT);
 	Serial.println("Nefry Reset");
-	digitalWrite(16, LOW);
 	delay(10);
+	digitalWrite(16, LOW);
+	delay(100);
 	ESP.restart();
 	delay(500);
 }
@@ -228,9 +237,14 @@ void Nefry_lib::setupWebModuleConf(void) {
 		}
 		content += "<div class = \"footer\"><input type='submit' value=\"Save\"onclick='return confirm(&quot;Are you sure you want to change the Module ID?&quot;);'></div></form>";
 		content += "<form method = 'get' action = 'reset'><div class = \"footer\"><input type='submit' value=\"Restart\"></div></form>";
-		content += " <p>Empty will reset to default ID '";
+		content += "<form method = 'get' action = 'onreset'><div class = \"footer\"><input type='submit' value=\"Writting Mode\"></div></form>";
+		content += " <div>Empty will reset to default ID '";
 		content += defaultId;
-		content += "'</p><a href=\"/module_id_next\">Next page</a></br><a href=\"/\">Back to top</a></div></body></html>";
+		content += "'</div><div>Nefry library:";
+		content += getVersion();
+		content += "</div><div>Running ProgramName:";
+		content += getProgramName();
+		content += "</div><a href=\"/module_id_next\">Next page</a></br><a href=\"/\">Back to top</a></div></body></html>";
 		nefry_server.send(200, "text/html", content);
 	});
 
@@ -592,6 +606,20 @@ void Nefry_lib::setupWebMain(void) {
 		ndelay(2000);
 		reset();
 	});
+	nefry_server.on("/onreset", [&]() {
+		WiFiConf.mode[9] = 1;
+		delay(10);
+		saveConf();
+		String content = "<!DOCTYPE HTML><html><head><meta charset=\"UTF-8\">";
+		content += "<title>Nefry Writting Mode</title>";
+		content += "<link rel = \"stylesheet\" type = \"text/css\" href = \"/nefry_css\">";
+		content += "</head><body><div><h1>Nefry Writting Mode</h1>";
+		content += "<p>Reset start!</p>";
+		content += "<a href=\"/\">Back to top</a></div></body></html>";
+		nefry_server.send(200, "text/html", content);
+		ndelay(2000);
+		reset();
+	});
 }
 
 void Nefry_lib::setupWebCaptivePortal(void) {
@@ -751,6 +779,7 @@ void Nefry_lib::nefry_init() {
 		WiFi.softAP(WiFiConf.module_id);
 		for (int i = 0; i < 20;i++)
 			setConfHtmlPrint(1, i);
+		println("Nefry Write mode");
 	}
 }
 
@@ -802,7 +831,7 @@ void Nefry_lib::setupModule(void) {
 	Serial.begin(115200);
 	Serial.println("\n\nStartup");
 	setLed(0x00, 0x0f, 0x00);
-	SPIFFS.begin();
+	//SPIFFS.begin();
 	ESP.wdtDisable();
 	ESP.wdtEnable(60000);
 	pinMode(4, INPUT_PULLUP);
@@ -810,12 +839,15 @@ void Nefry_lib::setupModule(void) {
 	push_sw_();
 	module_set();
 	nefry_server = ESP8266WebServer(80);
-	EEPROM.begin(1032);
+	EEPROM.begin(1034);
 	setLed(0x00, 0x4f, 0x00);
 	if (!loadConf()) {
 		resetModule();
 		saveConf();
 	}
+	pushSW_flg = WiFiConf.mode[9];//webオンライン書き込みモード変更
+	Serial.print(WiFiConf.mode[9]);
+	WiFiConf.mode[9] = 0;
 }
 
 //webConsole
