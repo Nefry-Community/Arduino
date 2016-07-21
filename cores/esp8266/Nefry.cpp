@@ -18,9 +18,10 @@ struct WiFiConfStruct {
 	char module_wifi_pwd[64];//6
 	char Nefry_user[32];//7
 	char Nefry_user_pass[32];//8
-	int mode[10];//9
+	int mode[8];//9
 	char str128[3][128];
 	char str64[5][64];
+	int bootmode;
 } WiFiConf = {
 	WIFI_CONF_FORMAT,//1
 	"Nefry",//2
@@ -607,7 +608,7 @@ void Nefry_lib::setupWebMain(void) {
 		reset();
 	});
 	nefry_server.on("/onreset", [&]() {
-		WiFiConf.mode[9] = 1;
+		WiFiConf.bootmode = 1;
 		delay(10);
 		saveConf();
 		String content = "<!DOCTYPE HTML><html><head><meta charset=\"UTF-8\">";
@@ -831,24 +832,28 @@ void Nefry_lib::setupModule(void) {
 	Serial.begin(115200);
 	Serial.println("\n\nStartup");
 	setLed(0x00, 0x0f, 0x00);
-	//SPIFFS.begin();
 	ESP.wdtDisable();
 	ESP.wdtEnable(60000);
 	pinMode(4, INPUT_PULLUP);
 	setLed(0x00, 0x2f, 0x00);
 	push_sw_();
+	Serial.println("module");
 	module_set();
+	Serial.println("moduleend");
 	nefry_server = ESP8266WebServer(80);
-	EEPROM.begin(1034);
+	Serial.println("eeprom");
+	EEPROM.begin(1024);
+	Serial.println("eepromend");
 	setLed(0x00, 0x4f, 0x00);
 	if (!loadConf()) {
 		resetModule();
 		saveConf();
 	}
+	Serial.println("Startupend");
 	delay(1);
-	pushSW_flg = WiFiConf.mode[9];//webオンライン書き込みモード変更
-	Serial.print(WiFiConf.mode[9]);
-	WiFiConf.mode[9] = 0;
+	pushSW_flg = WiFiConf.bootmode;//webオンライン書き込みモード変更
+	Serial.print(WiFiConf.bootmode);
+	WiFiConf.bootmode = 0;
 }
 
 //webConsole
