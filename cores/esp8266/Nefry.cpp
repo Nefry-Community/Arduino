@@ -647,7 +647,7 @@ void Nefry_lib::setupWebCss(void) {
 }
 
 bool Nefry_lib::checkWebVersionFile() {
-	File tmpf;
+	/*File tmpf;
 	tmpf = SPIFFS.open("version", "r");
 	if (tmpf) {
 		tmpf.close();
@@ -655,7 +655,7 @@ bool Nefry_lib::checkWebVersionFile() {
 	}
 	else {
 		return false;
-	}
+	}*/
 }
 
 void Nefry_lib::downloadWebFile() {
@@ -746,13 +746,13 @@ void Nefry_lib::cssAdd(const char* id, String data, bool afterflg) {
 }
 
 void Nefry_lib::spiffsWeb(const char *fname, String stradd) {
-	File tmpf;
+	/*File tmpf;
 	tmpf = SPIFFS.open(fname, "r");
 	if (tmpf) {
 		if (stradd.length() > 0)nefry_server.send(200, "text/html", tmpf.readString() + stradd);
 		else nefry_server.send(200, "text/html", tmpf.readString());
 		tmpf.close();
-	}
+	}*/
 }
 
 //main 
@@ -842,7 +842,7 @@ void Nefry_lib::setupModule(void) {
 	Serial.println("moduleend");
 	nefry_server = ESP8266WebServer(80);
 	Serial.println("eeprom");
-	EEPROM.begin(1024);
+	EEPROM.begin(sizeof(WiFiConf));
 	Serial.println("eepromend");
 	setLed(0x00, 0x4f, 0x00);
 	if (!loadConf()) {
@@ -852,7 +852,7 @@ void Nefry_lib::setupModule(void) {
 	Serial.println("Startupend");
 	delay(1);
 	pushSW_flg = WiFiConf.bootmode;//webオンライン書き込みモード変更
-	Serial.print(WiFiConf.bootmode);
+	Serial.println(WiFiConf.bootmode);
 	WiFiConf.bootmode = 0;
 }
 
@@ -876,17 +876,18 @@ void Nefry_lib::print(unsigned int text) { print(String(text)); }
 void Nefry_lib::print(unsigned long text) { print(String(text)); }
 int printcun;
 #define max_console 30
-char printweb[max_console][60];
+char printweb[max_console][50];
 int mojicount = 0;
 void Nefry_lib::print(String text) {
 	if (printcun >= max_console)printcun = 0;
-	Serial.println(text);
-	text.toCharArray(printweb[printcun++], 60);
+	Serial.print(text);
+	text.toCharArray(printweb[printcun++], 50);
 	if (mojicount < max_console)mojicount++;
 }
 
 void Nefry_lib::println(String text) {
 	print(text + "<br>");
+	Serial.println();
 }
 
 int Nefry_lib::available() {
@@ -1006,7 +1007,7 @@ void Nefry_lib::setDefaultModuleId(char* dst) {
 	uint8_t macAddr[WL_MAC_ADDR_LENGTH];
 	WiFi.macAddress(macAddr);
 	if (boardId==2)
-		sprintf(dst, "Cocoabit-%02x%02x", macAddr[WL_MAC_ADDR_LENGTH - 2], macAddr[WL_MAC_ADDR_LENGTH - 1]);
+		sprintf(dst, "CocoaBit-%02x%02x", macAddr[WL_MAC_ADDR_LENGTH - 2], macAddr[WL_MAC_ADDR_LENGTH - 1]);
 	else
 		sprintf(dst, "Nefry-%02x%02x", macAddr[WL_MAC_ADDR_LENGTH - 2], macAddr[WL_MAC_ADDR_LENGTH - 1]);
 }

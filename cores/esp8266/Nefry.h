@@ -9,7 +9,7 @@
 #include <Adafruit_NeoPixel.h>
 #include <ESP8266httpUpdate.h>	
 #include <DNSServer.h>
-#include <FS.h>
+//#include <FS.h>
 
 #define WIFI_CONF_FORMAT {0, 0, 0, 1}
 #define WIFI_CONF_START 0
