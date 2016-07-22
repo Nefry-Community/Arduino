@@ -16,3 +16,8 @@ ajaxでコンソールページを自動更新
 SPIFFSにてHTMLファイル保存
 Nefryライブラリ関数一部変更（プライベート、返り値の型）
 SPIFFSで書き込むプログラムを追加
+
+1.4.0
+1.ボードの追加（nefry v2,cocoabit）
+2.関数の追加（getProgramName,setProgramName,autoConnect）
+3.HTMLファイルの変更
