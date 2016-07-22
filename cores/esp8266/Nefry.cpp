@@ -21,6 +21,7 @@ struct WiFiConfStruct {
 	int mode[8];//9
 	char str128[3][128];
 	char str64[5][64];
+	int bootmode;
 } WiFiConf = {
 	WIFI_CONF_FORMAT,//1
 	"Nefry",//2
@@ -37,6 +38,13 @@ Adafruit_NeoPixel _NefryLED[17];
 //public
 
 //etc
+const char * program;
+String Nefry_lib::getProgramName() {
+	return program;
+}
+void Nefry_lib::setProgramName(const char *pn) {
+	program = pn;
+}
 
 String Nefry_lib::getVersion() {
 	return LIBVERSION;
@@ -58,9 +66,11 @@ void Nefry_lib::ndelay(unsigned long ms) {
 }
 
 void Nefry_lib::reset() {
+	pinMode(16, OUTPUT);
 	Serial.println("Nefry Reset");
-	digitalWrite(16, LOW);
 	delay(10);
+	digitalWrite(16, LOW);
+	delay(100);
 	ESP.restart();
 	delay(500);
 }
@@ -226,11 +236,16 @@ void Nefry_lib::setupWebModuleConf(void) {
 				content += "\"></div></div>";
 			}
 		}
-		content += "<div class = \"footer\"><input type='submit' value=\"Save\"onclick='return confirm(&quot;Are you sure you want to change the Module ID?&quot;);'></div></form>";
-		content += "<form method = 'get' action = 'reset'><div class = \"footer\"><input type='submit' value=\"Restart\"></div></form>";
-		content += " <p>Empty will reset to default ID '";
+		content += "<div class=\"psrow\"><div><input type='submit' value=\"Save\"onclick='return confirm(&quot;Are you sure you want to change the Module ID?&quot;);'></div></form>";
+		content += "<div><form method = 'get' action = 'reset'><input type='submit' value=\"Restart\"></form></div>";
+		content += "<div><form method = 'get' action = 'onreset'><input type='submit' value=\"Write mode\"></form></div>";
+		content += " </div><div>Empty will reset to default ID '";
 		content += defaultId;
-		content += "'</p><a href=\"/module_id_next\">Next page</a></br><a href=\"/\">Back to top</a></div></body></html>";
+		content += "'</div><div>Nefry library:";
+		content += getVersion();
+		content += "</div><div>Running ProgramName:";
+		content += getProgramName();
+		content += "</div><a href=\"/module_id_next\">Next page</a></br><a href=\"/\">Back to top</a></div></body></html>";
 		nefry_server.send(200, "text/html", content);
 	});
 
@@ -299,12 +314,11 @@ void Nefry_lib::setupWebModuleConf(void) {
 				pCount++;
 			}
 		}
-
-		content += "<div class = \"footer\">";
 		if (pCount > 0) {
-			content += "<input type = 'submit' value = \"Save\"onclick='return confirm(&quot;Are you sure you want to change the Module ID?&quot;);'>";
+			content += "<div class=\"psrow\"><div><input type = 'submit' value = \"Save\"onclick='return confirm(&quot;Are you sure you want to change the Module ID?&quot;);'></div>";
+			content += "<div><form method ='get'actio ='reset'><input type='submit' value=\"Restart\"></form></div></div>";
 		}
-		content += "</div></form><form method = 'get' action = 'reset'><div class = \"footer\"><input type='submit' value=\"Restart\"></div></form>";
+		content += "</form>";
 		content += "</br>macAddress : ";
 		content += WiFi.macAddress();
 		IPAddress ip = WiFi.localIP();
@@ -467,7 +481,7 @@ void Nefry_lib::setupWebLocalUpdate(void) {
 		else {
 			cssAdd("updateS", (Update.hasError()) ? "Update Err" : "Upload Success");
 			nefry_server.send(200, "text/html", content);
-			ndelay(4000);
+			ndelay(5000);
 			pushSW_flg = 0;
 			reset();
 		}
@@ -569,11 +583,10 @@ void Nefry_lib::setupWebMain(void) {
 		content += "ol,ul{padding-left:20px;margin:0}a{color:#54AFBA}a:hover{text-decoration:none}body>div{background:#fff;margin:20px auto;padding:20px 24px;box-shadow:0 0 1px 1px rgba(0,0,0,.1);border-radius:4px;max-width:540px}";
 		content += "body>div input,body>div li{word-wrap:break-word}body>div>h1{font-size:1.4em;line-height:1.3;padding-bottom:4px;border-bottom:1px solid #efefef;margin-top:0;margin-bottom:20px}input,select,textarea{font:inherit inherit inherit}";
 		content += "input{background:rgba(0,0,0,0);padding:.4em .6em;border:1px solid rgba(0,0,0,.12);border-radius:3px;-webkit-appearance:none;-moz-appearance:none;appearance:none}input:focus{border:1px solid #6E5F57;outline:0}";
-		content += "input[type=submit]{margin-left:6px;cursor:pointer;line-height:2.6;display:inline-block;padding:0 1.2rem;text-align:center;vertical-align:middle;color:#FFF;border:0;border-radius:3px;background:#6E5F57;-webkit-appearance:none;-moz-appearance:none;appearance:none}";
+		content += "input[type=submit],button[type=button]{margin-left:6px;cursor:pointer;line-height:2.6;display:inline-block;padding:0 1.2rem;text-align:center;vertical-align:middle;color:#FFF;border:0;border-radius:3px;background:#6E5F57;-webkit-appearance:none;-moz-appearance:none;appearance:none}";
 		content += ".row,.row>div,.row>label{display:block}input[type=submit]:hover{color:#FFF;background:#372F2A}input[type=submit]:focus{outline:0}input[type=file]{width:100%}.row{margin-bottom:14px}";
 		content += ".row>label{float:left;width:110px;font-size:14px;position:relative;top:8px}.row>div{margin-left:120px;margin-bottom:12px}.row>div>input{width:100%;display:inline-block}.footer{text-align:right;margin-top:16px}";
-		content += "button[type=button]{margin-left:6px;cursor:pointer;line-height:2.6;display:inline-block;padding:0 1.2rem;text-align:center;vertical-align:middle;color:#FFF;border:0;border-radius:3px;background:#6E5F57;-webkit-appearance:none;-moz-appearance:none;appearance:none;}";
-
+		content += ".psrow{text-align: center;}.psrow>div{display:inline-block;margin:10px;}";
 		nefry_server.send(200, "text/css", content);
 
 	});
@@ -586,6 +599,20 @@ void Nefry_lib::setupWebMain(void) {
 		content += "<title>Nefry Reset</title>";
 		content += "<link rel = \"stylesheet\" type = \"text/css\" href = \"/nefry_css\">";
 		content += "</head><body><div><h1>Nefry Reset</h1>";
+		content += "<p>Reset start!</p>";
+		content += "<a href=\"/\">Back to top</a></div></body></html>";
+		nefry_server.send(200, "text/html", content);
+		ndelay(2000);
+		reset();
+	});
+	nefry_server.on("/onreset", [&]() {
+		WiFiConf.bootmode = 1;
+		delay(10);
+		saveConf();
+		String content = "<!DOCTYPE HTML><html><head><meta charset=\"UTF-8\">";
+		content += "<title>Nefry Write mode</title>";
+		content += "<link rel = \"stylesheet\" type = \"text/css\" href = \"/nefry_css\">";
+		content += "</head><body><div><h1>Nefry Write mode</h1>";
 		content += "<p>Reset start!</p>";
 		content += "<a href=\"/\">Back to top</a></div></body></html>";
 		nefry_server.send(200, "text/html", content);
@@ -618,7 +645,7 @@ void Nefry_lib::setupWebCss(void) {
 }
 
 bool Nefry_lib::checkWebVersionFile() {
-	File tmpf;
+	/*File tmpf;
 	tmpf = SPIFFS.open("version", "r");
 	if (tmpf) {
 		tmpf.close();
@@ -626,7 +653,7 @@ bool Nefry_lib::checkWebVersionFile() {
 	}
 	else {
 		return false;
-	}
+	}*/
 }
 
 void Nefry_lib::downloadWebFile() {
@@ -717,13 +744,13 @@ void Nefry_lib::cssAdd(const char* id, String data, bool afterflg) {
 }
 
 void Nefry_lib::spiffsWeb(const char *fname, String stradd) {
-	File tmpf;
+	/*File tmpf;
 	tmpf = SPIFFS.open(fname, "r");
 	if (tmpf) {
 		if (stradd.length() > 0)nefry_server.send(200, "text/html", tmpf.readString() + stradd);
 		else nefry_server.send(200, "text/html", tmpf.readString());
 		tmpf.close();
-	}
+	}*/
 }
 
 //main 
@@ -747,10 +774,11 @@ void Nefry_lib::nefry_init() {
 	push_sw_();
 	setLed(0x00, 0xff, 0xff);
 	delay(1000);
-	if (pushSW_flg) {
+	if (pushSW_flg==1) {
 		WiFi.softAP(WiFiConf.module_id);
 		for (int i = 0; i < 20;i++)
 			setConfHtmlPrint(1, i);
+		println("Nefry Write mode");
 	}
 }
 
@@ -802,7 +830,6 @@ void Nefry_lib::setupModule(void) {
 	Serial.begin(115200);
 	Serial.println("\n\nStartup");
 	setLed(0x00, 0x0f, 0x00);
-	SPIFFS.begin();
 	ESP.wdtDisable();
 	ESP.wdtEnable(60000);
 	pinMode(4, INPUT_PULLUP);
@@ -810,10 +837,15 @@ void Nefry_lib::setupModule(void) {
 	push_sw_();
 	module_set();
 	nefry_server = ESP8266WebServer(80);
-	EEPROM.begin(1032);
+	EEPROM.begin(sizeof(WiFiConf));
 	setLed(0x00, 0x4f, 0x00);
 	if (!loadConf()) {
 		resetModule();
+		saveConf();
+	}
+	pushSW_flg = WiFiConf.bootmode;//webオンライン書き込みモード変更
+	if (pushSW_flg == 1) {
+		WiFiConf.bootmode = 0;
 		saveConf();
 	}
 }
@@ -838,17 +870,18 @@ void Nefry_lib::print(unsigned int text) { print(String(text)); }
 void Nefry_lib::print(unsigned long text) { print(String(text)); }
 int printcun;
 #define max_console 30
-char printweb[max_console][60];
+char printweb[max_console][50];
 int mojicount = 0;
 void Nefry_lib::print(String text) {
 	if (printcun >= max_console)printcun = 0;
-	Serial.println(text);
-	text.toCharArray(printweb[printcun++], 60);
+	Serial.print(text);
+	text.toCharArray(printweb[printcun++], 50);
 	if (mojicount < max_console)mojicount++;
 }
 
 void Nefry_lib::println(String text) {
 	print(text + "<br>");
+	Serial.println();
 }
 
 int Nefry_lib::available() {
@@ -968,7 +1001,7 @@ void Nefry_lib::setDefaultModuleId(char* dst) {
 	uint8_t macAddr[WL_MAC_ADDR_LENGTH];
 	WiFi.macAddress(macAddr);
 	if (boardId==2)
-		sprintf(dst, "Cocoabit-%02x%02x", macAddr[WL_MAC_ADDR_LENGTH - 2], macAddr[WL_MAC_ADDR_LENGTH - 1]);
+		sprintf(dst, "CocoaBit-%02x%02x", macAddr[WL_MAC_ADDR_LENGTH - 2], macAddr[WL_MAC_ADDR_LENGTH - 1]);
 	else
 		sprintf(dst, "Nefry-%02x%02x", macAddr[WL_MAC_ADDR_LENGTH - 2], macAddr[WL_MAC_ADDR_LENGTH - 1]);
 }
