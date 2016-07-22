@@ -9,10 +9,9 @@
 #include <Adafruit_NeoPixel.h>
 #include <ESP8266httpUpdate.h>	
 #include <DNSServer.h>
-#include <FS.h>
+//#include <FS.h>
 
 #define WIFI_CONF_FORMAT {0, 0, 0, 1}
-#define NAME_PREF "Nefry-"
 #define WIFI_CONF_START 0
 
 #define NEO_KHZ800 0x0000 
@@ -63,6 +62,8 @@ public:
 	void
 		reset(),
 		sleep(const int sec),
+		setProgramName(const char * pn),
+		setConfHtmlPrint(const bool data, const int num),
 		setConfWifi(const char SSID[32], const char pass[64]),
 		setConfModule(const char module_id_[32], const char module_class_[32], const char module_wifi_pass_[64]),
 		setConfUser(const char user[32], const char pass[32]),
@@ -97,15 +98,19 @@ public:
 		getConfValue(const int num);
 
 	bool push_SW(),
+		autoConnect(int sec=2),
+		getConfHtmlPrint(const int num),
 		setConfValue(const int pt, const int num),
 		setConfStr(const char *pt, const int num),
 		login(const char *UserID, const char *User_pass),
 		Auth(const char *Nefryclass, const char *NefryID);
 
 	char* getConfStr(const int num);
+		
 
 	String read(),
-		getVersion();
+		getVersion(),
+		getProgramName();
 	//void webpage(const char url[20],String page,String link);
 
 protected:

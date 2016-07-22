@@ -33,20 +33,21 @@
 #define analogInputToDigitalPin(p)  ((p > 0)?NOT_A_PIN:0)
 #define digitalPinToInterrupt(p)  	(((p) < EXTERNAL_NUM_INTERRUPTS)?p:NOT_A_PIN)
 #define digitalPinHasPWM(p)         (((p) < NUM_DIGITAL_PINS)?p:NOT_A_PIN)
-#define NEO_RGB  ((0 << 6) | (0 << 4) | (1 << 2) | (2))
+
+#define NEO_GRB  ((1 << 6) | (1 << 4) | (0 << 2) | (2))
 
 static const uint8_t SDA = 2;
 static const uint8_t SCL = 5;
 
-static const uint8_t SS    = 15;
-static const uint8_t MOSI  = 13;
-static const uint8_t MISO  = 12;
-static const uint8_t SCK   = 14;
+static const uint8_t SS = 15;
+static const uint8_t MOSI = 13;
+static const uint8_t MISO = 12;
+static const uint8_t SCK = 14;
 
 static const uint8_t SW = 4;
 static const uint8_t RGB_LED = 0;
 
-static const uint8_t  RGBLEDState = NEO_RGB;
+static const uint8_t  RGBLEDState = NEO_GRB;
 static const uint8_t  boardId = 1;//Nefry v1
 
 static const uint8_t BUILTIN_LED = 0;
