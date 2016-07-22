@@ -776,7 +776,7 @@ void Nefry_lib::nefry_init() {
 	push_sw_();
 	setLed(0x00, 0xff, 0xff);
 	delay(1000);
-	if (pushSW_flg) {
+	if (pushSW_flg==1) {
 		WiFi.softAP(WiFiConf.module_id);
 		for (int i = 0; i < 20;i++)
 			setConfHtmlPrint(1, i);
@@ -837,23 +837,19 @@ void Nefry_lib::setupModule(void) {
 	pinMode(4, INPUT_PULLUP);
 	setLed(0x00, 0x2f, 0x00);
 	push_sw_();
-	Serial.println("module");
 	module_set();
-	Serial.println("moduleend");
 	nefry_server = ESP8266WebServer(80);
-	Serial.println("eeprom");
 	EEPROM.begin(sizeof(WiFiConf));
-	Serial.println("eepromend");
 	setLed(0x00, 0x4f, 0x00);
 	if (!loadConf()) {
 		resetModule();
 		saveConf();
 	}
-	Serial.println("Startupend");
-	delay(1);
 	pushSW_flg = WiFiConf.bootmode;//webオンライン書き込みモード変更
-	Serial.println(WiFiConf.bootmode);
-	WiFiConf.bootmode = 0;
+	if (pushSW_flg == 1) {
+		WiFiConf.bootmode = 0;
+		saveConf();
+	}
 }
 
 //webConsole
