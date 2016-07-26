@@ -819,6 +819,7 @@ bool Nefry_lib::autoConnect(int sec) {
 			wait++;
 			ndelay(100);
 		}
+		WiFi.disconnect();
 		println("Connect timed out");
 		return false;
 	}
@@ -1107,6 +1108,7 @@ int Nefry_lib::waitConnected(void) {
 		wait++;
 		delay(250);
 	}
+	WiFi.disconnect();
 	Serial.println("");
 	Serial.println("Connect timed out");
 	return (0);
