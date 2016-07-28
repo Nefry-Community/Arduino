@@ -87,7 +87,7 @@ public:
 		print(unsigned char text),
 		print(unsigned int text),
 		print(unsigned long text),
-		print(String text),
+		print(String text,int ln=0),
 		println(String text),
 		nefry_init(),
 		nefry_loop(),

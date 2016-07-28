@@ -779,6 +779,7 @@ void Nefry_lib::nefry_init() {
 		for (int i = 0; i < 20;i++)
 			setConfHtmlPrint(1, i);
 		println("Nefry Write mode");
+		setLed(0x0f, 0xff, 0xff);
 	}
 }
 
@@ -873,15 +874,16 @@ int printcun;
 #define max_console 30
 char printweb[max_console][50];
 int mojicount = 0;
-void Nefry_lib::print(String text) {
+void Nefry_lib::print(String text,int ln) {
 	if (printcun >= max_console)printcun = 0;
 	Serial.print(text);
+	if (ln == 1)text += "<br>";
 	text.toCharArray(printweb[printcun++], 50);
 	if (mojicount < max_console)mojicount++;
 }
 
 void Nefry_lib::println(String text) {
-	print(text + "<br>");
+	print(text,1);
 	Serial.println();
 }
 
