@@ -55,7 +55,7 @@ static const uint8_t BUILTIN_LED = 0;
 
 static const uint8_t A0 = 17;
 
-static const uint8_t D0   = 5;
+static const uint8_t D0   = 13;
 static const uint8_t D1   = 2;
 static const uint8_t D2   = 15;
 static const uint8_t D3   = 13;
