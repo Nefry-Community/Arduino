@@ -757,19 +757,21 @@ void Nefry_lib::spiffsWeb(const char *fname, String stradd) {
 
 void Nefry_lib::nefry_init() {
 	setupModule();
-	Serial.println("\n\nStartup");
+	Serial.println("\n\nNefry Startup");
 	delay(10);
 	push_sw_();
 	setLed(0x00, 0x6f, 0x00);
 	// scan Access Points
+	Serial.println("WiFi Startup");
 	setupWifi();
 	setLed(0x00, 0x8f, 0x00);
 	printModule();
 	push_sw_();
 	// setup Web Interface
+	Serial.println("\nServer started");
 	setupWeb();
 	push_sw_();
-	Serial.println("\nServer started");
+	
 	setLed(0x00, 0xaf, 0x00);
 	push_sw_();
 	setLed(0x00, 0xff, 0xff);
