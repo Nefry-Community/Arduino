@@ -21,3 +21,8 @@ SPIFFSで書き込むプログラムを追加
 1.ボードの追加（nefry v2,cocoabit）
 2.関数の追加（getProgramName,setProgramName,autoConnect）
 3.HTMLファイルの変更
+
+1.4.1
+CococaBitのピン変更
+Serialのprint関数を変更
+WiFiクラッシュを修正[qiitaを参考](http://qiita.com/7of9/items/73f9d216f9810333ef9b)
