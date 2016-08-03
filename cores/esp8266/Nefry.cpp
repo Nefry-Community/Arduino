@@ -6,7 +6,7 @@ Copyright (c) 2015 wami
 This software is released under the MIT License.
 http://opensource.org/licenses/mit-license.php
 */
-#define LIBVERSION ("1.4.0")
+#define LIBVERSION ("1.4.2")
 #include "Nefry.h"
 const uint8_t wifi_conf_format[] = WIFI_CONF_FORMAT;
 struct WiFiConfStruct {
