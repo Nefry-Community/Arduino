@@ -794,6 +794,7 @@ void Nefry_lib::setupWifi(void) {
 	scanWiFi();
 	push_sw_();
 	// start WiFi
+	WiFi.disconnect();
 	WiFi.mode(WIFI_AP_STA);
 	WiFi.begin(WiFiConf.sta_ssid, WiFiConf.sta_pwd);
 	waitConnected();
