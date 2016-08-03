@@ -757,19 +757,21 @@ void Nefry_lib::spiffsWeb(const char *fname, String stradd) {
 
 void Nefry_lib::nefry_init() {
 	setupModule();
-	Serial.println("\n\nStartup");
+	Serial.println("\n\nNefry Startup");
 	delay(10);
 	push_sw_();
 	setLed(0x00, 0x6f, 0x00);
 	// scan Access Points
+	Serial.println("WiFi Startup");
 	setupWifi();
 	setLed(0x00, 0x8f, 0x00);
 	printModule();
 	push_sw_();
 	// setup Web Interface
+	Serial.println("\nServer started");
 	setupWeb();
 	push_sw_();
-	Serial.println("\nServer started");
+	
 	setLed(0x00, 0xaf, 0x00);
 	push_sw_();
 	setLed(0x00, 0xff, 0xff);
@@ -779,6 +781,7 @@ void Nefry_lib::nefry_init() {
 		for (int i = 0; i < 20;i++)
 			setConfHtmlPrint(1, i);
 		println("Nefry Write mode");
+		setLed(0x0f, 0xff, 0xff);
 	}
 }
 
@@ -791,6 +794,7 @@ void Nefry_lib::setupWifi(void) {
 	scanWiFi();
 	push_sw_();
 	// start WiFi
+	WiFi.disconnect();
 	WiFi.mode(WIFI_AP_STA);
 	WiFi.begin(WiFiConf.sta_ssid, WiFiConf.sta_pwd);
 	waitConnected();
@@ -819,6 +823,7 @@ bool Nefry_lib::autoConnect(int sec) {
 			wait++;
 			ndelay(100);
 		}
+		WiFi.disconnect();
 		println("Connect timed out");
 		return false;
 	}
@@ -872,15 +877,16 @@ int printcun;
 #define max_console 30
 char printweb[max_console][50];
 int mojicount = 0;
-void Nefry_lib::print(String text) {
+void Nefry_lib::print(String text,int ln) {
 	if (printcun >= max_console)printcun = 0;
 	Serial.print(text);
+	if (ln == 1)text += "<br>";
 	text.toCharArray(printweb[printcun++], 50);
 	if (mojicount < max_console)mojicount++;
 }
 
 void Nefry_lib::println(String text) {
-	print(text + "<br>");
+	print(text,1);
 	Serial.println();
 }
 
@@ -1107,6 +1113,7 @@ int Nefry_lib::waitConnected(void) {
 		wait++;
 		delay(250);
 	}
+	WiFi.disconnect();
 	Serial.println("");
 	Serial.println("Connect timed out");
 	return (0);
