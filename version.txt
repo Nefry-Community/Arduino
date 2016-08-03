@@ -26,3 +26,7 @@ SPIFFSで書き込むプログラムを追加
 CococaBitのピン変更
 Serialのprint関数を変更
 WiFiクラッシュを修正[qiitaを参考](http://qiita.com/7of9/items/73f9d216f9810333ef9b)
+
+1.4.2
+Libraryのバージョンの変更
+書き込みモードかどうかのWeb表示
