@@ -6,7 +6,7 @@ Copyright (c) 2015 wami
 This software is released under the MIT License.
 http://opensource.org/licenses/mit-license.php
 */
-#define LIBVERSION ("1.4.0")
+#define LIBVERSION ("1.4.2")
 #include "Nefry.h"
 const uint8_t wifi_conf_format[] = WIFI_CONF_FORMAT;
 struct WiFiConfStruct {
@@ -245,7 +245,7 @@ void Nefry_lib::setupWebModuleConf(void) {
 		content += getVersion();
 		content += "</div><div>Running ProgramName:";
 		content += getProgramName();
-		content += "</div><a href=\"/module_id_next\">Next page</a></br><a href=\"/\">Back to top</a></div></body></html>";
+		content += "</div><div class=\"writemode\"></div><a href=\"/module_id_next\">Next page</a></br><a href=\"/\">Back to top</a></div></body></html>";
 		nefry_server.send(200, "text/html", content);
 	});
 
@@ -567,6 +567,7 @@ void Nefry_lib::setupWebMain(void) {
 		content += "<div class=\"cssid\">Wifi Sport: ";
 		content += "</div><div class=\"ipaddress\">IP Address: ";
 		content += "</div><div class=\"moduleid\">Module ID: ";
+		content += "</div><div class=\"writemode\">";
 		content += "</div>";
 		content += "<ul>";
 		content += "<li><a href='/wifi_conf'>Setup WiFi</a>";
@@ -762,10 +763,10 @@ void Nefry_lib::nefry_init() {
 	push_sw_();
 	setLed(0x00, 0x6f, 0x00);
 	// scan Access Points
+	printModule();
 	Serial.println("WiFi Startup");
 	setupWifi();
 	setLed(0x00, 0x8f, 0x00);
-	printModule();
 	push_sw_();
 	// setup Web Interface
 	Serial.println("\nServer started");
@@ -782,6 +783,7 @@ void Nefry_lib::nefry_init() {
 			setConfHtmlPrint(1, i);
 		println("Nefry Write mode");
 		setLed(0x0f, 0xff, 0xff);
+		cssAdd("writemode", "Write Mode");
 	}
 }
 
