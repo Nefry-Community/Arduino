@@ -30,3 +30,10 @@ WiFiクラッシュを修正[qiitaを参考](http://qiita.com/7of9/items/73f9d21
 1.4.2
 Libraryのバージョンの変更
 書き込みモードかどうかのWeb表示
+
+2.0.0(1.5.0)
+Arduino core for ESP8266 WiFi chip のstableVersion2.3.0への変更
+
+2.0.1
+不要なファイルの削除（ボード関係）
+getModuleName関数の追加
