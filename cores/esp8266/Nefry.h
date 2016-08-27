@@ -111,6 +111,7 @@ public:
 	String read(),
 		getVersion(),
 		getProgramName();
+	char* getModuleName();
 	//void webpage(const char url[20],String page,String link);
 
 protected:
