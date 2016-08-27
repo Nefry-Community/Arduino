@@ -6,7 +6,7 @@ Copyright (c) 2015 wami
 This software is released under the MIT License.
 http://opensource.org/licenses/mit-license.php
 */
-#define LIBVERSION ("1.5.0")
+#define LIBVERSION ("2.0.1")
 #include "Nefry.h"
 const uint8_t wifi_conf_format[] = WIFI_CONF_FORMAT;
 struct WiFiConfStruct {
@@ -38,6 +38,9 @@ Adafruit_NeoPixel _NefryLED[17];
 //public
 
 //etc
+char* Nefry_lib::getModuleName() {
+	return WiFiConf.module_id;
+}
 const char * program;
 String Nefry_lib::getProgramName() {
 	return program;
@@ -798,6 +801,7 @@ void Nefry_lib::setupWifi(void) {
 	scanWiFi();
 	push_sw_();
 	// start WiFi
+	WiFi.persistent(false);
 	WiFi.mode(WIFI_AP_STA);
 	WiFi.begin(WiFiConf.sta_ssid, WiFiConf.sta_pwd);
 	waitConnected();
