@@ -29,13 +29,19 @@ typedef void (*discard_cb_t)(void*, ClientContext*);
 extern "C" void esp_yield();
 extern "C" void esp_schedule();
 
+#ifdef LWIP_OPEN_SRC
+typedef err_t recv_ret_t;
+#else
+typedef int32_t recv_ret_t;
+#endif
+
 class ClientContext {
     public:
         ClientContext(tcp_pcb* pcb, discard_cb_t discard_cb, void* discard_cb_arg) :
                 _pcb(pcb), _rx_buf(0), _rx_buf_offset(0), _discard_cb(discard_cb), _discard_cb_arg(discard_cb_arg), _refcnt(0), _next(0), _send_waiting(false) {
             tcp_setprio(pcb, TCP_PRIO_MIN);
             tcp_arg(pcb, this);
-            tcp_recv(pcb, &_s_recv);
+            tcp_recv(pcb, (tcp_recv_fn) &_s_recv);
             tcp_sent(pcb, &_s_sent);
             tcp_err(pcb, &_s_error);
         }
@@ -179,6 +185,20 @@ class ClientContext {
             return reinterpret_cast<char*>(_rx_buf->payload)[_rx_buf_offset];
         }
 
+        size_t peekBytes(char *dst, size_t size) {
+            if(!_rx_buf) return 0;
+
+            size_t max_size = _rx_buf->tot_len - _rx_buf_offset;
+            size = (size < max_size) ? size : max_size;
+
+            DEBUGV(":pd %d, %d, %d\r\n", size, _rx_buf->tot_len, _rx_buf_offset);
+            size_t buf_size = _rx_buf->len - _rx_buf_offset;
+            size_t copy_size = (size < buf_size) ? size : buf_size;
+            DEBUGV(":rpi %d, %d\r\n", buf_size, copy_size);
+            os_memcpy(dst, reinterpret_cast<char*>(_rx_buf->payload) + _rx_buf_offset, copy_size);
+            return copy_size;
+        }
+
         void flush() {
             if(!_rx_buf) {
                 return;
@@ -255,12 +275,16 @@ class ClientContext {
             }
         }
 
-        err_t _recv(tcp_pcb* pcb, pbuf* pb, err_t err) {
+        recv_ret_t _recv(tcp_pcb* pcb, pbuf* pb, err_t err) {
 
             if(pb == 0) // connection closed
             {
-                DEBUGV(":rcla\r\n");
-                return abort();
+                DEBUGV(":rcl\r\n");
+                if (_send_waiting) {
+                    esp_schedule();
+                }
+                abort();
+                return ERR_ABRT;
             }
 
             if(_rx_buf) {
@@ -292,7 +316,7 @@ class ClientContext {
             return ERR_OK;
         }
 
-        static err_t _s_recv(void *arg, struct tcp_pcb *tpcb, struct pbuf *pb, err_t err) {
+        static recv_ret_t _s_recv(void *arg, struct tcp_pcb *tpcb, struct pbuf *pb, err_t err) {
             return reinterpret_cast<ClientContext*>(arg)->_recv(tpcb, pb, err);
         }
 

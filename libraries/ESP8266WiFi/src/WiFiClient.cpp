@@ -38,7 +38,6 @@ extern "C"
 #include "lwip/tcp.h"
 #include "lwip/inet.h"
 #include "lwip/netif.h"
-#include "cbuf.h"
 #include "include/ClientContext.h"
 #include "c_types.h"
 
@@ -239,6 +238,27 @@ int WiFiClient::peek()
     return _client->peek();
 }
 
+size_t WiFiClient::peekBytes(uint8_t *buffer, size_t length) {
+    size_t count = 0;
+
+    if(!_client) {
+        return 0;
+    }
+
+    _startMillis = millis();
+    while((available() < (int) length) && ((millis() - _startMillis) < _timeout)) {
+        yield();
+    }
+
+    if(available() < (int) length) {
+        count = available();
+    } else {
+        count = length;
+    }
+
+    return _client->peekBytes((char *)buffer, count);
+}
+
 void WiFiClient::flush()
 {
     if (_client)
@@ -319,24 +339,16 @@ void WiFiClient::_s_err(void* arg, int8_t err)
 void WiFiClient::stopAll()
 {
     for (WiFiClient* it = _s_first; it; it = it->_next) {
-        ClientContext* c = it->_client;
-        if (c) {
-            c->abort();
-            c->unref();
-            it->_client = 0;
-        }
+        it->stop();
     }
 }
 
 
-void WiFiClient::stopAllExcept(WiFiClient * exC) {
+void WiFiClient::stopAllExcept(WiFiClient* except) 
+{
     for (WiFiClient* it = _s_first; it; it = it->_next) {
-        ClientContext* c = it->_client;
-
-        if (c && c != exC->_client) {
-            c->abort();
-            c->unref();
-            it->_client = 0;
+        if (it != except) {
+            it->stop();
         }
     }
 }
