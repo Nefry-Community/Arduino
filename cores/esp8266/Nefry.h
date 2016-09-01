@@ -11,7 +11,7 @@
 #include <DNSServer.h>
 //#include <FS.h>
 
-#define WIFI_CONF_FORMAT {0, 0, 0, 1}
+#define WIFI_CONF_FORMAT {37, 0, 0, 1}
 #define WIFI_CONF_START 0
 
 #define NEO_KHZ800 0x0000 
@@ -111,6 +111,7 @@ public:
 	String read(),
 		getVersion(),
 		getProgramName();
+	char* getModuleName();
 	//void webpage(const char url[20],String page,String link);
 
 protected:
@@ -146,7 +147,8 @@ private:
 		setupModule(void),
 		setupWifi(void);
 	String escapeParameter(String param);
-	void setConf(char *old, const char *newdata);
+	void setConf(char *old, const char *newdata); 
+	void printIpaddress();
 
 };
 extern Nefry_lib Nefry;

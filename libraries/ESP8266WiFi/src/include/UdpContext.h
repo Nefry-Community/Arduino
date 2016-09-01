@@ -1,9 +1,9 @@
-/* 
+/*
   UdpContext.h - UDP connection handling on top of lwIP
 
   Copyright (c) 2014 Ivan Grokhotkov. All rights reserved.
   This file is part of the esp8266 core for Arduino environment.
- 
+
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
   License as published by the Free Software Foundation; either
@@ -190,7 +190,7 @@ public:
 
     int read()
     {
-        if (!_rx_buf || _rx_buf->len == _rx_buf_offset)
+        if (!_rx_buf || _rx_buf_offset == _rx_buf->len)
             return -1;
 
         char c = reinterpret_cast<char*>(_rx_buf->payload)[_rx_buf_offset];
@@ -206,17 +206,17 @@ public:
         size_t max_size = _rx_buf->len - _rx_buf_offset;
         size = (size < max_size) ? size : max_size;
         DEBUGV(":urd %d, %d, %d\r\n", size, _rx_buf->len, _rx_buf_offset);
-        
-        os_memcpy(dst, reinterpret_cast<char*>(_rx_buf->payload) + _rx_buf_offset, size);        
+
+        memcpy(dst, reinterpret_cast<char*>(_rx_buf->payload) + _rx_buf_offset, size);
         _consume(size);
-        
+
         return size;
     }
 
-    char peek()
+    int peek()
     {
-        if (!_rx_buf)
-            return 0;
+        if (!_rx_buf || _rx_buf_offset == _rx_buf->len)
+            return -1;
 
         return reinterpret_cast<char*>(_rx_buf->payload)[_rx_buf_offset];
     }
@@ -236,7 +236,7 @@ public:
         {
             _reserve(_tx_buf_offset + size);
         }
-        
+
         size_t left_to_copy = size;
         while(left_to_copy)
         {
@@ -249,7 +249,7 @@ public:
                 continue;
             }
             size_t will_copy = (left_to_copy < free_cur) ? left_to_copy : free_cur;
-            os_memcpy(reinterpret_cast<char*>(_tx_buf_cur->payload) + used_cur, data, will_copy);
+            memcpy(reinterpret_cast<char*>(_tx_buf_cur->payload) + used_cur, data, will_copy);
             _tx_buf_offset += will_copy;
             left_to_copy -= will_copy;
             data += will_copy;
@@ -257,20 +257,22 @@ public:
         return size;
     }
 
-    void send(ip_addr_t* addr = 0, uint16_t port = 0)
+    bool send(ip_addr_t* addr = 0, uint16_t port = 0)
     {
-        size_t orig_size = _tx_buf_head->tot_len;
-
         size_t data_size = _tx_buf_offset;
-        size_t size_adjustment = orig_size - data_size;
-        for (pbuf* p = _tx_buf_head; p; p = p->next)
-        {
-            p->tot_len -= size_adjustment;
-            if (!p->next)
-            {
-                p->len = p->tot_len;
-            }
+        pbuf* tx_copy = pbuf_alloc(PBUF_TRANSPORT, data_size, PBUF_RAM);
+        uint8_t* dst = reinterpret_cast<uint8_t*>(tx_copy->payload);
+        for (pbuf* p = _tx_buf_head; p; p = p->next) {
+            size_t will_copy = (data_size < p->len) ? data_size : p->len;
+            memcpy(dst, p->payload, will_copy);
+            dst += will_copy;
+            data_size -= will_copy;
         }
+        pbuf_free(_tx_buf_head);
+        _tx_buf_head = 0;
+        _tx_buf_cur = 0;
+        _tx_buf_offset = 0;
+
 
         if (!addr) {
             addr = &_dest_addr;
@@ -282,30 +284,20 @@ public:
             _pcb->ttl = _multicast_ttl;
         }
 
-        udp_sendto(_pcb, _tx_buf_head, addr, port);
-
-        _pcb->ttl = old_ttl;
-
-        for (pbuf* p = _tx_buf_head; p; p = p->next)
-        {
-            p->tot_len += size_adjustment;
-            if (!p->next)
-            {
-                p->len = p->tot_len;
-            }
+        err_t err = udp_sendto(_pcb, tx_copy, addr, port);
+        if (err != ERR_OK) {
+            DEBUGV(":ust rc=%d\r\n", err);
         }
-
-        pbuf_free(_tx_buf_head);
-        _tx_buf_head = 0;
-        _tx_buf_cur = 0;
-        _tx_buf_offset = 0;
+        _pcb->ttl = old_ttl;
+        pbuf_free(tx_copy);
+        return err == ERR_OK;
     }
 
 private:
 
     void _reserve(size_t size)
     {
-        const size_t pbuf_unit_size = 512;
+        const size_t pbuf_unit_size = 128;
         if (!_tx_buf_head)
         {
             _tx_buf_head = pbuf_alloc(PBUF_TRANSPORT, pbuf_unit_size, PBUF_RAM);
@@ -357,7 +349,7 @@ private:
     }
 
 
-    static void _s_recv(void *arg, 
+    static void _s_recv(void *arg,
             udp_pcb *upcb, pbuf *p,
             ip_addr_t *addr, u16_t port)
     {

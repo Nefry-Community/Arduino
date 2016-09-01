@@ -6,7 +6,7 @@ Copyright (c) 2015 wami
 This software is released under the MIT License.
 http://opensource.org/licenses/mit-license.php
 */
-#define LIBVERSION ("1.4.2")
+#define LIBVERSION ("2.0.1")
 #include "Nefry.h"
 const uint8_t wifi_conf_format[] = WIFI_CONF_FORMAT;
 struct WiFiConfStruct {
@@ -38,6 +38,9 @@ Adafruit_NeoPixel _NefryLED[17];
 //public
 
 //etc
+char* Nefry_lib::getModuleName() {
+	return WiFiConf.module_id;
+}
 const char * program;
 String Nefry_lib::getProgramName() {
 	return program;
@@ -756,7 +759,8 @@ void Nefry_lib::spiffsWeb(const char *fname, String stradd) {
 
 //main 
 
-void Nefry_lib::nefry_init() {
+void Nefry_lib::nefry_init() {	
+	Serial.begin(115200);
 	setupModule();
 	Serial.println("\n\nNefry Startup");
 	delay(10);
@@ -766,6 +770,7 @@ void Nefry_lib::nefry_init() {
 	printModule();
 	Serial.println("WiFi Startup");
 	setupWifi();
+	printIpaddress();
 	setLed(0x00, 0x8f, 0x00);
 	push_sw_();
 	// setup Web Interface
@@ -796,7 +801,7 @@ void Nefry_lib::setupWifi(void) {
 	scanWiFi();
 	push_sw_();
 	// start WiFi
-	WiFi.disconnect();
+	WiFi.persistent(false);
 	WiFi.mode(WIFI_AP_STA);
 	WiFi.begin(WiFiConf.sta_ssid, WiFiConf.sta_pwd);
 	waitConnected();
@@ -833,8 +838,11 @@ bool Nefry_lib::autoConnect(int sec) {
 }
 
 void Nefry_lib::setupModule(void) {
-	beginLed(1, 0, RGBLEDState);
-	Serial.begin(115200);
+	if(boardId==1)
+		beginLed(1, 0, NEO_RGB);
+	else
+		beginLed(1, 0, NEO_GRB);
+	delay(1);
 	Serial.println("\n\nStartup");
 	setLed(0x00, 0x0f, 0x00);
 	ESP.wdtDisable();
@@ -844,12 +852,15 @@ void Nefry_lib::setupModule(void) {
 	push_sw_();
 	module_set();
 	nefry_server = ESP8266WebServer(80);
-	EEPROM.begin(sizeof(WiFiConf));
+	Serial.println("server On");
+	Serial.println(sizeof(WiFiConf));
+	EEPROM.begin(1034);
 	setLed(0x00, 0x4f, 0x00);
 	if (!loadConf()) {
 		resetModule();
 		saveConf();
 	}
+	Serial.println("memory Ok");
 	pushSW_flg = WiFiConf.bootmode;//webオンライン書き込みモード変更
 	if (pushSW_flg == 1) {
 		WiFiConf.bootmode = 0;
@@ -1025,29 +1036,47 @@ void Nefry_lib::resetModule(void) {
 void Nefry_lib::printModule(void) {
 	Serial.println();
 	Serial.print("Name: ");
-	Serial.print(WiFiConf.module_id);
-	Serial.println(".local");
-	Serial.print("LAN: ");
-	Serial.println(WiFi.localIP());
-	Serial.print("AP: ");
-	Serial.println(WiFi.softAPIP());
+	Serial.println(WiFiConf.module_id);
 	Serial.print("SSID: ");
 	Serial.println(WiFiConf.sta_ssid);
 	Serial.print("Module ID: ");
 	Serial.println(WiFiConf.module_id);
 }
+void Nefry_lib::printIpaddress() {
+	Serial.print("LAN: ");
+	Serial.println(WiFi.localIP());
+	Serial.print("AP: ");
+	Serial.println(WiFi.softAPIP());
+}
 
 void Nefry_lib::saveConf(void) {
 	Serial.println("writing WiFiConf");
+	for (int i = 0; i < 4; i++) {
+		WiFiConf.format[i] = wifi_conf_format[i];
+		Serial.println(WiFiConf.format[i]);
+	}
+	EEPROM.write(0,0);
 	for (unsigned int t = 0; t < sizeof(WiFiConf); t++) {
 		EEPROM.write(WIFI_CONF_START + t, *((char*)&WiFiConf + t));
 	}
 	EEPROM.commit();
+	delay(1);
 }
 
 bool Nefry_lib::loadConf() {
 	Serial.println();
 	Serial.println("loading WiFiConf");
+	for (unsigned int t = 0; t < sizeof(WiFiConf); t++) {
+		*((char*)&WiFiConf + t) = EEPROM.read(WIFI_CONF_START + t);
+		Serial.print(EEPROM.read(WIFI_CONF_START + t));
+	}
+	Serial.println();
+	for (int i = 0; i < 4; i++) {
+		Serial.print("load format : ");
+		Serial.print(wifi_conf_format[i]);
+		Serial.print(" : EEPROM format : ");
+		Serial.println(EEPROM.read(WIFI_CONF_START + i));
+	}
 	if (EEPROM.read(WIFI_CONF_START + 0) == wifi_conf_format[0] &&
 		EEPROM.read(WIFI_CONF_START + 1) == wifi_conf_format[1] &&
 		EEPROM.read(WIFI_CONF_START + 2) == wifi_conf_format[2] &&

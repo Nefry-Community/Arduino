@@ -2,7 +2,7 @@
 SoftwareSerial.h
 
 SoftwareSerial.cpp - Implementation of the Arduino software serial for ESP8266.
-Copyright (c) 2015 Peter Lerup. All rights reserved.
+Copyright (c) 2015-2016 Peter Lerup. All rights reserved.
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -35,10 +35,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 class SoftwareSerial : public Stream
 {
 public:
-   SoftwareSerial(int receivePin, int transmitPin, unsigned int buffSize = 64);
+   SoftwareSerial(int receivePin, int transmitPin, bool inverse_logic = false, unsigned int buffSize = 64);
    ~SoftwareSerial();
 
    void begin(long speed);
+   void setTransmitEnablePin(int transmitEnablePin);
 
    int peek();
 
@@ -48,17 +49,20 @@ public:
    virtual void flush();
    operator bool() {return m_rxValid || m_txValid;}
 
-   static void handle_interrupt(SoftwareSerial *swSerObj);
+   // Disable or enable interrupts on the rx pin
+   void enableRx(bool on);
+
+   void rxRead();
 
    using Print::write;
 
 private:
    bool isValidGPIOpin(int pin);
-   void rxRead();
 
    // Member variables
-   int m_rxPin, m_txPin;
-   bool m_rxValid, m_txValid;
+   int m_rxPin, m_txPin, m_txEnablePin;
+   bool m_rxValid, m_txValid, m_txEnableValid;
+   bool m_invert;
    unsigned long m_bitTime;
    unsigned int m_inPos, m_outPos;
    int m_buffSize;

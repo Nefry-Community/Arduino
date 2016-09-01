@@ -30,9 +30,12 @@
 #define NUM_DIGITAL_PINS        17
 #define NUM_ANALOG_INPUTS       1
 
-#define analogInputToDigitalPin(p)  ((p > 0)?NOT_A_PIN:0)
-#define digitalPinToInterrupt(p)  	(((p) < EXTERNAL_NUM_INTERRUPTS)?p:NOT_A_PIN)
-#define digitalPinHasPWM(p)         (((p) < NUM_DIGITAL_PINS)?p:NOT_A_PIN)
+// TODO: this should be <= 9 if flash is in DIO mode
+#define isFlashInterfacePin(p)      ((p) >= 6 && (p) <= 11)
+
+#define analogInputToDigitalPin(p)  ((p > 0) ? NOT_A_PIN : 0)
+#define digitalPinToInterrupt(p)    (((p) < EXTERNAL_NUM_INTERRUPTS)? (p) : NOT_AN_INTERRUPT)
+#define digitalPinHasPWM(p)         (((p) < NUM_DIGITAL_PINS && !isFlashInterfacePin(p))? 1 : 0)
 #define NEO_RGB  ((0 << 6) | (0 << 4) | (1 << 2) | (2))
 
 static const uint8_t SDA = 2;

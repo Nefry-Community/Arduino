@@ -30,9 +30,12 @@
 #define NUM_DIGITAL_PINS        17
 #define NUM_ANALOG_INPUTS       1
 
-#define analogInputToDigitalPin(p)  ((p > 0)?NOT_A_PIN:0)
-#define digitalPinToInterrupt(p)  	(((p) < EXTERNAL_NUM_INTERRUPTS)?p:NOT_A_PIN)
-#define digitalPinHasPWM(p)         (((p) < NUM_DIGITAL_PINS)?p:NOT_A_PIN)
+// TODO: this should be <= 9 if flash is in DIO mode
+#define isFlashInterfacePin(p)      ((p) >= 6 && (p) <= 11)
+
+#define analogInputToDigitalPin(p)  ((p > 0) ? NOT_A_PIN : 0)
+#define digitalPinToInterrupt(p)    (((p) < EXTERNAL_NUM_INTERRUPTS)? (p) : NOT_AN_INTERRUPT)
+#define digitalPinHasPWM(p)         (((p) < NUM_DIGITAL_PINS && !isFlashInterfacePin(p))? 1 : 0)
 
 #define NEO_GRB  ((1 << 6) | (1 << 4) | (0 << 2) | (2))
 
@@ -48,7 +51,7 @@ static const uint8_t SW = 4;
 static const uint8_t RGB_LED = 0;
 
 static const uint8_t  RGBLEDState = NEO_GRB;
-static const uint8_t  boardId = 1;//Nefry v1
+static const uint8_t  boardId = 3;//Nefry v2
 
 static const uint8_t BUILTIN_LED = 0;
 

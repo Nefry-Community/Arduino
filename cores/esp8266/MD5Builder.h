@@ -21,7 +21,8 @@
 #ifndef __ESP8266_MD5_BUILDER__
 #define __ESP8266_MD5_BUILDER__
 
-#include "Arduino.h"
+#include <WString.h>
+#include <Stream.h>
 #include "md5.h"
 
 class MD5Builder {
@@ -37,6 +38,7 @@ class MD5Builder {
     void addHexString(const char * data);
     void addHexString(char * data){ addHexString((const char*)data); }
     void addHexString(String data){ addHexString(data.c_str()); }
+    bool addStream(Stream & stream, const size_t maxLen);
     void calculate(void);
     void getBytes(uint8_t * output);
     void getChars(char * output);

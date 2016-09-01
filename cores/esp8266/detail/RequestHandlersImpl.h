@@ -95,9 +95,9 @@ public:
 
         // look for gz file, only if the original specified path is not a gz.  So part only works to send gzip via content encoding when a non compressed is asked for
         // if you point the the path to gzip you will serve the gzip as content type "application/x-gzip", not text or javascript etc...
-        if (!path.endsWith(".gz") && !SPIFFS.exists(path))  {
+        if (!path.endsWith(".gz") && !_fs.exists(path))  {
             String pathWithGz = path + ".gz";
-            if(SPIFFS.exists(pathWithGz))
+            if(_fs.exists(pathWithGz))
                 path += ".gz";
         }
 
@@ -123,10 +123,17 @@ public:
         else if (path.endsWith(".jpg")) return "image/jpeg";
         else if (path.endsWith(".ico")) return "image/x-icon";
         else if (path.endsWith(".svg")) return "image/svg+xml";
+        else if (path.endsWith(".ttf")) return "application/x-font-ttf";
+        else if (path.endsWith(".otf")) return "application/x-font-opentype";
+        else if (path.endsWith(".woff")) return "application/font-woff";
+        else if (path.endsWith(".woff2")) return "application/font-woff2";
+        else if (path.endsWith(".eot")) return "application/vnd.ms-fontobject";
+        else if (path.endsWith(".sfnt")) return "application/font-sfnt";
         else if (path.endsWith(".xml")) return "text/xml";
         else if (path.endsWith(".pdf")) return "application/pdf";
         else if (path.endsWith(".zip")) return "application/zip";
         else if(path.endsWith(".gz")) return "application/x-gzip";
+        else if (path.endsWith(".appcache")) return "text/cache-manifest";
         return "application/octet-stream";
     }
 

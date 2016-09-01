@@ -10,6 +10,7 @@ menu.ESPModule=Module
 menu.Debug=Debug port
 menu.DebugLevel=Debug Level
 menu.LwIPVariant=lwIP Variant
+
 ##############################################################
 nefry.name=Nefry
 
@@ -30,10 +31,9 @@ nefry.build.variant=Nefry
 nefry.build.flash_mode=qio
 nefry.build.flash_size=4M
 nefry.build.flash_freq=40
-nefry.build.debug_port=
+nefry.build.debug_port=-DDEBUG_ESP_PORT=Serial
 nefry.build.debug_level=
-nefry.build.lwip_lib=-llwip
-nefry.build.lwip_flags=
+
 
 nefry.upload.verbose=-vv
 
@@ -63,10 +63,8 @@ nefryv2.build.variant=Nefryv2
 nefryv2.build.flash_mode=qio
 nefryv2.build.flash_size=4M
 nefryv2.build.flash_freq=40
-nefryv2.build.debug_port=
+nefryv2.build.debug_port=-DDEBUG_ESP_PORT=Serial
 nefryv2.build.debug_level=
-nefryv2.build.lwip_lib=-llwip
-nefryv2.build.lwip_flags=
 
 nefryv2.upload.verbose=-vv
 
@@ -97,10 +95,8 @@ cocoabit.build.variant=cocoabit
 cocoabit.build.flash_mode=qio
 cocoabit.build.flash_size=4M
 cocoabit.build.flash_freq=40
-cocoabit.build.debug_port=
+cocoabit.build.debug_port=-DDEBUG_ESP_PORT=Serial
 cocoabit.build.debug_level=
-cocoabit.build.lwip_lib=-llwip
-cocoabit.build.lwip_flags=
 
 cocoabit.upload.verbose=-vv
 
@@ -109,7 +105,6 @@ cocoabit.build.spiffs_start=0x100000
 cocoabit.build.spiffs_end=0x3FB000
 cocoabit.build.spiffs_blocksize=8192
 cocoabit.upload.maximum_size=1044464
-
 ##############################################################
 generic.name=Generic ESP8266 Module
 
@@ -131,8 +126,6 @@ generic.build.flash_mode=qio
 generic.build.spiffs_pagesize=256
 generic.build.debug_port=
 generic.build.debug_level=
-generic.build.lwip_lib=-llwip
-generic.build.lwip_flags=
 
 generic.menu.CpuFrequency.80=80 MHz
 generic.menu.CpuFrequency.80.build.f_cpu=80000000L
@@ -144,10 +137,37 @@ generic.menu.FlashFreq.40.build.flash_freq=40
 generic.menu.FlashFreq.80=80MHz
 generic.menu.FlashFreq.80.build.flash_freq=80
 
+generic.menu.FlashMode.dio=DIO
+generic.menu.FlashMode.dio.build.flash_mode=dio
+generic.menu.FlashMode.qio=QIO
+generic.menu.FlashMode.qio.build.flash_mode=qio
+
 generic.menu.UploadSpeed.115200=115200
 generic.menu.UploadSpeed.115200.upload.speed=115200
+generic.menu.UploadSpeed.9600=9600
+generic.menu.UploadSpeed.9600.upload.speed=9600
+generic.menu.UploadSpeed.57600=57600
+generic.menu.UploadSpeed.57600.upload.speed=57600
+generic.menu.UploadSpeed.256000.windows=256000
+generic.menu.UploadSpeed.256000.upload.speed=256000
+generic.menu.UploadSpeed.230400.linux=230400
+generic.menu.UploadSpeed.230400.macosx=230400
+generic.menu.UploadSpeed.230400.upload.speed=230400
+generic.menu.UploadSpeed.460800.linux=460800
+generic.menu.UploadSpeed.460800.macosx=460800
+generic.menu.UploadSpeed.460800.upload.speed=460800
+generic.menu.UploadSpeed.512000.windows=512000
+generic.menu.UploadSpeed.512000.upload.speed=512000
 generic.menu.UploadSpeed.921600=921600
 generic.menu.UploadSpeed.921600.upload.speed=921600
+
+generic.menu.FlashSize.512K64=512K (64K SPIFFS)
+generic.menu.FlashSize.512K64.build.flash_size=512K
+generic.menu.FlashSize.512K64.build.flash_ld=eagle.flash.512k64.ld
+generic.menu.FlashSize.512K64.build.spiffs_start=0x6B000
+generic.menu.FlashSize.512K64.build.spiffs_end=0x7B000
+generic.menu.FlashSize.512K64.build.spiffs_blocksize=4096
+generic.menu.FlashSize.512K64.upload.maximum_size=434160
 
 generic.menu.FlashSize.4M3M=4M (3M SPIFFS)
 generic.menu.FlashSize.4M3M.build.flash_size=4M
@@ -201,3 +221,22 @@ generic.menu.DebugLevel.OTA2____=OTA + Updater
 generic.menu.DebugLevel.OTA2____.build.debug_level=-DDEBUG_ESP_OTA -DDEBUG_ESP_UPDATER
 generic.menu.DebugLevel.all_____=All
 generic.menu.DebugLevel.all_____.build.debug_level=-DDEBUG_ESP_CORE -DDEBUG_ESP_SSL -DDEBUG_ESP_WIFI -DDEBUG_ESP_HTTP_CLIENT -DDEBUG_ESP_HTTP_UPDATE -DDEBUG_ESP_HTTP_SERVER -DDEBUG_ESP_UPDATER -DDEBUG_ESP_OTA -DDEBUG_TLS_MEM
+
+# disabled because espressif's bootloader refuses to write above 4M
+# generic.menu.FlashSize.8M=8M (7M SPIFFS)
+# generic.menu.FlashSize.8M.build.flash_size=1M
+# generic.menu.FlashSize.8M.build.flash_ld=eagle.flash.8m.ld
+# generic.menu.FlashSize.8M.build.spiffs_start=0x100000
+# generic.menu.FlashSize.8M.build.spiffs_end=0x800000
+# generic.menu.FlashSize.8M.build.spiffs_blocksize=8192
+# generic.menu.FlashSize.16M=16M (15M SPIFFS)
+# generic.menu.FlashSize.16M.build.flash_size=1M
+# generic.menu.FlashSize.16M.build.flash_ld=eagle.flash.16m.ld
+# generic.menu.FlashSize.16M.build.spiffs_start=0x100000
+# generic.menu.FlashSize.16M.build.spiffs_end=0x1000000
+# generic.menu.FlashSize.16M.build.spiffs_blocksize=8192
+
+
+
+
+

@@ -24,8 +24,44 @@
 #include "WiFiClient.h"
 #include "ESP8266WebServer.h"
 
-//#define DEBUG
+//#define DEBUG_ESP_HTTP_SERVER
+#ifdef DEBUG_ESP_PORT
+#define DEBUG_OUTPUT DEBUG_ESP_PORT
+#else
 #define DEBUG_OUTPUT Serial
+#endif
+
+static char* readBytesWithTimeout(WiFiClient& client, size_t maxLength, size_t& dataLength, int timeout_ms)
+{
+  char *buf = nullptr;
+  dataLength = 0;
+  while (dataLength < maxLength) {
+    int tries = timeout_ms;
+    size_t newLength;
+    while (!(newLength = client.available()) && tries--) delay(1);
+    if (!newLength) {
+      break;
+    }
+    if (!buf) {
+      buf = (char *) malloc(newLength + 1);
+      if (!buf) {
+        return nullptr;
+      }
+    }
+    else {
+      char* newBuf = (char *) realloc(buf, dataLength + newLength + 1);
+      if (!newBuf) {
+        free(buf);
+        return nullptr;
+      }
+      buf = newBuf;
+    }
+    client.readBytes(buf + dataLength, newLength);
+    dataLength += newLength;
+    buf[dataLength] = '\0';
+  }
+  return buf;
+}
 
 bool ESP8266WebServer::_parseRequest(WiFiClient& client) {
   // Read the first line of HTTP request
@@ -41,7 +77,7 @@ bool ESP8266WebServer::_parseRequest(WiFiClient& client) {
   int addr_start = req.indexOf(' ');
   int addr_end = req.indexOf(' ', addr_start + 1);
   if (addr_start == -1 || addr_end == -1) {
-#ifdef DEBUG
+#ifdef DEBUG_ESP_HTTP_SERVER
     DEBUG_OUTPUT.print("Invalid request: ");
     DEBUG_OUTPUT.println(req);
 #endif
@@ -72,7 +108,7 @@ bool ESP8266WebServer::_parseRequest(WiFiClient& client) {
   }
   _currentMethod = method;
 
-#ifdef DEBUG
+#ifdef DEBUG_ESP_HTTP_SERVER
   DEBUG_OUTPUT.print("method: ");
   DEBUG_OUTPUT.print(methodStr);
   DEBUG_OUTPUT.print(" url: ");
@@ -110,14 +146,14 @@ bool ESP8266WebServer::_parseRequest(WiFiClient& client) {
       headerValue = req.substring(headerDiv + 1);
       headerValue.trim();
        _collectHeader(headerName.c_str(),headerValue.c_str());
-	  
-	  #ifdef DEBUG
+
+	  #ifdef DEBUG_ESP_HTTP_SERVER
 	  DEBUG_OUTPUT.print("headerName: ");
 	  DEBUG_OUTPUT.println(headerName);
 	  DEBUG_OUTPUT.print("headerValue: ");
 	  DEBUG_OUTPUT.println(headerValue);
 	  #endif
-	  
+
       if (headerName == "Content-Type"){
         if (headerValue.startsWith("text/plain")){
           isForm = false;
@@ -133,27 +169,27 @@ bool ESP8266WebServer::_parseRequest(WiFiClient& client) {
     }
 
     if (!isForm){
-      if (searchStr != "") searchStr += '&';
-      //some clients send headers first and data after (like we do)
-      //give them a chance
-      int tries = 100;//100ms max wait
-      while(!client.available() && tries--)delay(1);
-      size_t plainLen = client.available();
-      char *plainBuf = (char*)malloc(plainLen+1);
-      client.readBytes(plainBuf, plainLen);
-      plainBuf[plainLen] = '\0';
-#ifdef DEBUG
+      size_t plainLength;
+      char* plainBuf = readBytesWithTimeout(client, contentLength, plainLength, HTTP_MAX_POST_WAIT);
+      if (plainLength < contentLength) {
+      	free(plainBuf);
+      	return false;
+      }
+#ifdef DEBUG_ESP_HTTP_SERVER
       DEBUG_OUTPUT.print("Plain: ");
       DEBUG_OUTPUT.println(plainBuf);
 #endif
-      if(plainBuf[0] == '{' || plainBuf[0] == '[' || strstr(plainBuf, "=") == NULL){
-        //plain post json or other data
-        searchStr += "plain=";
-        searchStr += plainBuf;
-      } else {
-        searchStr += plainBuf;
+      if (contentLength > 0) {
+        if (searchStr != "") searchStr += '&';
+        if(plainBuf[0] == '{' || plainBuf[0] == '[' || strstr(plainBuf, "=") == NULL){
+          //plain post json or other data
+          searchStr += "plain=";
+          searchStr += plainBuf;
+        } else {
+          searchStr += plainBuf;
+        }
+        free(plainBuf);
       }
-      free(plainBuf);
     }
     _parseArguments(searchStr);
     if (isForm){
@@ -176,14 +212,14 @@ bool ESP8266WebServer::_parseRequest(WiFiClient& client) {
       headerName = req.substring(0, headerDiv);
       headerValue = req.substring(headerDiv + 2);
       _collectHeader(headerName.c_str(),headerValue.c_str());
-	  
-	  #ifdef DEBUG
+
+	  #ifdef DEBUG_ESP_HTTP_SERVER
 	  DEBUG_OUTPUT.print("headerName: ");
 	  DEBUG_OUTPUT.println(headerName);
 	  DEBUG_OUTPUT.print("headerValue: ");
 	  DEBUG_OUTPUT.println(headerValue);
 	  #endif
-	  
+
 	  if (headerName == "Host"){
         _hostHeader = headerValue;
       }
@@ -192,7 +228,7 @@ bool ESP8266WebServer::_parseRequest(WiFiClient& client) {
   }
   client.flush();
 
-#ifdef DEBUG
+#ifdef DEBUG_ESP_HTTP_SERVER
   DEBUG_OUTPUT.print("Request: ");
   DEBUG_OUTPUT.println(url);
   DEBUG_OUTPUT.print(" Arguments: ");
@@ -213,7 +249,7 @@ bool ESP8266WebServer::_collectHeader(const char* headerName, const char* header
 }
 
 void ESP8266WebServer::_parseArguments(String data) {
-#ifdef DEBUG
+#ifdef DEBUG_ESP_HTTP_SERVER
   DEBUG_OUTPUT.print("args: ");
   DEBUG_OUTPUT.println(data);
 #endif
@@ -233,7 +269,7 @@ void ESP8266WebServer::_parseArguments(String data) {
     ++i;
     ++_currentArgCount;
   }
-#ifdef DEBUG
+#ifdef DEBUG_ESP_HTTP_SERVER
   DEBUG_OUTPUT.print("args count: ");
   DEBUG_OUTPUT.println(_currentArgCount);
 #endif
@@ -244,7 +280,7 @@ void ESP8266WebServer::_parseArguments(String data) {
   for (iarg = 0; iarg < _currentArgCount;) {
     int equal_sign_index = data.indexOf('=', pos);
     int next_arg_index = data.indexOf('&', pos);
-#ifdef DEBUG
+#ifdef DEBUG_ESP_HTTP_SERVER
     DEBUG_OUTPUT.print("pos ");
     DEBUG_OUTPUT.print(pos);
     DEBUG_OUTPUT.print("=@ ");
@@ -253,7 +289,7 @@ void ESP8266WebServer::_parseArguments(String data) {
     DEBUG_OUTPUT.println(next_arg_index);
 #endif
     if ((equal_sign_index == -1) || ((equal_sign_index > next_arg_index) && (next_arg_index != -1))) {
-#ifdef DEBUG
+#ifdef DEBUG_ESP_HTTP_SERVER
       DEBUG_OUTPUT.print("arg missing value: ");
       DEBUG_OUTPUT.println(iarg);
 #endif
@@ -265,7 +301,7 @@ void ESP8266WebServer::_parseArguments(String data) {
     RequestArgument& arg = _currentArgs[iarg];
     arg.key = data.substring(pos, equal_sign_index);
 	arg.value = urlDecode(data.substring(equal_sign_index + 1, next_arg_index));
-#ifdef DEBUG
+#ifdef DEBUG_ESP_HTTP_SERVER
     DEBUG_OUTPUT.print("arg ");
     DEBUG_OUTPUT.print(iarg);
     DEBUG_OUTPUT.print(" key: ");
@@ -279,7 +315,7 @@ void ESP8266WebServer::_parseArguments(String data) {
     pos = next_arg_index + 1;
   }
   _currentArgCount = iarg;
-#ifdef DEBUG
+#ifdef DEBUG_ESP_HTTP_SERVER
   DEBUG_OUTPUT.print("args count: ");
   DEBUG_OUTPUT.println(_currentArgCount);
 #endif
@@ -308,7 +344,7 @@ uint8_t ESP8266WebServer::_uploadReadByte(WiFiClient& client){
 
 bool ESP8266WebServer::_parseForm(WiFiClient& client, String boundary, uint32_t len){
 
-#ifdef DEBUG
+#ifdef DEBUG_ESP_HTTP_SERVER
   DEBUG_OUTPUT.print("Parse Form: Boundary: ");
   DEBUG_OUTPUT.print(boundary);
   DEBUG_OUTPUT.print(" Length: ");
@@ -346,14 +382,14 @@ bool ESP8266WebServer::_parseForm(WiFiClient& client, String boundary, uint32_t 
             argFilename = argName.substring(nameStart+2, argName.length() - 1);
             argName = argName.substring(0, argName.indexOf('"'));
             argIsFile = true;
-#ifdef DEBUG
+#ifdef DEBUG_ESP_HTTP_SERVER
             DEBUG_OUTPUT.print("PostArg FileName: ");
             DEBUG_OUTPUT.println(argFilename);
 #endif
             //use GET to set the filename if uploading using blob
             if (argFilename == "blob" && hasArg("filename")) argFilename = arg("filename");
           }
-#ifdef DEBUG
+#ifdef DEBUG_ESP_HTTP_SERVER
           DEBUG_OUTPUT.print("PostArg Name: ");
           DEBUG_OUTPUT.println(argName);
 #endif
@@ -366,7 +402,7 @@ bool ESP8266WebServer::_parseForm(WiFiClient& client, String boundary, uint32_t 
             client.readStringUntil('\r');
             client.readStringUntil('\n');
           }
-#ifdef DEBUG
+#ifdef DEBUG_ESP_HTTP_SERVER
           DEBUG_OUTPUT.print("PostArg Type: ");
           DEBUG_OUTPUT.println(argType);
 #endif
@@ -378,7 +414,7 @@ bool ESP8266WebServer::_parseForm(WiFiClient& client, String boundary, uint32_t 
               if (argValue.length() > 0) argValue += "\n";
               argValue += line;
             }
-#ifdef DEBUG
+#ifdef DEBUG_ESP_HTTP_SERVER
             DEBUG_OUTPUT.print("PostArg Value: ");
             DEBUG_OUTPUT.println(argValue);
             DEBUG_OUTPUT.println();
@@ -389,7 +425,7 @@ bool ESP8266WebServer::_parseForm(WiFiClient& client, String boundary, uint32_t 
             arg.value = argValue;
 
             if (line == ("--"+boundary+"--")){
-#ifdef DEBUG
+#ifdef DEBUG_ESP_HTTP_SERVER
               DEBUG_OUTPUT.println("Done Parsing POST");
 #endif
               break;
@@ -401,7 +437,7 @@ bool ESP8266WebServer::_parseForm(WiFiClient& client, String boundary, uint32_t 
             _currentUpload.type = argType;
             _currentUpload.totalSize = 0;
             _currentUpload.currentSize = 0;
-#ifdef DEBUG
+#ifdef DEBUG_ESP_HTTP_SERVER
             DEBUG_OUTPUT.print("Start File: ");
             DEBUG_OUTPUT.print(_currentUpload.filename);
             DEBUG_OUTPUT.print(" Type: ");
@@ -450,7 +486,7 @@ readfile:
                 _currentUpload.status = UPLOAD_FILE_END;
                 if(_currentHandler && _currentHandler->canUpload(_currentUri))
                   _currentHandler->upload(*this, _currentUri, _currentUpload);
-#ifdef DEBUG
+#ifdef DEBUG_ESP_HTTP_SERVER
                 DEBUG_OUTPUT.print("End File: ");
                 DEBUG_OUTPUT.print(_currentUpload.filename);
                 DEBUG_OUTPUT.print(" Type: ");
@@ -461,7 +497,7 @@ readfile:
                 line = client.readStringUntil(0x0D);
                 client.readStringUntil(0x0A);
                 if (line == "--"){
-#ifdef DEBUG
+#ifdef DEBUG_ESP_HTTP_SERVER
                   DEBUG_OUTPUT.println("Done Parsing POST");
 #endif
                   break;
@@ -507,7 +543,7 @@ readfile:
     if (postArgs) delete[] postArgs;
     return true;
   }
-#ifdef DEBUG
+#ifdef DEBUG_ESP_HTTP_SERVER
   DEBUG_OUTPUT.print("Error: line: ");
   DEBUG_OUTPUT.println(line);
 #endif
