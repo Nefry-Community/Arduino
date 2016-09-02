@@ -202,21 +202,21 @@ void Nefry_lib::setupWebModuleConf(void) {
 	nefry_server.on("/module_id", [&]() {
 		char defaultId[sizeof(WiFiConf.module_id)];
 		setDefaultModuleId(defaultId);
-		String content = "<!DOCTYPE HTML><html><head><meta charset=\"UTF-8\">";
-		content += "<title>Nefry Module ID</title><link rel = \"stylesheet\" type = \"text/css\" href = \"/nefry_css\"><link rel=\"stylesheet\" type=\"text/css\" href = \"/nefry_content\">";
-		content += "</head><body><div><h1>Nefry Module Setup</h1>";
-		content += "<div class=\"moduleid\">Module ID: </div>";
-		content += "<form method='get' action='set_module_id'><div class=\"row\"> <label>NewModuleID: </label> <div> <input name=\"id\" maxlength=\"32\" value=\"";
+		String content = F("<!DOCTYPE HTML><html><head><meta charset=\"UTF-8\">"
+					"<title>Nefry Module ID</title><link rel = \"stylesheet\" type = \"text/css\" href = \"/nefry_css\"><link rel=\"stylesheet\" type=\"text/css\" href = \"/nefry_content\">"
+					"</head><body><div><h1>Nefry Module Setup</h1>"
+					"<div class=\"moduleid\">Module ID: </div>"
+					"<form method='get' action='set_module_id'><div class=\"row\"> <label>NewModuleID: </label> <div> <input name=\"id\" maxlength=\"32\" value=\"");
 		content += WiFiConf.module_id;
-		content += "\"></div></div>";
-		content += "<div class = \"row\"><label>Module class: </label> <div> <input name=\"cls\" maxlength=\"32\" value=\"";
+		content += F("\"></div></div>"
+					"<div class = \"row\"><label>Module class: </label> <div> <input name=\"cls\" maxlength=\"32\" value=\"");
 		content += WiFiConf.module_class;
-		content += "\"></div></div>";
-		content += "<div class=\"row\"><label>Nefry WiFi Pass: </label> <div> <input type=\"password\" name=\"pwd\" maxlength=\"64\"> </div></div>";
-		content += "<div class = \"row\"><label>Nefry User: </label> <div> <input name=\"user\" maxlength=\"32\" value=\"";
+		content += F("\"></div></div>"
+					"<div class=\"row\"><label>Nefry WiFi Pass: </label> <div> <input type=\"password\" name=\"pwd\" maxlength=\"64\"> </div></div>"
+					"<div class = \"row\"><label>Nefry User: </label> <div> <input name=\"user\" maxlength=\"32\" value=\"");
 		content += WiFiConf.Nefry_user;
-		content += "\"></div></div>";
-		content += "<div class = \"row\"><label>Nefry User Pass: </label> <div> <input type=\"password\" name=\"uPas\"maxlength=\"32\" value=\"\"></div></div>";
+		content += F("\"></div></div>"
+					"<div class = \"row\"><label>Nefry User Pass: </label> <div> <input type=\"password\" name=\"uPas\"maxlength=\"32\" value=\"\"></div></div>");
 		for (int i = 0; i < 3; i++) {
 			if (htmlPrint[i] == 1) {
 				content += "<div class = \"row\"><label>";
@@ -239,16 +239,16 @@ void Nefry_lib::setupWebModuleConf(void) {
 				content += "\"></div></div>";
 			}
 		}
-		content += "<div class=\"psrow\"><div><input type='submit' value=\"Save\"onclick='return confirm(&quot;Are you sure you want to change the Module ID?&quot;);'></div></form>";
-		content += "<div><form method = 'get' action = 'reset'><input type='submit' value=\"Restart\"></form></div>";
-		content += "<div><form method = 'get' action = 'onreset'><input type='submit' value=\"Write mode\"></form></div>";
-		content += " </div><div>Empty will reset to default ID '";
+		content += F("<div class=\"psrow\"><div><input type='submit' value=\"Save\"onclick='return confirm(&quot;Are you sure you want to change the Module ID?&quot;);'></div></form>"
+					"<div><form method = 'get' action = 'reset'><input type='submit' value=\"Restart\"></form></div>"
+					"<div><form method = 'get' action = 'onreset'><input type='submit' value=\"Write mode\"></form></div>"
+					" </div><div>Empty will reset to default ID '");
 		content += defaultId;
 		content += "'</div><div>Nefry library:";
 		content += getVersion();
 		content += "</div><div>Running ProgramName:";
 		content += getProgramName();
-		content += "</div><div class=\"writemode\"></div><a href=\"/module_id_next\">Next page</a></br><a href=\"/\">Back to top</a></div></body></html>";
+		content += F("</div><div class=\"writemode\"></div><a href=\"/module_id_next\">Next page</a></br><a href=\"/\">Back to top</a></div></body></html>");
 		nefry_server.send(200, "text/html", content);
 	});
 
@@ -368,12 +368,14 @@ void Nefry_lib::setupWebModuleConf(void) {
 
 void Nefry_lib::setupWebWiFiConf(void) {
 	nefry_server.on("/wifi_conf", [&]() {
-		String content = "<!DOCTYPE HTML><html><head><meta charset=\"UTF-8\">";
-		content += "<title>Nefry Wifi Set</title><link rel = \"stylesheet\" type = \"text/css\" href = \"/nefry_css\"><style>.row>label{width:50px}</style>";
-		content += "</head><body><div><h1>Nefry Wifi Set</h1>";
-		content += "<form method='get' action='set_wifi'><div class=\"row\"> <label for=\"ssid\">SSID: </label> <div> <input name=\"ssid\" id=\"ssid\" maxlength=\"32\"list=\"network_list\" value=\"\"> </div></div>";
-		content += "<div class=\"row\"> <label for=\"pwd\">PASS: </label> <div> <input type=\"password\" name=\"pwd\" id=\"pwd\"maxlength=\"64\"> </div></div>";
-		content += "<div class=\"footer\"><button type = \"button\" onclick=\"location.href='/wifiReload'\">Reload</button><input type=\"submit\" value=\"Save\" onclick=\"return confirm(&quot;Are you sure you want to change the WiFi settings?&quot;);\"> </div></form><a href=\"/\">Back to top</a></div><div>";
+		String content = F(
+			"<!DOCTYPE HTML><html><head><meta charset=\"UTF-8\">"
+			"<title>Nefry Wifi Set</title><link rel = \"stylesheet\" type = \"text/css\" href = \"/nefry_css\"><style>.row>label{width:50px}</style>"
+			"</head><body><div><h1>Nefry Wifi Set</h1>"
+			"<form method='get' action='set_wifi'><div class=\"row\"> <label for=\"ssid\">SSID: </label> <div> <input name=\"ssid\" id=\"ssid\" maxlength=\"32\"list=\"network_list\" value=\"\"> </div></div>"
+			"<div class=\"row\"> <label for=\"pwd\">PASS: </label> <div> <input type=\"password\" name=\"pwd\" id=\"pwd\"maxlength=\"64\"> </div></div>"
+			"<div class=\"footer\"><button type = \"button\" onclick=\"location.href='/wifiReload'\">Reload</button><input type=\"submit\" value=\"Save\" onclick=\"return confirm(&quot;Are you sure you want to change the WiFi settings?&quot;);\"> </div></form><a href=\"/\">Back to top</a></div><div>"
+		);
 		content += network_html;
 		content += network_list;
 		content += "</div></body></html>";
@@ -384,10 +386,11 @@ void Nefry_lib::setupWebWiFiConf(void) {
 		IPAddress ip = WiFi.localIP();
 		if (ip.toString().equals("0.0.0.0")) ipaddress = "192.168.4.1";
 		else ipaddress = ip.toString();
-		String content = "<!DOCTYPE html><html><head><meta charset=\"UTF-8\">";
-		content += "<title>Wifi Reload</title></head><link rel = \"stylesheet\" type = \"text/css\" href = \"/nefry_css\">";
-		content += "<link rel = \"stylesheet\" type = \"text/css\" href = \"/nefry_content\">";
-		content += "<meta http-equiv=\"Refresh\" content=\"0; URL = http://";
+		String content = F(
+			"<!DOCTYPE html><html><head><meta charset=\"UTF-8\">"
+			"<title>Wifi Reload</title></head><link rel = \"stylesheet\" type = \"text/css\" href = \"/nefry_css\">"
+			"<link rel = \"stylesheet\" type = \"text/css\" href = \"/nefry_content\">"
+			"<meta http-equiv=\"Refresh\" content=\"0; URL = http://");
 		content += ipaddress;
 		content += "/wifi_conf\"><body><div>";
 		content += "<h1 class=\"wifi\"></h1><p>Please wait...</p><a href=\"http://";
@@ -398,13 +401,14 @@ void Nefry_lib::setupWebWiFiConf(void) {
 	nefry_server.on("/set_wifi", [&]() {
 		String new_ssid = escapeParameter(nefry_server.arg("ssid"));
 		String new_pwd = escapeParameter(nefry_server.arg("pwd"));
-		String content = "<!DOCTYPE HTML><html><head><meta charset=\"UTF-8\">";
-		content += "<title>Nefry Wifi Set</title>";
-		content += "<link rel = \"stylesheet\" type = \"text/css\" href = \"/nefry_content\">";
-		content += "<link rel = \"stylesheet\" type = \"text/css\" href = \"/nefry_css\">";
-		content += "</head><body><div><h1>Nefry Wifi Set</h1>";
-		content += "<p class=\"wifiSave\"></p>";
-		content += "<a href=\"/\">Back to top</a></div><body></html>";
+		String content = F(
+			"<!DOCTYPE HTML><html><head><meta charset=\"UTF-8\">"
+			"<title>Nefry Wifi Set</title>"
+			"<link rel = \"stylesheet\" type = \"text/css\" href = \"/nefry_content\">"
+			"<link rel = \"stylesheet\" type = \"text/css\" href = \"/nefry_css\">"
+			"</head><body><div><h1>Nefry Wifi Set</h1>"
+			"<p class=\"wifiSave\"></p>"
+			"<a href=\"/\">Back to top</a></div><body></html>");
 		if (new_ssid.length() > 0) {
 			new_ssid.toCharArray(WiFiConf.sta_ssid, sizeof(WiFiConf.sta_ssid));
 			new_pwd.toCharArray(WiFiConf.sta_pwd, sizeof(WiFiConf.sta_pwd));
@@ -426,11 +430,12 @@ void Nefry_lib::setupWebLocalUpdate(void) {
 	int count = 0;
 	bool err = false;
 	nefry_server.on("/update", HTTP_GET, [&]() {
-		String content = "<!DOCTYPE HTML><head><meta charset=\"UTF-8\">"
+		String content = F(
+			"<!DOCTYPE HTML><head><meta charset=\"UTF-8\">"
 			"<link rel = \"stylesheet\" type = \"text/css\" href = \"/nefry_css\">"
 			"<title>Nefry Upload Sketch</title></head><body><div><h1>Upload Sketch</h1> <p>Upload a binary file of sketch.</p><form method=\"POST\" action=\"/upload_sketch\" enctype=\"multipart/form-data\">"
 			"<input type=\"file\" name=\"sketch\"><div class=\"footer\"> <input type=\"submit\" value=\"Upload\" onclick=\"return confirm(&quotAre you sure you want to update the Sketch?&quot)\">"
-			"</div></form><a href=\"/\">Back to top</a></div></body></html>";
+			"</div></form><a href=\"/\">Back to top</a></div></body></html>");
 		nefry_server.send(200, "text/html", content);
 	});
 	nefry_server.onFileUpload([&]() {
@@ -470,12 +475,13 @@ void Nefry_lib::setupWebLocalUpdate(void) {
 		}
 	});
 	nefry_server.on("/upload_sketch", HTTP_POST, [&]() {
-		String content = "<!DOCTYPE HTML><html><head><meta charset=\"UTF-8\">";
-		content += "<title>Nefry Upload Sketch</title>";
-		content += "<link rel = \"stylesheet\" type = \"text/css\" href = \"/nefry_content\">";
-		content += "<link rel = \"stylesheet\" type = \"text/css\" href = \"/nefry_css\">";
-		content += "</head><body><div><h1>Nefry Update</h1><div class=\"updateS\">";
-		content += "</div><a href='/'>Back to top</a></div></body></html>";
+		String content = F(
+			"<!DOCTYPE HTML><html><head><meta charset=\"UTF-8\">"
+			"<title>Nefry Upload Sketch</title>"
+			"<link rel = \"stylesheet\" type = \"text/css\" href = \"/nefry_content\">"
+			"<link rel = \"stylesheet\" type = \"text/css\" href = \"/nefry_css\">"
+			"</head><body><div><h1>Nefry Update</h1><div class=\"updateS\">"
+			"</div><a href='/'>Back to top</a></div></body></html>");
 		if (err) {
 			cssAdd("updateS", "File Err. Failed to update");
 			nefry_server.send(200, "text/html", content);
@@ -494,12 +500,13 @@ void Nefry_lib::setupWebLocalUpdate(void) {
 void Nefry_lib::setWebUpdate(String program_domain, String program_url) {
 	pushSW_flg = 1;
 	IPAddress ip = WiFi.localIP();
-	String content = "<!DOCTYPE HTML><html><head><meta charset=\"UTF-8\">";
-	content += "<title>Nefry Web Update</title>";
-	content += "<link rel = \"stylesheet\" type = \"text/css\" href = \"/nefry_content\">";
-	content += "<link rel = \"stylesheet\" type = \"text/css\" href = \"/nefry_css\">";
-	content += "</head><body><div><h1>Nefry Web Update</h1><div class=\"updateHS\">";
-	content += "</div><a href='/'>Back to top</a></div><body></html>";
+	String content = F(
+		"<!DOCTYPE HTML><html><head><meta charset=\"UTF-8\">"
+		"<title>Nefry Web Update</title>"
+		"<link rel = \"stylesheet\" type = \"text/css\" href = \"/nefry_content\">"
+		"<link rel = \"stylesheet\" type = \"text/css\" href = \"/nefry_css\">"
+		"</head><body><div><h1>Nefry Web Update</h1><div class=\"updateHS\">"
+		"</div><a href='/'>Back to top</a></div><body></html>");
 	if (ip.toString().equals("0.0.0.0")) {
 		println("not connected to the Internet");
 		cssAdd("updateHS", "It is not connected to the Internet.Please connect to the Internet .");
@@ -544,12 +551,13 @@ void Nefry_lib::setWebUpdate(String program_domain, String program_url) {
 
 void Nefry_lib::setupWebOnlineUpdate(void) {
 	nefry_server.on("/web_update", [&]() {
-		String content = "<!DOCTYPE HTML><html><head><meta charset=\"UTF-8\"><link rel = \"stylesheet\" type = \"text/css\" href = \"/nefry_css\">";
-		content += "<title>Nefry Web Update</title><style>.row>input,input[type=file]{width:100%}.row label{line-height:1.3;display:block;margin-bottom:5px;width:300px}.row>input{display:inline-block}</style>";
-		content += "</head><body><div><h1>Nefry Web Update</h1>";
-		content += "<form method='get' action='program'><div class=\"row\"> <label for=\"File\">Program download Domain: </label><input name='domain'id='URL' value=''><label for='File'>Program download URL(Domain except): </label><input name='URL'id='URL'  value=''placeholder=\"Null ok\">";
-		content += "</div><div class=\"footer\"> <input type=\"submit\" value=\"Save\" onclick=\"\"></div></form><br><p>Default Program Download URL : wamisnet.github.io </p><a href='/'>Back to top</a></div>";
-		content += "</body></html>";
+		String content = F(
+			"<!DOCTYPE HTML><html><head><meta charset=\"UTF-8\"><link rel = \"stylesheet\" type = \"text/css\" href = \"/nefry_css\">"
+			"<title>Nefry Web Update</title><style>.row>input,input[type=file]{width:100%}.row label{line-height:1.3;display:block;margin-bottom:5px;width:300px}.row>input{display:inline-block}</style>"
+			"</head><body><div><h1>Nefry Web Update</h1>"
+			"<form method='get' action='program'><div class=\"row\"> <label for=\"File\">Program download Domain: </label><input name='domain'id='URL' value=''><label for='File'>Program download URL(Domain except): </label><input name='URL'id='URL'  value=''placeholder=\"Null ok\">"
+			"</div><div class=\"footer\"> <input type=\"submit\" value=\"Save\" onclick=\"\"></div></form><br><p>Default Program Download URL : wamisnet.github.io </p><a href='/'>Back to top</a></div>"
+			"</body></html>");
 		nefry_server.send(200, "text/html", content);
 	});
 	nefry_server.on("/program", [&]() {
@@ -563,34 +571,36 @@ void Nefry_lib::setupWebMain(void) {
 	if (ip.toString().equals("0.0.0.0")) ipaddress = "192.168.4.1";
 	else ipaddress = ip.toString();
 	nefry_server.on("/", [&]() {
-		String content = "<!DOCTYPE HTML><html><head><meta charset=\"UTF-8\">";
-		content += "<title>Nefry Menu</title><link rel = \"stylesheet\" type = \"text/css\" href = \"/nefry_css\">";
-		content += "<link rel = \"stylesheet\" type = \"text/css\" href = \"/nefry_content\">";
-		content += "</head><body><div><h1>Hello from Nefry!</h1>";
-		content += "<div class=\"cssid\">Wifi Sport: ";
-		content += "</div><div class=\"ipaddress\">IP Address: ";
-		content += "</div><div class=\"moduleid\">Module ID: ";
-		content += "</div><div class=\"writemode\">";
-		content += "</div>";
-		content += "<ul>";
-		content += "<li><a href='/wifi_conf'>Setup WiFi</a>";
-		content += "<li><a href='/module_id'>Setup Module</a>";
-		content += "<li><a href='/web_update'>Web Sketch Download</a>";
-		content += "<li><a href='/update'>Upload Sketch</a>";
-		content += "<li><a href='/console'>Web Console</a>";
-		content += "</ul>";
-		content += "</div></body></html>";
+		String content = F(
+			"<!DOCTYPE HTML><html><head><meta charset=\"UTF-8\">"
+			"<title>Nefry Menu</title><link rel = \"stylesheet\" type = \"text/css\" href = \"/nefry_css\">"
+			"<link rel = \"stylesheet\" type = \"text/css\" href = \"/nefry_content\">"
+			"</head><body><div><h1>Hello from Nefry!</h1>"
+			"<div class=\"cssid\">Wifi Sport: "
+			"</div><div class=\"ipaddress\">IP Address: "
+			"</div><div class=\"moduleid\">Module ID: "
+			"</div><div class=\"writemode\">"
+			"</div>"
+			"<ul>"
+			"<li><a href='/wifi_conf'>Setup WiFi</a>"
+			"<li><a href='/module_id'>Setup Module</a>"
+			"<li><a href='/web_update'>Web Sketch Download</a>"
+			"<li><a href='/update'>Upload Sketch</a>"
+			"<li><a href='/console'>Web Console</a>"
+			"</ul>"
+			"</div></body></html>");
 		nefry_server.send(200, "text/html", content);
 	});
 	nefry_server.on("/nefry_css", [&]() {
-		String content = "@charset \"UTF-8\"; *, :after, : before{ box - sizing:border - box }body{ font:16px / 1.65 \"Noto Sans\",\"HelveticaNeue\",\"Helvetica Neue\",Helvetica,Arial,sans-serif;margin:0;padding:0 20px;color:#555}";
-		content += "ol,ul{padding-left:20px;margin:0}a{color:#54AFBA}a:hover{text-decoration:none}body>div{background:#fff;margin:20px auto;padding:20px 24px;box-shadow:0 0 1px 1px rgba(0,0,0,.1);border-radius:4px;max-width:540px}";
-		content += "body>div input,body>div li{word-wrap:break-word}body>div>h1{font-size:1.4em;line-height:1.3;padding-bottom:4px;border-bottom:1px solid #efefef;margin-top:0;margin-bottom:20px}input,select,textarea{font:inherit inherit inherit}";
-		content += "input{background:rgba(0,0,0,0);padding:.4em .6em;border:1px solid rgba(0,0,0,.12);border-radius:3px;-webkit-appearance:none;-moz-appearance:none;appearance:none}input:focus{border:1px solid #6E5F57;outline:0}";
-		content += "input[type=submit],button[type=button]{margin-left:6px;cursor:pointer;line-height:2.6;display:inline-block;padding:0 1.2rem;text-align:center;vertical-align:middle;color:#FFF;border:0;border-radius:3px;background:#6E5F57;-webkit-appearance:none;-moz-appearance:none;appearance:none}";
-		content += ".row,.row>div,.row>label{display:block}input[type=submit]:hover{color:#FFF;background:#372F2A}input[type=submit]:focus{outline:0}input[type=file]{width:100%}.row{margin-bottom:14px}";
-		content += ".row>label{float:left;width:110px;font-size:14px;position:relative;top:8px}.row>div{margin-left:120px;margin-bottom:12px}.row>div>input{width:100%;display:inline-block}.footer{text-align:right;margin-top:16px}";
-		content += ".psrow{text-align: center;}.psrow>div{display:inline-block;margin:10px;}";
+		String content = F(
+			"@charset \"UTF-8\"; *, :after, : before{ box - sizing:border - box }body{ font:16px / 1.65 \"Noto Sans\",\"HelveticaNeue\",\"Helvetica Neue\",Helvetica,Arial,sans-serif;margin:0;padding:0 20px;color:#555}"
+			"ol,ul{padding-left:20px;margin:0}a{color:#54AFBA}a:hover{text-decoration:none}body>div{background:#fff;margin:20px auto;padding:20px 24px;box-shadow:0 0 1px 1px rgba(0,0,0,.1);border-radius:4px;max-width:540px}"
+			"body>div input,body>div li{word-wrap:break-word}body>div>h1{font-size:1.4em;line-height:1.3;padding-bottom:4px;border-bottom:1px solid #efefef;margin-top:0;margin-bottom:20px}input,select,textarea{font:inherit inherit inherit}"
+			"input{background:rgba(0,0,0,0);padding:.4em .6em;border:1px solid rgba(0,0,0,.12);border-radius:3px;-webkit-appearance:none;-moz-appearance:none;appearance:none}input:focus{border:1px solid #6E5F57;outline:0}"
+			"input[type=submit],button[type=button]{margin-left:6px;cursor:pointer;line-height:2.6;display:inline-block;padding:0 1.2rem;text-align:center;vertical-align:middle;color:#FFF;border:0;border-radius:3px;background:#6E5F57;-webkit-appearance:none;-moz-appearance:none;appearance:none}"
+			".row,.row>div,.row>label{display:block}input[type=submit]:hover{color:#FFF;background:#372F2A}input[type=submit]:focus{outline:0}input[type=file]{width:100%}.row{margin-bottom:14px}"
+			".row>label{float:left;width:110px;font-size:14px;position:relative;top:8px}.row>div{margin-left:120px;margin-bottom:12px}.row>div>input{width:100%;display:inline-block}.footer{text-align:right;margin-top:16px}"
+			".psrow{text-align: center;}.psrow>div{display:inline-block;margin:10px;}");
 		nefry_server.send(200, "text/css", content);
 
 	});
@@ -599,12 +609,13 @@ void Nefry_lib::setupWebMain(void) {
 	});
 
 	nefry_server.on("/reset", [&]() {
-		String content = "<!DOCTYPE HTML><html><head><meta charset=\"UTF-8\">";
-		content += "<title>Nefry Reset</title>";
-		content += "<link rel = \"stylesheet\" type = \"text/css\" href = \"/nefry_css\">";
-		content += "</head><body><div><h1>Nefry Reset</h1>";
-		content += "<p>Reset start!</p>";
-		content += "<a href=\"/\">Back to top</a></div></body></html>";
+		String content = F(
+			"<!DOCTYPE HTML><html><head><meta charset=\"UTF-8\">"
+			"<title>Nefry Reset</title>"
+			"<link rel = \"stylesheet\" type = \"text/css\" href = \"/nefry_css\">"
+			"</head><body><div><h1>Nefry Reset</h1>"
+			"<p>Reset start!</p>"
+			"<a href=\"/\">Back to top</a></div></body></html>");
 		nefry_server.send(200, "text/html", content);
 		ndelay(2000);
 		reset();
@@ -613,12 +624,13 @@ void Nefry_lib::setupWebMain(void) {
 		WiFiConf.bootmode = 1;
 		delay(10);
 		saveConf();
-		String content = "<!DOCTYPE HTML><html><head><meta charset=\"UTF-8\">";
-		content += "<title>Nefry Write mode</title>";
-		content += "<link rel = \"stylesheet\" type = \"text/css\" href = \"/nefry_css\">";
-		content += "</head><body><div><h1>Nefry Write mode</h1>";
-		content += "<p>Reset start!</p>";
-		content += "<a href=\"/\">Back to top</a></div></body></html>";
+		String content = F(
+			"<!DOCTYPE HTML><html><head><meta charset=\"UTF-8\">"
+			"<title>Nefry Write mode</title>"
+			"<link rel = \"stylesheet\" type = \"text/css\" href = \"/nefry_css\">"
+			"</head><body><div><h1>Nefry Write mode</h1>"
+			"<p>Reset start!</p>"
+			"<a href=\"/\">Back to top</a></div></body></html>");
 		nefry_server.send(200, "text/html", content);
 		ndelay(2000);
 		reset();
@@ -628,10 +640,11 @@ void Nefry_lib::setupWebMain(void) {
 void Nefry_lib::setupWebCaptivePortal(void) {
 	_dnsServer.start(53, "*", IPAddress(192, 168, 4, 1));
 	nefry_server.onNotFound([&]() {
-		String content = "<!DOCTYPE html><html><head><meta charset=\"UTF-8\">"
+		String content = F(
+			"<!DOCTYPE html><html><head><meta charset=\"UTF-8\">"
 			"<link rel = \"stylesheet\" type = \"text/css\" href = \"/nefry_content\">"
 			"<title>CaptivePortal</title></head><link rel = \"stylesheet\" type = \"text/css\" href = \"/nefry_css\">  "
-			"<meta http-equiv=\"Refresh\" content=\"0; URL = http://";
+			"<meta http-equiv=\"Refresh\" content=\"0; URL = http://");
 		content += ipaddress;
 		content += "\"><body><div>";
 		content += "<h1 >Move to main page!</h1><p>Please wait...</p><a href=\"http://";
@@ -919,7 +932,8 @@ void Nefry_lib::setupWebConsole(void) {
 			input_console = escapeParameter(input_console);
 			println(input_console);
 		}
-		String content = "<!DOCTYPE HTML><html><head><meta charset=\"UTF-8\">"
+		String content = F(
+			"<!DOCTYPE HTML><html><head><meta charset=\"UTF-8\">"
 			"<title>Nefry Console</title><link rel = \"stylesheet\" type = \"text/css\" href = \"/nefry_css\">"
 			"<script type = \"text/javascript\">\n"
 			"  function loadDoc() {\n"
@@ -954,7 +968,7 @@ void Nefry_lib::setupWebConsole(void) {
 			"<button type = \"button\" onclick=\"reload(5000);\">5sec reload</button>"
 			"<button type = \"button\" onclick=\"clearInterval(timer);\">stop</button>"
 			"</div></p><br><a href=\"/\">Back to top</a></div>"
-			"</body></html>";
+			"</body></html>");
 		nefry_server.send(200, "text/html", content);
 	});
 	nefry_server.on("/cons", HTTP_GET, [&]() {
