@@ -2,7 +2,6 @@
 #define Nefry_h
 #include <Esp.h>
 #include <ESP8266WiFi.h>
-#include <ESP8266mDNS.h>
 #include <ESP8266WebServer.h>
 #include <WiFiClient.h>
 #include <EEPROM.h>
