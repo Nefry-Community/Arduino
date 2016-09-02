@@ -211,7 +211,7 @@ void Nefry_lib::setupWebModuleConf(void) {
 		content += F("\"></div></div>"
 					"<div class = \"row\"><label>Module class: </label> <div> <input name=\"cls\" maxlength=\"32\" value=\"");
 		content += WiFiConf.module_class;
-		content += F("\"></div></div>";
+		content += F("\"></div></div>"
 					"<div class=\"row\"><label>Nefry WiFi Pass: </label> <div> <input type=\"password\" name=\"pwd\" maxlength=\"64\"> </div></div>"
 					"<div class = \"row\"><label>Nefry User: </label> <div> <input name=\"user\" maxlength=\"32\" value=\"");
 		content += WiFiConf.Nefry_user;
