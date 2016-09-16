@@ -1040,13 +1040,13 @@ void Nefry_lib::scanWiFi(void) {
 			Serial.print(" (");
 			Serial.print(WiFi.RSSI(i));
 			Serial.println(")");
-			network_html += "<li>";
+			network_html += F("<li>");
 			network_html += WiFi.SSID(i);
 			network_html += " (";
 			network_html += WiFi.RSSI(i);
 			network_html += ")";
 			network_html += (WiFi.encryptionType(i) == ENC_TYPE_NONE) ? " " : "*";
-			network_html += "</li>";
+			network_html += F("</li>");
 			network_list += F("<option value=\"");
 			network_list += WiFi.SSID(i);
 			network_list += F("\"></option>");
