@@ -7,11 +7,14 @@ ESP8266 Arduino core comes with libraries to communicate over WiFi using TCP and
 
 ### Installing with Boards Manager ###
 
+詳しくは[こちら](https://liginc.co.jp/298161)を参考にしてください。( https://liginc.co.jp/298161 )
+
 1.6.6以上のArduino IDEをインストールしたのち、環境設定に Additional Boards Manager URLs にBoards manager linkを入力。
-.ツール→マイコンボード→ボードマネージャーを開きます。
-検索欄に”Nefry”と入力していただくと、Additional boards manager URLs で追加した
-URL を自動的に検索し、Nefry と出るので右下にある”Install”をクリックしてインストール完了までし
-ばらくお待ちください。
+
+ツール→マイコンボード→ボードマネージャーを開きます。
+
+検索欄に”Nefry”と入力していただくと、Additional boards manager URLsで追加したURLを自動的に検索します。
+Nefryと出るので右下にある”Install”をクリックしてインストール完了までしばらくお待ちください。
 
 #### Available versions
 
