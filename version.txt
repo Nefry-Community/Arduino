@@ -37,3 +37,6 @@ Arduino core for ESP8266 WiFi chip のstableVersion2.3.0への変更
 2.0.1
 不要なファイルの削除（ボード関係）
 getModuleName関数の追加
+
+2.0.2
+memoryの使用量の削減(10kb)
