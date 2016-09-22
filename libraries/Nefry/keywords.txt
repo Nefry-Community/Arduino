@@ -31,6 +31,14 @@ ndelay					KEYWORD2
 setConfWifi				KEYWORD2
 setConfModule			KEYWORD2
 setConfUser				KEYWORD2
+setProgramName			KEYWORD2
+setConfHtmlPrint		KEYWORD2
+setWebUpdate			KEYWORD2
+autoConnect				KEYWORD2
+getProgramName			KEYWORD2
+getModuleName			KEYWORD2
+autoUpdate				KEYWORD2
+
 
 #######################################
 # Constants

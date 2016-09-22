@@ -6,7 +6,7 @@ Copyright (c) 2015 wami
 This software is released under the MIT License.
 http://opensource.org/licenses/mit-license.php
 */
-#define LIBVERSION ("2.0.2")
+#define LIBVERSION ("2.1.0")
 #include "Nefry.h"
 const uint8_t wifi_conf_format[] = WIFI_CONF_FORMAT;
 struct WiFiConfStruct {
@@ -499,22 +499,23 @@ int Nefry_lib::autoUpdate(String url, String uri) {
 		println(F("not connected to the Internet"));
 	}
 	else {
+		println(F("autoUpdateStart"));
 		ESPhttpUpdate.rebootOnUpdate(false);
 		switch (ESPhttpUpdate.update(url, 80, "/nefry.php", uri)) {
 		case HTTP_UPDATE_FAILED:
 			pushSW_flg = 0;
 			Serial.println(uri);
-			Serial.println(F("[update] Update failed."));
+			println(F("[update] Update failed."));
 			Serial.printf("HTTP_UPDATE_FAILD Error (%d): %s", ESPhttpUpdate.getLastError(), ESPhttpUpdate.getLastErrorString().c_str());
 			return ESPhttpUpdate.getLastError();
 			break;
 		case HTTP_UPDATE_NO_UPDATES:
 			pushSW_flg = 0;
-			Serial.println(F("[update] Update no Update."));
+			println(F("[update] Update no Update."));
 			return true;
 			break;
 		case HTTP_UPDATE_OK:
-			Serial.println(F("[update] Update ok."));
+			println(F("[update] Update ok."));
 			delay(2000);
 			reset();
 			break;
