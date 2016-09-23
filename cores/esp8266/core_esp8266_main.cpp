@@ -24,6 +24,7 @@
  //#define CONT_STACKSIZE 4096
  //nefry add
 #include <Nefry.h>
+#include <NefryWriteMode.h>
 //********************
 
 #include <Arduino.h>
@@ -112,14 +113,17 @@ extern "C" void optimistic_yield(uint32_t interval_us) {
 		yield();
 	}
 }
-
+NefryWriteMode _WriteMode;
 static void loop_wrapper() {
+	
 	static bool setup_done = false;
 	preloop_update_frequency();
 	if (!setup_done) {
 		Nefry.nefry_init();
 		if (!Nefry.pushSW_flg) {
 			setup();
+		} else {
+			_WriteMode.wsetup();
 		}
 #ifdef DEBUG_ESP_PORT
 		DEBUG_ESP_PORT.setDebugOutput(true);
@@ -130,6 +134,8 @@ static void loop_wrapper() {
 	Nefry.nefry_loop();
 	if (!Nefry.pushSW_flg) {
 		loop();
+	} else {
+		_WriteMode.wloop();
 	}
 	esp_schedule();
 	run_scheduled_functions();

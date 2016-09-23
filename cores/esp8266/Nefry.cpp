@@ -6,7 +6,7 @@ Copyright (c) 2015 wami
 This software is released under the MIT License.
 http://opensource.org/licenses/mit-license.php
 */
-#define LIBVERSION ("2.0.2")
+#define LIBVERSION ("2.1.0")
 #include "Nefry.h"
 const uint8_t wifi_conf_format[] = WIFI_CONF_FORMAT;
 struct WiFiConfStruct {
@@ -492,6 +492,37 @@ void Nefry_lib::setupWebLocalUpdate(void) {
 		}
 	});
 }
+int Nefry_lib::autoUpdate(String url, String uri) {
+	pushSW_flg = 1;
+	IPAddress ip = WiFi.localIP();
+	if (ip.toString().equals("0.0.0.0")) {
+		println(F("not connected to the Internet"));
+	}
+	else {
+		println(F("autoUpdateStart"));
+		ESPhttpUpdate.rebootOnUpdate(false);
+		switch (ESPhttpUpdate.update(url, 80, "/nefry.php", uri)) {
+		case HTTP_UPDATE_FAILED:
+			pushSW_flg = 0;
+			Serial.println(uri);
+			println(F("[update] Update failed."));
+			Serial.printf("HTTP_UPDATE_FAILD Error (%d): %s", ESPhttpUpdate.getLastError(), ESPhttpUpdate.getLastErrorString().c_str());
+			return ESPhttpUpdate.getLastError();
+			break;
+		case HTTP_UPDATE_NO_UPDATES:
+			pushSW_flg = 0;
+			println(F("[update] Update no Update."));
+			return true;
+			break;
+		case HTTP_UPDATE_OK:
+			println(F("[update] Update ok."));
+			delay(2000);
+			reset();
+			break;
+		}
+	}
+	return false;
+}
 
 void Nefry_lib::setWebUpdate(String program_domain, String program_url) {
 	pushSW_flg = 1;
@@ -513,6 +544,7 @@ void Nefry_lib::setWebUpdate(String program_domain, String program_url) {
 			if (program_url.length() > 0)program_url = escapeParameter(program_url);
 			print(program_url);
 			program_url.concat("/arduino.bin");
+			ESPhttpUpdate.rebootOnUpdate(false);
 			switch (ESPhttpUpdate.update(program_domain, 80, program_url)) {
 			case HTTP_UPDATE_FAILED:
 				Serial.println(program_url);

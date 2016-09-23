@@ -8,7 +8,6 @@
 #include <Adafruit_NeoPixel.h>
 #include <ESP8266httpUpdate.h>	
 #include <DNSServer.h>
-//#include <FS.h>
 
 #define WIFI_CONF_FORMAT {37, 0, 0, 1}
 #define WIFI_CONF_START 0
@@ -88,13 +87,15 @@ public:
 		print(unsigned long text),
 		print(String text,int ln=0),
 		println(String text),
+
 		nefry_init(),
 		nefry_loop(),
 		ndelay(unsigned long ms),
 		setWebUpdate(String program_domain,String program_url);
 
 	int available(),
-		getConfValue(const int num);
+		getConfValue(const int num),
+		autoUpdate(String url,String uri);
 
 	bool push_SW(),
 		autoConnect(int sec=2),
@@ -118,9 +119,6 @@ protected:
 	DNSServer _dnsServer;
 private:
 	void cssAdd(const char* id, String data, bool afterflg = 1);
-	bool checkWebVersionFile();
-	void downloadWebFile();
-	void spiffsWeb(const char *fname, String stradd = "");
 	String network_html, network_list, input_console;
 	void Nefry_LED_blink(const char r, const char g, const char b, const int wait, const int loop, const char pin = 0);
 	char module_input[20][15];
