@@ -24,7 +24,7 @@
  //#define CONT_STACKSIZE 4096
  //nefry add
 #include <Nefry.h>
-#include "../../libraries/Nefry_writemode/NefryWriteMode.h"
+#include <NefryWriteMode.h>
 //********************
 
 #include <Arduino.h>
