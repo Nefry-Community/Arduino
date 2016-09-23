@@ -40,3 +40,8 @@ getModuleName関数の追加
 
 2.0.2
 memoryの使用量の削減(10kb)
+
+2.1.0
+autoUpdate関数の追加
+WriteModeライブラリーの追加
+CocoaBitのライブラリーを追加
