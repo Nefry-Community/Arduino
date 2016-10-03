@@ -6,7 +6,7 @@ Copyright (c) 2015 wami
 This software is released under the MIT License.
 http://opensource.org/licenses/mit-license.php
 */
-#define LIBVERSION ("2.1.0")
+#define LIBVERSION ("2.1.1")
 #include "Nefry.h"
 const uint8_t wifi_conf_format[] = WIFI_CONF_FORMAT;
 struct WiFiConfStruct {
@@ -946,12 +946,34 @@ void Nefry_lib::beginLed(const int num, const int pin, uint8_t t = NEO_GRB + NEO
 	_NefryLED[pin].begin();
 }
 
-void Nefry_lib::setLed(const char r, const char g, const char b, const char w, const char pin, const int num) {
+void Nefry_lib::setLed(const int r, const int g, const int b, const char w, const char pin, const int num) {
 	_NefryLED[pin].setBrightness(w);
 	_NefryLED[pin].setPixelColor(num, r, g, b);
 	_NefryLED[pin].show();
 }
-
+void Nefry_lib::setLed(const char * _colorStr, const char w, const char pin, const int num){
+	int _color[3];
+	for (int i = 0; i < 3; i++) {
+		_color[i] = 0;
+		_color[i] += 16 * hextonum(_colorStr[i * 2]);
+		_color[i] += hextonum(_colorStr[i * 2 + 1]);
+	}
+	_NefryLED[pin].setBrightness(w);
+	_NefryLED[pin].setPixelColor(num, _color[0], _color[1], _color[2]);
+	_NefryLED[pin].show();
+}
+int Nefry_lib::hextonum(char c)
+{
+	char e;
+	int n = 0;
+	if ('0' <= c && c <= '9') {
+		n = c - '0';
+	}
+	else if ('a' <= (e = tolower(c)) && c <= 'f') {
+		n = e - 'a' + 10;
+	}
+	return n;
+}
 //private
 bool Nefry_lib::push_sw_() {
 	pinMode(4, INPUT_PULLUP);

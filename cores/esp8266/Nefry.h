@@ -67,7 +67,8 @@ public:
 		setConfUser(const char user[32], const char pass[32]),
 		setConfHtml(const char set[15], const int num),
 		beginLed(const int num, const int pin, uint8_t t),
-		setLed(const char r, char g, const char b, const char w = 122, const char pin = 0, const int num = 0),
+		setLed(const int r, const int g, const int b, const char w = 122, const char pin = 0, const int num = 0),
+		setLed(const char* _color, const char w = 122, const char pin = 0, const int num = 0),
 
 		println(float text),
 		println(double text),
@@ -146,7 +147,7 @@ private:
 	String escapeParameter(String param);
 	void setConf(char *old, const char *newdata); 
 	void printIpaddress();
-
+	int hextonum(char c);
 };
 extern Nefry_lib Nefry;
 #endif
