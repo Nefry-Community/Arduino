@@ -907,6 +907,10 @@ void Nefry_lib::setupWebConsole(void) {
 			"  xmlhttp.open(\"GET\",\"cons\",true);\n"
 			"  xmlhttp.send();\n"
 			"}\n"
+			"  function cclear() {\n"
+			"  xmlhttp.open(\"GET\",\"consc\",true);\n"
+			"  xmlhttp.send();\n"
+			"}\n"
 			"var timer; \n"
 			"timer = setInterval(\"loadDoc()\",2000);\n"
 			"function reload(time) {\n"
@@ -933,11 +937,16 @@ void Nefry_lib::setupWebConsole(void) {
 		int i;
 		i = printcun;
 		if (mojicount < max_console)i = 0;
-		for (int j = 0; j <= mojicount; j++, i++) {
+		for (int j = 0; j < mojicount; j++, i++) {
 			if (i > max_console)i = 0;
 			content += printweb[i];
 		}
 		nefry_server.send(200, "text/html", content);
+	});
+	nefry_server.on("/consc", HTTP_GET, [&]() {
+		mojicount= 0;
+		printcun = 0;
+		nefry_server.send(200, "text/html", "");
 	});
 }
 
