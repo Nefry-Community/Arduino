@@ -1,5 +1,5 @@
 
-Please fill the info fields, it helps to get you faster support ;)
+問題が起こった時のことを教えてください。
 
 if you have a stack dump decode it:
 https://github.com/esp8266/Arduino/blob/master/doc/Troubleshooting/stack_dump.md
@@ -9,26 +9,15 @@ https://github.com/esp8266/Arduino/blob/master/doc/Troubleshooting/debugging.md
 
 ----------------------------- Remove above -----------------------------
 
-### Basic Infos
+### 基本情報
 
-#### Hardware
-Hardware:			?ESP-12?
-Core Version:      	?2.1.0-rc2?
+#### ハードウエア
+Hardware:			?Nefry v2?
+Nefry　Core Version:      	?2.1.0?
 
-### Description
+### 問題点
 
-Problem description
-
-### Settings in IDE
-
-Module:  			?Generic ESP8266 Module?
-Flash Size: 		?4MB/1MB?
-CPU Frequency:		?80Mhz?
-Flash Mode:			?qio?
-Flash Frequency:	?40Mhz?
-Upload Using:		?OTA / SERIAL?
-Reset Method:		?ck / nodemcu?
-
+問題が起こったときどのような状況になったか
 
 ### Sketch
 
@@ -45,7 +34,7 @@ void loop() {
 }
 ```
 
-### Debug Messages
+### エラーメッセージ
 
 ```
 messages here
