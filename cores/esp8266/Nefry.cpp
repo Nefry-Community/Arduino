@@ -521,6 +521,7 @@ int Nefry_lib::autoUpdate(String url, String uri) {
 			break;
 		}
 	}
+	pushSW_flg = 0;
 	return false;
 }
 
