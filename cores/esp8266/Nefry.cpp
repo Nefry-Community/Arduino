@@ -507,11 +507,12 @@ int Nefry_lib::autoUpdate(String url, String uri) {
 			Serial.println(uri);
 			println(F("[update] Update failed."));
 			Serial.printf("HTTP_UPDATE_FAILD Error (%d): %s", ESPhttpUpdate.getLastError(), ESPhttpUpdate.getLastErrorString().c_str());
+			println(ESPhttpUpdate.getLastErrorString().c_str());
 			return ESPhttpUpdate.getLastError();
 			break;
 		case HTTP_UPDATE_NO_UPDATES:
 			pushSW_flg = 0;
-			println(F("[update] Update no Update."));
+			println(F("[update] no Update."));
 			return true;
 			break;
 		case HTTP_UPDATE_OK:
