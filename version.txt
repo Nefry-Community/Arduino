@@ -45,3 +45,8 @@ memoryの使用量の削減(10kb)
 autoUpdate関数の追加
 WriteModeライブラリーの追加
 CocoaBitのライブラリーを追加
+
+2.1.1
+16進数でのLED制御関数の追加
+サンプルプログラムの修正
+WebConsoleの送信をAjax対応

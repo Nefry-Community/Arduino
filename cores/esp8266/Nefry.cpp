@@ -6,7 +6,7 @@ Copyright (c) 2015 wami
 This software is released under the MIT License.
 http://opensource.org/licenses/mit-license.php
 */
-#define LIBVERSION ("2.1.0")
+#define LIBVERSION ("2.1.1")
 #include "Nefry.h"
 const uint8_t wifi_conf_format[] = WIFI_CONF_FORMAT;
 struct WiFiConfStruct {
@@ -507,11 +507,12 @@ int Nefry_lib::autoUpdate(String url, String uri) {
 			Serial.println(uri);
 			println(F("[update] Update failed."));
 			Serial.printf("HTTP_UPDATE_FAILD Error (%d): %s", ESPhttpUpdate.getLastError(), ESPhttpUpdate.getLastErrorString().c_str());
+			println(ESPhttpUpdate.getLastErrorString().c_str());
 			return ESPhttpUpdate.getLastError();
 			break;
 		case HTTP_UPDATE_NO_UPDATES:
 			pushSW_flg = 0;
-			println(F("[update] Update no Update."));
+			println(F("[update] no Update."));
 			return true;
 			break;
 		case HTTP_UPDATE_OK:
@@ -521,6 +522,7 @@ int Nefry_lib::autoUpdate(String url, String uri) {
 			break;
 		}
 	}
+	pushSW_flg = 0;
 	return false;
 }
 
@@ -625,7 +627,7 @@ void Nefry_lib::setupWebMain(void) {
 			"ol,ul{padding-left:20px;margin:0}a{color:#54AFBA}a:hover{text-decoration:none}body>div{background:#fff;margin:20px auto;padding:20px 24px;box-shadow:0 0 1px 1px rgba(0,0,0,.1);border-radius:4px;max-width:540px}"
 			"body>div input,body>div li{word-wrap:break-word}body>div>h1{font-size:1.4em;line-height:1.3;padding-bottom:4px;border-bottom:1px solid #efefef;margin-top:0;margin-bottom:20px}input,select,textarea{font:inherit inherit inherit}"
 			"input{background:rgba(0,0,0,0);padding:.4em .6em;border:1px solid rgba(0,0,0,.12);border-radius:3px;-webkit-appearance:none;-moz-appearance:none;appearance:none}input:focus{border:1px solid #6E5F57;outline:0}"
-			"input[type=submit],button[type=button]{margin-left:6px;cursor:pointer;line-height:2.6;display:inline-block;padding:0 1.2rem;text-align:center;vertical-align:middle;color:#FFF;border:0;border-radius:3px;background:#6E5F57;-webkit-appearance:none;-moz-appearance:none;appearance:none}"
+			"input[type=submit],input[type=button],button[type=button]{margin-left:6px;cursor:pointer;line-height:2.6;display:inline-block;padding:0 1.2rem;text-align:center;vertical-align:middle;color:#FFF;border:0;border-radius:3px;background:#6E5F57;-webkit-appearance:none;-moz-appearance:none;appearance:none}"
 			".row,.row>div,.row>label{display:block}input[type=submit]:hover{color:#FFF;background:#372F2A}input[type=submit]:focus{outline:0}input[type=file]{width:100%}.row{margin-bottom:14px}"
 			".row>label{float:left;width:110px;font-size:14px;position:relative;top:8px}.row>div{margin-left:120px;margin-bottom:12px}.row>div>input{width:100%;display:inline-block}.footer{text-align:right;margin-top:16px}"
 			".psrow{text-align: center;}.psrow>div{display:inline-block;margin:10px;}");
@@ -880,13 +882,24 @@ void Nefry_lib::setupWebConsole(void) {
 		String content = F(
 			"<!DOCTYPE HTML><html><head><meta charset=\"UTF-8\">"
 			"<title>Nefry Console</title><link rel = \"stylesheet\" type = \"text/css\" href = \"/nefry_css\">"
-			"<script type = \"text/javascript\">\n"
-			"  function loadDoc() {\n"
+			"\n<script type = \"text/javascript\">\n"
 			"  if (window.XMLHttpRequest) {\n"
 			"    xmlhttp = new XMLHttpRequest();\n"
 			"  } else {\n"
 			"    xmlhttp = new ActiveXObject(\"Microsoft.XMLHTTP\");\n"
 			"  }\n"
+			"  function pushDoc() {\n"
+			"  if (window.XMLHttpRequest) {\n"
+			"    xmlhttp2 = new XMLHttpRequest();\n"
+			"  } else {\n"
+			"    xmlhttp2 = new ActiveXObject(\"Microsoft.XMLHTTP\");\n"
+			"  }\n"
+			"  xmlhttp2.open(\"POST\",\"console\",true);\n"
+			"	xmlhttp2.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');\n"
+			"	xmlhttp2.send('console='+document.msg.console.value);\n"
+			"	document.getElementById('cos').value='';"
+			"  }\n"
+			"  function loadDoc() {\n"
 			"  xmlhttp.onreadystatechange = function() {\n"
 			"    if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {\n"
 			"      document.getElementById(\"ajaxDiv\").innerHTML=xmlhttp.responseText;\n"
@@ -894,6 +907,10 @@ void Nefry_lib::setupWebConsole(void) {
 			"    }\n"
 			"  }\n"
 			"  xmlhttp.open(\"GET\",\"cons\",true);\n"
+			"  xmlhttp.send();\n"
+			"}\n"
+			"  function cclear() {\n"
+			"  xmlhttp.open(\"GET\",\"consc\",true);\n"
 			"  xmlhttp.send();\n"
 			"}\n"
 			"var timer; \n"
@@ -905,14 +922,15 @@ void Nefry_lib::setupWebConsole(void) {
 			"</script>\n"
 			"</head><body><div><h1>Nefry Console</h1>"
 			"<p>It can be used as a terminal.</p>"
-			"<form method='post' action='console'><div class=\"row\"> <label for=\"console\">console:</label> <div> <input name=\"console\" id=\"console\" maxlength=\"100\" value=\"\"> </div></div>"
-			"<div class=\"footer\"> <input type=\"submit\" value=\"Send\"> </div></form>"
-			"<p><div><div id=\"ajaxDiv\"></div><button type=\"button\" onclick=\"loadDoc()\">reload</button>"
+			"<form  name='msg' method='post' action='console'><div class=\"row\"> <label for=\"console\">console:</label> <div> <input name=\"console\" id='cos' maxlength=\"100\" value=\"\"></div></div>"
+			"<div class=\"footer\"><input type='button' value='Send' onclick='pushDoc();' /></div></form>"
+			"<div><div id=\"ajaxDiv\"></div><div class=\"row\"><button type=\"button\" onclick=\"loadDoc()\">reload</button>"
 			"<button type = \"button\" onclick=\"reload(500);\">0.5sec reload</button>"
 			"<button type = \"button\" onclick=\"reload(2000);\">2sec reload</button>"
 			"<button type = \"button\" onclick=\"reload(5000);\">5sec reload</button>"
-			"<button type = \"button\" onclick=\"clearInterval(timer);\">stop</button>"
-			"</div></p><br><a href=\"/\">Back to top</a></div>"
+			"<button type = \"button\" onclick=\"clearInterval(timer);\">stop</button></div>"
+			"<div class=\"row\"><button type = \"button\" onclick=\"cclear();\">Clear</button></div>"
+			"</div><br><a href=\"/\">Back to top</a></div>"
 			"</body></html>");
 		nefry_server.send(200, "text/html", content);
 	});
@@ -921,11 +939,16 @@ void Nefry_lib::setupWebConsole(void) {
 		int i;
 		i = printcun;
 		if (mojicount < max_console)i = 0;
-		for (int j = 0; j <= mojicount; j++, i++) {
+		for (int j = 0; j < mojicount; j++, i++) {
 			if (i > max_console)i = 0;
 			content += printweb[i];
 		}
 		nefry_server.send(200, "text/html", content);
+	});
+	nefry_server.on("/consc", HTTP_GET, [&]() {
+		mojicount= 0;
+		printcun = 0;
+		nefry_server.send(200, "text/html", "");
 	});
 }
 
@@ -946,12 +969,34 @@ void Nefry_lib::beginLed(const int num, const int pin, uint8_t t = NEO_GRB + NEO
 	_NefryLED[pin].begin();
 }
 
-void Nefry_lib::setLed(const char r, const char g, const char b, const char w, const char pin, const int num) {
+void Nefry_lib::setLed(const int r, const int g, const int b, const char w, const char pin, const int num) {
 	_NefryLED[pin].setBrightness(w);
 	_NefryLED[pin].setPixelColor(num, r, g, b);
 	_NefryLED[pin].show();
 }
-
+void Nefry_lib::setLed(const char * _colorStr, const char w, const char pin, const int num){
+	int _color[3];
+	for (int i = 0; i < 3; i++) {
+		_color[i] = 0;
+		_color[i] += 16 * hextonum(_colorStr[i * 2]);
+		_color[i] += hextonum(_colorStr[i * 2 + 1]);
+	}
+	_NefryLED[pin].setBrightness(w);
+	_NefryLED[pin].setPixelColor(num, _color[0], _color[1], _color[2]);
+	_NefryLED[pin].show();
+}
+int Nefry_lib::hextonum(char c)
+{
+	char e;
+	int n = 0;
+	if ('0' <= c && c <= '9') {
+		n = c - '0';
+	}
+	else if ('a' <= (e = tolower(c)) && c <= 'f') {
+		n = e - 'a' + 10;
+	}
+	return n;
+}
 //private
 bool Nefry_lib::push_sw_() {
 	pinMode(4, INPUT_PULLUP);
