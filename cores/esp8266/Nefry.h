@@ -114,11 +114,11 @@ public:
 		getProgramName();
 	char* getModuleName();
 	//void webpage(const char url[20],String page,String link);
+	ESP8266WebServer* getWebServer(void);
 
-protected:
+private:
 	ESP8266WebServer nefry_server;
 	DNSServer _dnsServer;
-private:
 	void cssAdd(const char* id, String data, bool afterflg = 1);
 	String network_html, network_list, input_console;
 	void Nefry_LED_blink(const char r, const char g, const char b, const int wait, const int loop, const char pin = 0);
