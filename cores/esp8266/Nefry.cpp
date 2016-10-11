@@ -41,6 +41,10 @@ Adafruit_NeoPixel _NefryLED[17];
 char* Nefry_lib::getModuleName() {
 	return WiFiConf.module_id;
 }
+ESP8266WebServer* Nefry_lib::getWebServer(void)
+{
+	return &nefry_server;
+}
 const char * program;
 String Nefry_lib::getProgramName() {
 	return program;
