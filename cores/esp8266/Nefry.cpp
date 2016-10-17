@@ -82,6 +82,15 @@ void Nefry_lib::reset() {
 	delay(500);
 }
 
+void Nefry_lib::setIndexLink(const char title[32], const char url[32])
+{
+	indexlink += "<li><a href='/";
+	indexlink += url;
+	indexlink += "'>";
+	indexlink += title;
+	indexlink += "</a>"
+}
+
 void Nefry_lib::sleep(const int sec) {
 	ESP.deepSleep(sec * 1000 * 1000, WAKE_RF_DEFAULT);
 	delay(1000);
@@ -620,9 +629,9 @@ void Nefry_lib::setupWebMain(void) {
 			"<li><a href='/module_id'>Setup Module</a>"
 			"<li><a href='/web_update'>Web Sketch Download</a>"
 			"<li><a href='/update'>Upload Sketch</a>"
-			"<li><a href='/console'>Web Console</a>"
-			"</ul>"
-			"</div></body></html>");
+			"<li><a href='/console'>Web Console</a>");
+		content += indexlink;
+		content += F("</ul></div></body></html>");
 		nefry_server.send(200, "text/html", content);
 	});
 	nefry_server.on("/nefry_css", [&]() {
@@ -1190,82 +1199,4 @@ String Nefry_lib::escapeParameter(String param) {
 	param.replace("%7D", "}");
 	return param;
 }
-/*
-void Nefry_lib::webpage(const char url[20],String page,String link){
-char uri[30]="/user/";
-char *u=uri;
-strcpy(u+6,url);
-print(page);
-/*nefry_server.on(url, [&]() {
-String pagee="<!DOCTYPE html><head><meta charset=\"UTF-8\"/><title>サイト名</title></head><body><h1>サイト名</h1></body></html>";
-nefry_server.send(200, "text/html", pagee);
-});*//*
-nefry_server.on(url, [&]() {
-IPAddress ip = WiFi.localIP();
-String ipStr = String(ip[0]) + '.' + String(ip[1]) + '.' + String(ip[2]) + '.' + String(ip[3]);
-String content = "<!DOCTYPE HTML>\r\n<html><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=windows-1252\"><title>";
-content += WiFiConf.module_id;
-content += ".local";
-content += "</title><style>*{box-sizing: border-box;}*:before, *:after{box-sizing: border-box;}body{margin:0; padding: 20px;font-family: \"Noto Sans\",\"HelveticaNeue\",\"Helvetica Neue\",Helvetica,Arial,sans-serif; line-height: 1.65; color: #555;}ul, ol{padding-left: 20px}a{color: #54AFBA}a:hover{text-decoration: none}div{margin: 0 auto; padding: 20px 24px; background-color: #fff; box-shadow: 0 0 1px 1px rgba(0,0,0,.1); border-radius: 4px; max-width: 600px;}div > h1{font-size: 1.4em; padding-bottom: 4px; border-bottom: 1px solid #efefef; margin-top: 0; margin-bottom: 20px;}</style></head><body>";
-content += "<div><h1>Create</h1>";
-content += "<p>LAN: ";
-content += WiFiConf.sta_ssid;
-content += "</br>IP: ";
-content += ipStr;
-content += " ( ";
-content += WiFiConf.module_id;
-content += ".local";
-content += " )</p>";
-content += "<p>";
-content += "</p>";
-content += "<ul>";
-if(User_page.length() > 0) {
-content +=User_page;
-}else{
-content +="Null page";
-}
-content += "</ul>";
-content += "<a href=\"/\">Back to top</a></div></body></html>";
-nefry_server.send(200, "text/html", content);
-});
-User_page +="<li><a href=\"";
-User_page +=url;
-User_page +="\">";
-User_page +=link;
-User_page +="</a>";
-}
-void Nefry_lib::user_webpage(){
-nefry_server.on("/user", [&]() {
-IPAddress ip = WiFi.localIP();
-String ipStr = String(ip[0]) + '.' + String(ip[1]) + '.' + String(ip[2]) + '.' + String(ip[3]);
-String content = "<!DOCTYPE HTML>\r\n<html><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=windows-1252\"><title>";
-content += WiFiConf.module_id;
-content += ".local";
-content += "</title><style>*{box-sizing: border-box;}*:before, *:after{box-sizing: border-box;}body{margin:0; padding: 20px;font-family: \"Noto Sans\",\"HelveticaNeue\",\"Helvetica Neue\",Helvetica,Arial,sans-serif; line-height: 1.65; color: #555;}ul, ol{padding-left: 20px}a{color: #54AFBA}a:hover{text-decoration: none}div{margin: 0 auto; padding: 20px 24px; background-color: #fff; box-shadow: 0 0 1px 1px rgba(0,0,0,.1); border-radius: 4px; max-width: 600px;}div > h1{font-size: 1.4em; padding-bottom: 4px; border-bottom: 1px solid #efefef; margin-top: 0; margin-bottom: 20px;}</style></head><body>";
-content += "<div><h1>Create</h1>";
-content += "<p>LAN: ";
-content += WiFiConf.sta_ssid;
-content += "</br>IP: ";
-content += ipStr;
-content += " ( ";
-content += WiFiConf.module_id;
-content += ".local";
-content += " )</p>";
-content += "<p>";
-content += "</p>";
-content += "<ul>";
-if(User_page.length() > 0) {
-content +=User_page;
-}else{
-content +="Null page";
-}
-content += "</ul>";
-content += "<a href=\"/\">Back to top</a></div></body></html>";
-nefry_server.send(200, "text/html", content);
-});
-nefry_server.on("/ard", [&]() {
-nefry_server.send(200, "text/html","");
-});
-}*/
-
 Nefry_lib Nefry;

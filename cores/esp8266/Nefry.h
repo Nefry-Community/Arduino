@@ -61,6 +61,7 @@ public:
 		reset(),
 		sleep(const int sec),
 		setProgramName(const char * pn),
+		setIndexLink(const char title[32],const char url[32]),
 		setConfHtmlPrint(const bool data, const int num),
 		setConfWifi(const char SSID[32], const char pass[64]),
 		setConfModule(const char module_id_[32], const char module_class_[32], const char module_wifi_pass_[64]),
@@ -117,6 +118,7 @@ public:
 	ESP8266WebServer* getWebServer(void);
 
 private:
+	String indexlink;
 	ESP8266WebServer nefry_server;
 	DNSServer _dnsServer;
 	void cssAdd(const char* id, String data, bool afterflg = 1);
