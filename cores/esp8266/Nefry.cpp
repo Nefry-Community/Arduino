@@ -84,11 +84,11 @@ void Nefry_lib::reset() {
 
 void Nefry_lib::setIndexLink(const char title[32], const char url[32])
 {
-	indexlink += "<li><a href='/";
+	indexlink += "<li><a href='";
 	indexlink += url;
 	indexlink += "'>";
 	indexlink += title;
-	indexlink += "</a>"
+	indexlink += "</a>";
 }
 
 void Nefry_lib::sleep(const int sec) {
