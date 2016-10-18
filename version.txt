@@ -50,3 +50,10 @@ CocoaBitのライブラリーを追加
 16進数でのLED制御関数の追加
 サンプルプログラムの修正
 WebConsoleの送信をAjax対応
+
+2.2.0
+- setIndexLink 関数の追加
+- getWebServer 関数の追加
+- Nefry_Milkcocoaライブラリの修正
+- CocoaBitライブラリの更新
+- NefryRESTAPIライブラリの追加

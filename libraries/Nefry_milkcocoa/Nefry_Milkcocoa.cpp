@@ -58,7 +58,7 @@ void DataElement::setValue(const char *key, double v) {
 char *DataElement::getString(const char *key) {
 	aJsonObject* obj = aJson.getObjectItem(params, key);
 	if (obj == NULL) {
-		Serial.println("obj is NULL");
+		Serial.println(F("obj is NULL"));
 		return (char*)"";
 	}
 	return obj->valuestring;
@@ -67,7 +67,7 @@ char *DataElement::getString(const char *key) {
 int DataElement::getInt(const char *key) {
 	aJsonObject* obj = aJson.getObjectItem(params, key);
 	if (obj == NULL) {
-		Serial.println("obj is NULL");
+		Serial.println(F("obj is NULL"));
 		return 0;
 	}
 	return obj->valueint;
@@ -76,7 +76,7 @@ int DataElement::getInt(const char *key) {
 float DataElement::getFloat(const char *key) {
 	aJsonObject* obj = aJson.getObjectItem(params, key);
 	if (obj == NULL) {
-		Serial.println("obj is NULL");
+		Serial.println(F("obj is NULL"));
 		return 0;
 	}
 	return obj->valuefloat;
@@ -115,7 +115,7 @@ Nefry_Milkcocoa* Nefry_Milkcocoa::begin(const char * appid, const char *key, con
 		
 		return new Nefry_Milkcocoa(&_client, 1883, appid, _session);
 	} else {
-		Nefry.println("Milkcocoa Send Data Lack");
+		Nefry.println(F("Milkcocoa Send Data Lack"));
 		while (true){
 			Nefry.setLed(255, 0, 0);
 			Nefry.ndelay(10);
@@ -132,12 +132,12 @@ bool Nefry_Milkcocoa::connect(uint16_t timeout) {
 		return true;
 	}
 
-	Serial.print("Connecting to MQTT... ");
+	Serial.print(F("Connecting to MQTT... "));
 
 	while ((ret = mqtt->connect()) != 0) { // connect will return 0 for connected
 		Serial.println(mqtt->connectErrorString(ret));
 		Serial.println(ret);
-		Serial.println("Retrying MQTT connection in 5 seconds...");
+		Serial.println(F("Retrying MQTT connection in 5 seconds..."));
 		mqtt->disconnect();
 		Nefry.ndelay(5000);  // wait 5 seconds
 		if (timeout > 0) {
@@ -145,7 +145,7 @@ bool Nefry_Milkcocoa::connect(uint16_t timeout) {
 			if (cnt * 5000 >= timeout) return false;
 		}
 	}
-	Serial.println("MQTT Connected!");
+	Serial.println(F("MQTT Connected!"));
 	return true;
 }
 

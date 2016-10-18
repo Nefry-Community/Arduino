@@ -38,7 +38,8 @@ autoConnect				KEYWORD2
 getProgramName			KEYWORD2
 getModuleName			KEYWORD2
 autoUpdate				KEYWORD2
-
+setIndexLink			KEYWORD2
+getWebServer			KEYWORD2
 
 #######################################
 # Constants
