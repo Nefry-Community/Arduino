@@ -1,3 +1,7 @@
 [submodule "libraries/CocoaBit"]
 	path = libraries/CocoaBit
 	url = https://github.com/cocoabit/SampleProgram.git
+
+[submodule "libraries/NefryRESTAPI"]
+	path = libraries/NefryRESTAPI
+	url = https://github.com/Nefry-Community/RestAPIlibrary.git

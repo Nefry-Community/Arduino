@@ -61,6 +61,7 @@ public:
 		reset(),
 		sleep(const int sec),
 		setProgramName(const char * pn),
+		setIndexLink(const char title[32],const char url[32]),
 		setConfHtmlPrint(const bool data, const int num),
 		setConfWifi(const char SSID[32], const char pass[64]),
 		setConfModule(const char module_id_[32], const char module_class_[32], const char module_wifi_pass_[64]),
@@ -114,11 +115,12 @@ public:
 		getProgramName();
 	char* getModuleName();
 	//void webpage(const char url[20],String page,String link);
+	ESP8266WebServer* getWebServer(void);
 
-protected:
+private:
+	String indexlink;
 	ESP8266WebServer nefry_server;
 	DNSServer _dnsServer;
-private:
 	void cssAdd(const char* id, String data, bool afterflg = 1);
 	String network_html, network_list, input_console;
 	void Nefry_LED_blink(const char r, const char g, const char b, const int wait, const int loop, const char pin = 0);
