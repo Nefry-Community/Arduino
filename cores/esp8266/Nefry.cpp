@@ -69,6 +69,7 @@ void Nefry_lib::ndelay(unsigned long ms) {
 		if (millis() < beforetime)break;
 		nefry_loop();
 		delay(1);
+		yield();
 	}
 }
 
