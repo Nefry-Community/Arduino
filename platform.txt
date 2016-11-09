@@ -82,22 +82,22 @@ recipe.S.o.pattern="{compiler.path}{compiler.c.cmd}" {compiler.cpreprocessor.fla
 recipe.ar.pattern="{compiler.path}{compiler.ar.cmd}" {compiler.ar.flags} {compiler.ar.extra_flags} "{build.path}/arduino.ar" "{object_file}"
 
 ## Combine gc-sections, archives, and objects
-recipe.c.combine.pattern="{compiler.path}{compiler.c.elf.cmd}" {compiler.c.elf.flags} {compiler.c.elf.extra_flags} -o "{build.path}/arduino.elf" -Wl,--start-group {object_files} "{build.path}/arduino.ar" {compiler.c.elf.libs} -Wl,--end-group  "-L{build.path}"
+recipe.c.combine.pattern="{compiler.path}{compiler.c.elf.cmd}" {compiler.c.elf.flags} {compiler.c.elf.extra_flags} -o "{build.path}/{build.project_name}.elf" -Wl,--start-group {object_files} "{build.path}/arduino.ar" {compiler.c.elf.libs} -Wl,--end-group  "-L{build.path}"
 
 ## Create eeprom
 recipe.objcopy.eep.pattern=
 
 ## Create hex
-#recipe.objcopy.hex.pattern="{compiler.path}{compiler.elf2hex.cmd}" {compiler.elf2hex.flags} {compiler.elf2hex.extra_flags} "{build.path}/arduino.elf" "{build.path}/arduino.hex"
+#recipe.objcopy.hex.pattern="{compiler.path}{compiler.elf2hex.cmd}" {compiler.elf2hex.flags} {compiler.elf2hex.extra_flags} "{build.path}/{build.project_name}.elf" "{build.path}/arduino.hex"
 
-recipe.objcopy.hex.pattern="{runtime.tools.esptool.path}/{compiler.esptool.cmd}" -eo "{runtime.platform.path}/bootloaders/eboot/eboot.elf" -bo "{build.path}/arduino.bin" -bm {build.flash_mode} -bf {build.flash_freq} -bz {build.flash_size} -bs .text -bp 4096 -ec -eo "{build.path}/arduino.elf" -bs .irom0.text -bs .text -bs .data -bs .rodata -bc -ec
+recipe.objcopy.hex.pattern="{runtime.tools.esptool.path}/{compiler.esptool.cmd}" -eo "{runtime.platform.path}/bootloaders/eboot/eboot.elf" -bo "{build.path}/arduino.bin" -bm {build.flash_mode} -bf {build.flash_freq} -bz {build.flash_size} -bs .text -bp 4096 -ec -eo "{build.path}/{build.project_name}.elf" -bs .irom0.text -bs .text -bs .data -bs .rodata -bc -ec
 
 ## Save hex
 recipe.output.tmp_file=arduino.bin
 recipe.output.save_file=arduino.bin
 
 ## Compute size
-recipe.size.pattern="{compiler.path}{compiler.size.cmd}" -A "{build.path}/arduino.elf"
+recipe.size.pattern="{compiler.path}{compiler.size.cmd}" -A "{build.path}/{build.project_name}.elf"
 recipe.size.regex=^(?:\.irom0\.text|\.text|\.data|\.rodata|)\s+([0-9]+).*
 recipe.size.regex.data=^(?:\.data|\.rodata|\.bss)\s+([0-9]+).*
 #recipe.size.regex.eeprom=^(?:\.eeprom)\s+([0-9]+).*

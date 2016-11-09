@@ -5,3 +5,6 @@
 [submodule "libraries/NefryRESTAPI"]
 	path = libraries/NefryRESTAPI
 	url = https://github.com/Nefry-Community/RestAPIlibrary.git
+[submodule "libraries/easyEditor"]
+	path = libraries/easyEditor
+	url = https://github.com/Nefry-Community/easyEditor.git
