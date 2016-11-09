@@ -446,10 +446,10 @@ void Nefry_lib::setupWebLocalUpdate(void) {
 			"<title>Nefry Upload Sketch</title></head><body><div><h1>Upload Sketch</h1> <p>Upload a binary file of sketch.</p><form method=\"POST\" action=\"/upload_sketch\" enctype=\"multipart/form-data\">"
 			"<input type=\"file\" name=\"sketch\"><div class=\"footer\"> <input type=\"submit\" value=\"Upload\" onclick=\"return confirm(&quotAre you sure you want to update the Sketch?&quot)\">"
 			"</div></form><a href=\"/\">Back to top</a></div></body></html>");
+		print("UPDNF");
 		nefry_server.send(200, "text/html", content);
 	});
 	nefry_server.onFileUpload([&]() {
-		print("UPDNF");
 		if (nefry_server.uri() != "/upload_sketch") return;
 		pushSW_flg = 1;
 		HTTPUpload& upload = nefry_server.upload();
@@ -458,9 +458,8 @@ void Nefry_lib::setupWebLocalUpdate(void) {
 		count++;
 		if (file_name.endsWith("bin")) {
 			err = false;
-			if (count % 20 == 1)
-				Nefry_LED_blink(0x00, 0x00, 0xFF, 10, 1);
-			ndelay(10);
+			if (count % 5 == 1)
+				Nefry_LED_blink(0xff, 0xff, 0x00, 10, 1);
 			if (upload.status == UPLOAD_FILE_START) {
 				Serial.println("ok");
 				Serial.setDebugOutput(true);
@@ -469,12 +468,22 @@ void Nefry_lib::setupWebLocalUpdate(void) {
 				if (!Update.begin(maxSketchSpace))Update.printError(Serial);
 			}
 			else if (upload.status == UPLOAD_FILE_WRITE) {
-				if (Update.write(upload.buf, upload.currentSize) != upload.currentSize)Update.printError(Serial);
+				if (Update.write(upload.buf, upload.currentSize) != upload.currentSize) {
+					Update.printError(Serial);
+					Nefry_LED_blink(0xFF, 0x0, 0x00, 1000, 1);
+				}
 			}
 			else if (upload.status == UPLOAD_FILE_END) {
-				if (Update.end(true)) Serial.printf("Update Success: %u\nRebooting...\n", upload.totalSize);
-				else Update.printError(Serial);
+				if (Update.end(true)) {
+					Serial.printf("Update Success: %u\nRebooting...\n", upload.totalSize);
+					Nefry_LED_blink(0x00, 0x00, 0xff, 1500, 1);
+				}
+				else {
+					Update.printError(Serial);
+					Nefry_LED_blink(0xFF, 0x0, 0x00, 1000, 1);
+				}
 				Serial.setDebugOutput(false);
+				
 			}
 			yield();
 		}
@@ -917,7 +926,7 @@ void Nefry_lib::setupWebConsole(void) {
 			"  }\n"
 			"  function loadDoc() {\n"
 			"  xmlhttp.onreadystatechange = function() {\n"
-			"    if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {\n var newtext=xmlhttp.responseText;if(newtext.match(/UPDNF/)){clearInterval(timer);alert(\"自動更新を停止しました。\");}"
+			"    if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {\n var newtext=xmlhttp.responseText;if(newtext.match(/UPDNF/)){clearInterval(timer);alert(\"プログラム更新ページが開かれたため、自動更新を停止しました。更新を終えた場合や更新しない場合Clearを押してから間隔を選択してください。\");}"
 			"      else{document.getElementById(\"ajaxDiv\").innerHTML=newtext;\n"
 			"      console.log(\"get\");\n}"
 			"    }\n"
