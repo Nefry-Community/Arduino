@@ -57,3 +57,9 @@ WebConsoleの送信をAjax対応
 - Nefry_Milkcocoaライブラリの修正
 - CocoaBitライブラリの更新
 - NefryRESTAPIライブラリの追加
+
+2.2.1
+・EasyEditor追加
+・EspExceptionDecoderに対応
+・CocoaBit,RESTAPI更新
+・プログラムを更新する際に自動更新停止モードを追加

@@ -6,7 +6,7 @@ Copyright (c) 2015 wami
 This software is released under the MIT License.
 http://opensource.org/licenses/mit-license.php
 */
-#define LIBVERSION ("2.2.0")
+#define LIBVERSION ("2.2.1")
 #include "Nefry.h"
 const uint8_t wifi_conf_format[] = WIFI_CONF_FORMAT;
 struct WiFiConfStruct {
@@ -69,6 +69,7 @@ void Nefry_lib::ndelay(unsigned long ms) {
 		if (millis() < beforetime)break;
 		nefry_loop();
 		delay(1);
+		yield();
 	}
 }
 
@@ -448,6 +449,7 @@ void Nefry_lib::setupWebLocalUpdate(void) {
 		nefry_server.send(200, "text/html", content);
 	});
 	nefry_server.onFileUpload([&]() {
+		print("UPDNF");
 		if (nefry_server.uri() != "/upload_sketch") return;
 		pushSW_flg = 1;
 		HTTPUpload& upload = nefry_server.upload();
@@ -458,6 +460,7 @@ void Nefry_lib::setupWebLocalUpdate(void) {
 			err = false;
 			if (count % 20 == 1)
 				Nefry_LED_blink(0x00, 0x00, 0xFF, 10, 1);
+			ndelay(10);
 			if (upload.status == UPLOAD_FILE_START) {
 				Serial.println("ok");
 				Serial.setDebugOutput(true);
@@ -914,9 +917,9 @@ void Nefry_lib::setupWebConsole(void) {
 			"  }\n"
 			"  function loadDoc() {\n"
 			"  xmlhttp.onreadystatechange = function() {\n"
-			"    if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {\n"
-			"      document.getElementById(\"ajaxDiv\").innerHTML=xmlhttp.responseText;\n"
-			"      console.log(\"get\");\n"
+			"    if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {\n var newtext=xmlhttp.responseText;if(newtext.match(/UPDNF/)){clearInterval(timer);alert(\"自動更新を停止しました。\");}"
+			"      else{document.getElementById(\"ajaxDiv\").innerHTML=newtext;\n"
+			"      console.log(\"get\");\n}"
 			"    }\n"
 			"  }\n"
 			"  xmlhttp.open(\"GET\",\"cons\",true);\n"
