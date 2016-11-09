@@ -63,3 +63,10 @@ WebConsoleの送信をAjax対応
 ・EspExceptionDecoderに対応
 ・CocoaBit,RESTAPI更新
 ・プログラムを更新する際に自動更新停止モードを追加
+
+2.2.2
+・RESTAPIのバージョンアップに関する修正
+・アップデート関連の調整
+　NefryについているLEDがアップデートに成功した際に青点灯、失敗した場合に赤点灯するように変更
+　自動更新が止まったときの注意文の変更
+・RestAPIに関するCocoaBitのI2Cなどのピン情報の有効化
