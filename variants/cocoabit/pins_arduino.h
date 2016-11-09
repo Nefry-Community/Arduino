@@ -40,7 +40,7 @@
 
 #define NEO_GRB  ((1 << 6) | (1 << 4) | (0 << 2) | (2))
 
-/*
+
 static const uint8_t SDA = 2;
 static const uint8_t SCL = 5;
 
@@ -48,7 +48,7 @@ static const uint8_t SS    = 15;
 static const uint8_t MOSI  = 13;
 static const uint8_t MISO  = 12;
 static const uint8_t SCK   = 14;
-*/
+
 static const uint8_t SW = 4;
 static const uint8_t RGB_LED = 0;
 
