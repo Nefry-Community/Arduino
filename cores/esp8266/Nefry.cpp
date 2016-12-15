@@ -655,7 +655,7 @@ void Nefry_lib::setupWebMain(void) {
 			"input[type=submit],input[type=button],button[type=button]{margin-left:6px;cursor:pointer;line-height:2.6;display:inline-block;padding:0 1.2rem;text-align:center;vertical-align:middle;color:#FFF;border:0;border-radius:3px;background:#6E5F57;-webkit-appearance:none;-moz-appearance:none;appearance:none}"
 			".row,.row>div,.row>label{display:block}input[type=submit]:hover{color:#FFF;background:#372F2A}input[type=submit]:focus{outline:0}input[type=file]{width:100%}.row{margin-bottom:14px}"
 			".row>label{float:left;width:110px;font-size:14px;position:relative;top:8px}.row>div{margin-left:120px;margin-bottom:12px}.row>div>input{width:100%;display:inline-block}.footer{text-align:right;margin-top:16px}"
-			".psrow{text-align: center;}.psrow>div{display:inline-block;margin:10px;}");
+			".psrow{text-align: center;}.psrow>div{display:inline-block;margin:10px;}.writemode{color:#ff0000}");
 		nefry_server.send(200, "text/css", content);
 
 	});
