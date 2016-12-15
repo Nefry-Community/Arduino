@@ -70,3 +70,11 @@ WebConsoleの送信をAjax対応
 　NefryについているLEDがアップデートに成功した際に青点灯、失敗した場合に赤点灯するように変更
 　自動更新が止まったときの注意文の変更
 ・RestAPIに関するCocoaBitのI2Cなどのピン情報の有効化
+
+2.2.3
+
+- setConfHtmlStr＆setConfHtmlValue関数の追加
+- WriteModeを赤色に変更
+- CaptivePortal向けにFormを修正
+- Webからのダウンロードを簡単にするためにドメインを入力
+- easyEditor.NefryRESTAPI.CocoaBitライブラリを更新
