@@ -610,8 +610,8 @@ void Nefry_lib::setupWebOnlineUpdate(void) {
 			"<!DOCTYPE HTML><html><head><meta charset=\"UTF-8\"><link rel = \"stylesheet\" type = \"text/css\" href = \"/nefry_css\">"
 			"<title>Nefry Web Update</title><style>.row>input,input[type=file]{width:100%}.row label{line-height:1.3;display:block;margin-bottom:5px;width:300px}.row>input{display:inline-block}</style>"
 			"</head><body><div><h1>Nefry Web Update</h1>"
-			"<form method='get' action='program'><div class=\"row\"> <label for=\"File\">Program download Domain: </label><input name='domain'id='URL' value=''><label for='File'>Program download URL(Domain except): </label><input name='URL'id='URL'  value=''placeholder=\"Null ok\">"
-			"</div><div class=\"footer\"> <input type=\"submit\" value=\"Save\" onclick=\"\"></div></form><br><p>Default Program Download URL : wamisnet.github.io </p><a href='/'>Back to top</a></div>"
+			"<form method='get' action='program'><div class=\"row\"> <label for=\"File\">Program download Domain: </label><input name='domain'id='URL' value='program.nefry.studio'><label for='File'>Program download URL(Domain except): </label><input name='URL'id='URL'  value=''placeholder=\"Null ok\">"
+			"</div><div class=\"footer\"> <input type=\"submit\" value=\"Save\" onclick=\"\"></div></form><br><p>Default Program Download URL : program.nefry.studio </p><a href='/'>Back to top</a></div>"
 			"</body></html>");
 		nefry_server.send(200, "text/html", content);
 	});
