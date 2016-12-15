@@ -114,6 +114,9 @@ bool Nefry_lib::Auth(const char *Nefryclass, const char *NefryID) {
 
 //SetConf
 bool htmlPrint[20];//10
+
+/* HTMLに表示するのか */
+
 void Nefry_lib::setConfHtmlPrint(const bool data, const int num) {
 	if (0 <= num&&num < 20)
 		htmlPrint[num] = data;
@@ -126,6 +129,21 @@ void Nefry_lib::setConfHtml(const char set[15], const int num) {
 	if (0 <= num&&num < 20) {
 		strcpy(module_input[num], set);
 		setConfHtmlPrint(1, num);
+	}
+
+}
+
+void Nefry_lib::setConfHtmlStr(const char set[15], const int num){
+	if (0 <= num&&num < 8) {
+		strcpy(module_input[num], set);
+		setConfHtmlPrint(1, num);
+	}
+
+}
+void Nefry_lib::setConfHtmlValue(const char set[15], const int num){
+	if (0 <= num&&num < 8) {
+		strcpy(module_input[num+10], set);
+		setConfHtmlPrint(1, num+10);
 	}
 
 }

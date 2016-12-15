@@ -67,6 +67,8 @@ public:
 		setConfModule(const char module_id_[32], const char module_class_[32], const char module_wifi_pass_[64]),
 		setConfUser(const char user[32], const char pass[32]),
 		setConfHtml(const char set[15], const int num),
+		setConfHtmlValue(const char set[15], const int num),
+		setConfHtmlStr(const char set[15], const int num),
 		beginLed(const int num, const int pin, uint8_t t),
 		setLed(const int r, const int g, const int b, const char w = 122, const char pin = 0, const int num = 0),
 		setLed(const char* _color, const char w = 122, const char pin = 0, const int num = 0),
