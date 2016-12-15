@@ -695,15 +695,19 @@ void Nefry_lib::setupWebMain(void) {
 void Nefry_lib::setupWebCaptivePortal(void) {
 	_dnsServer.start(53, "*", IPAddress(192, 168, 4, 1));
 	nefry_server.onNotFound([&]() {
+		/*String js = F("<script type=\"text/javascript\">\nvar userAgent = window.navigator.userAgent.toLowerCase(); console.log(userAgent); if (userAgent.indexOf('safari') !== -1) {"
+			"alert(\"Safariは非推奨となっております。Chromeなどの別ブラウザを推奨します。別ブラウザで開く場合、『192.168.4.1』とURL欄に入力してください。\");}</script>");*/
 		String content = F(
 			"<!DOCTYPE html><html><head><meta charset=\"UTF-8\">"
 			"<link rel = \"stylesheet\" type = \"text/css\" href = \"/nefry_content\">"
-			"<title>CaptivePortal</title></head><link rel = \"stylesheet\" type = \"text/css\" href = \"/nefry_css\">  "
+			"<title>CaptivePortal</title></head><link rel = \"stylesheet\" type = \"text/css\" href = \"/nefry_css\">"
 			"<meta http-equiv=\"Refresh\" content=\"0; URL = http://");
 		content += ipaddress;
 		content += F("\"><body><div><h1 >Move to main page!</h1><p>Please wait...</p><a href=\"http://");
 		content += ipaddress;
-		content += F("\">Move to main page!</a></div></body></html>");
+		content += F("\">Move to main page!</a></div>");
+		//content += js;
+		content += F("</body></html>");
 		nefry_server.send(200, "text/html", content);
 	});
 }
