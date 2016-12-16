@@ -31,7 +31,10 @@ struct WiFiConfStruct {
 	"",//6
 	"",//7
 	"",//8
-	0,//9
+	{0,0,0,0,0,0,0,0},//9
+	{"","",""},
+	{"","","","",""},
+	0
 };
 Adafruit_NeoPixel _NefryLED[17];
 
@@ -124,26 +127,26 @@ void Nefry_lib::setConfHtmlPrint(const bool data, const int num) {
 bool Nefry_lib::getConfHtmlPrint(const int num) {
 	if (0 <= num&&num < 20)
 		return htmlPrint[num];
+	return false;
 }
 void Nefry_lib::setConfHtml(const char set[15], const int num) {
 	if (0 <= num&&num < 20) {
 		strcpy(module_input[num], set);
 		setConfHtmlPrint(1, num);
 	}
-
 }
 
-void Nefry_lib::setConfHtmlStr(const char set[15], const int num){
+void Nefry_lib::setConfHtmlStr(const char set[15], const int num) {
 	if (0 <= num&&num < 8) {
 		strcpy(module_input[num], set);
 		setConfHtmlPrint(1, num);
 	}
 
 }
-void Nefry_lib::setConfHtmlValue(const char set[15], const int num){
+void Nefry_lib::setConfHtmlValue(const char set[15], const int num) {
 	if (0 <= num&&num < 8) {
-		strcpy(module_input[num+10], set);
-		setConfHtmlPrint(1, num+10);
+		strcpy(module_input[num + 10], set);
+		setConfHtmlPrint(1, num + 10);
 	}
 
 }
@@ -468,6 +471,7 @@ void Nefry_lib::setupWebLocalUpdate(void) {
 		print("UPDNF");
 		nefry_server.send(200, "text/html", content);
 	});
+
 	nefry_server.onFileUpload([&]() {
 		if (nefry_server.uri() != "/upload_sketch") return;
 		pushSW_flg = 1;
@@ -477,61 +481,78 @@ void Nefry_lib::setupWebLocalUpdate(void) {
 		count++;
 		if (file_name.endsWith("bin")) {
 			err = false;
-			if (count % 5 == 1)
-				Nefry_LED_blink(0xff, 0xff, 0x00, 10, 1);
+			if (count % 5 == 1) {
+				setLed(0xff, 0xff, 0x0);
+				delay(10);
+				setLed(0xff, 0xff, 0x0, 0);
+			}
 			if (upload.status == UPLOAD_FILE_START) {
 				Serial.println("ok");
 				Serial.setDebugOutput(true);
 				WiFiUDP::stopAll();
 				uint32_t maxSketchSpace = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
 				if (!Update.begin(maxSketchSpace))Update.printError(Serial);
-			}
-			else if (upload.status == UPLOAD_FILE_WRITE) {
+			}else if (upload.status == UPLOAD_FILE_WRITE) {
 				if (Update.write(upload.buf, upload.currentSize) != upload.currentSize) {
 					Update.printError(Serial);
-					Nefry_LED_blink(0xFF, 0x0, 0x00, 1000, 1);
+					setLed(0xFF, 0x0, 0x0);
+					delay(1000);
+					setLed(0xFF, 0x0, 0x0, 0);
+					err = true;
+					println(F("File Err. Failed to update"));
+					pushSW_flg = 0;
 				}
-			}
-			else if (upload.status == UPLOAD_FILE_END) {
+			}else if (upload.status == UPLOAD_FILE_END) {
 				if (Update.end(true)) {
 					Serial.printf("Update Success: %u\nRebooting...\n", upload.totalSize);
-					Nefry_LED_blink(0x00, 0x00, 0xff, 1500, 1);
-				}
-				else {
+					pushSW_flg = 0;
+					setLed(0x0, 0x0, 0xFF);
+					delay(1500);
+					setLed(0xFF, 0x0, 0x0, 0);
+					
+				} else {
 					Update.printError(Serial);
-					Nefry_LED_blink(0xFF, 0x0, 0x00, 1000, 1);
+					setLed(0xFF, 0x0, 0x0);
+					delay(1000);
+					setLed(0xFF, 0x0, 0x0, 0);
+					err = true;
+					println(F("File Err. Failed to update"));
+					pushSW_flg = 0;
 				}
 				Serial.setDebugOutput(false);
-				
 			}
 			yield();
-		}
-		else {
+		} else {
 			pushSW_flg = 0;
-			if (count % 15 == 1)
-				Nefry_LED_blink(0xFF, 0x0, 0x00, 80, 1);
+			if (count % 15 == 1) {
+				setLed(0xFF, 0x0, 0x0);
+				delay(10);
+				setLed(0xFF, 0x0, 0x0, 0);
+			}
 			Serial.println(F("err"));
+			println(F("File Err. Failed to update"));
 			err = true;
+			pushSW_flg = 0;
 		}
 	});
+
 	nefry_server.on("/upload_sketch", HTTP_POST, [&]() {
+		ClearConsole();
+		if (err == false) {
+			println((Update.hasError()) ? "Update Err" : "Upload Success");
+		} else {
+			println(F("Failed to update"));
+		}
 		String content = F(
 			"<!DOCTYPE HTML><html><head><meta charset=\"UTF-8\">"
-			"<title>Nefry Upload Sketch</title>"
+			"<title>Nefry Upload Sketch</title><script type=\"text/javascript\" src=\"consolejs\"></script><script type=\"text/javascript\">clearInterval(timer);loadDoc();</script>"
 			"<link rel = \"stylesheet\" type = \"text/css\" href = \"/nefry_content\">"
 			"<link rel = \"stylesheet\" type = \"text/css\" href = \"/nefry_css\">"
-			"</head><body><div><h1>Nefry Update</h1><div class=\"updateS\">"
+			"</head><body><div><h1>Nefry Update</h1><div id=\"ajaxDiv\">"
 			"</div><a href='/'>Back to top</a></div></body></html>");
-		if (err) {
-			cssAdd("updateS", F("File Err. Failed to update"));
-			nefry_server.send(200, "text/html", content);
-			pushSW_flg = 0;
-		}
-		else {
-			cssAdd("updateS", (Update.hasError()) ? "Update Err" : "Upload Success");
-			nefry_server.send(200, "text/html", content);
-			ndelay(5000);
-			pushSW_flg = 0;
+		nefry_server.send(200, "text/html", content);
+		ndelay(5000);
+		if (err == false) {
 			reset();
 		}
 	});
@@ -580,8 +601,8 @@ void Nefry_lib::setWebUpdate(String program_domain, String program_url) {
 		"<link rel = \"stylesheet\" type = \"text/css\" href = \"/nefry_css\">"
 		"</head><body><div><h1>Nefry Web Update</h1><p>自動で読み込まれるのでしばらくお待ちください。</p><div id=\"ajaxDiv\"></div>"
 		"<a href='/'>Back to top</a></div><body></html>");
-		nefry_server.send(200, "text/html", content);
-		ndelay(500);
+	nefry_server.send(200, "text/html", content);
+	ndelay(500);
 	if (ip.toString().equals("0.0.0.0")) {
 		println(F("Internet connection ... NG"));
 		println(F("[UPDATE]It is not connected to the Internet.Please connect to the Internet ."));
@@ -628,7 +649,7 @@ void Nefry_lib::setWebUpdate(String program_domain, String program_url) {
 			println(F("[UPDATE]Empty URL is not acceptable."));
 		}
 	}
-	
+
 	pushSW_flg = 0;
 }
 
@@ -1011,7 +1032,7 @@ void Nefry_lib::setupWebConsole(void) {
 	});
 }
 
-void Nefry_lib::ClearConsole(){
+void Nefry_lib::ClearConsole() {
 	mojicount = 0;
 	printcun = 0;
 }
@@ -1034,20 +1055,20 @@ void Nefry_lib::beginLed(const int num, const int pin, uint8_t t = NEO_GRB + NEO
 }
 
 void Nefry_lib::setLed(const int r, const int g, const int b, const char w, const char pin, const int num) {
-	_NefryLED[pin].setBrightness(w);
-	_NefryLED[pin].setPixelColor(num, r, g, b);
-	_NefryLED[pin].show();
+	_NefryLED[(int)pin].setBrightness(w);
+	_NefryLED[(int)pin].setPixelColor(num, r, g, b);
+	_NefryLED[(int)pin].show();
 }
-void Nefry_lib::setLed(const char * _colorStr, const char w, const char pin, const int num){
+void Nefry_lib::setLed(const char * _colorStr, const char w, const char pin, const int num) {
 	int _color[3];
 	for (int i = 0; i < 3; i++) {
 		_color[i] = 0;
 		_color[i] += 16 * hextonum(_colorStr[i * 2]);
 		_color[i] += hextonum(_colorStr[i * 2 + 1]);
 	}
-	_NefryLED[pin].setBrightness(w);
-	_NefryLED[pin].setPixelColor(num, _color[0], _color[1], _color[2]);
-	_NefryLED[pin].show();
+	_NefryLED[(int)pin].setBrightness(w);
+	_NefryLED[(int)pin].setPixelColor(num, _color[0], _color[1], _color[2]);
+	_NefryLED[(int)pin].show();
 }
 int Nefry_lib::hextonum(char c)
 {
