@@ -578,7 +578,7 @@ void Nefry_lib::setWebUpdate(String program_domain, String program_url) {
 		"<!DOCTYPE HTML><html><head><meta charset=\"UTF-8\">"
 		"<title>Nefry Web Update</title><script type=\"text/javascript\" src=\"consolejs\"></script><script type=\"text/javascript\">reload(10000);</script>"
 		"<link rel = \"stylesheet\" type = \"text/css\" href = \"/nefry_css\">"
-		"</head><body><div><h1>Nefry Web Update</h1><p>自動で読み込まれるのでしばらくお待ちください。</p><div id=\"Divupdate\"></div>"
+		"</head><body><div><h1>Nefry Web Update</h1><p>自動で読み込まれるのでしばらくお待ちください。</p><div id=\"ajaxDiv\"></div>"
 		"<a href='/'>Back to top</a></div><body></html>");
 		nefry_server.send(200, "text/html", content);
 		ndelay(500);
@@ -975,7 +975,7 @@ void Nefry_lib::setupWebConsole(void) {
 			"  function loadDoc() {\n"
 			"  xmlhttp.onreadystatechange = function() {\n"
 			"    if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {\n var newtext=xmlhttp.responseText;if(newtext.match(/UPDNF/)){clearInterval(timer);alert(\"プログラム更新ページが開かれたため、自動更新を停止しました。更新を終えた場合や更新しない場合Clearを押してから間隔を選択してください。\");}"
-			"      else if(newtext.match(/[UPDATE]/)){document.getElementById(\"Divupdate\").innerHTML=newtext;}else{document.getElementById(\"ajaxDiv\").innerHTML=newtext;\n"
+			"      else{document.getElementById(\"ajaxDiv\").innerHTML=newtext;\n"
 			"      console.log(\"get\");\n}"
 			"    }\n"
 			"  }\n"
