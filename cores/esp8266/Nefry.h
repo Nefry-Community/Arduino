@@ -136,7 +136,7 @@ private:
 	void scanWiFi(void);
 	int  waitConnected(void);
 	void printModule(void);
-
+	void ClearConsole();
 	void setupWeb(void),
 		setupWebModuleConf(void),
 		setupWebLocalUpdate(void),

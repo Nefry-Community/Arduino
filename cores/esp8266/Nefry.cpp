@@ -572,43 +572,52 @@ int Nefry_lib::autoUpdate(String url, String uri) {
 
 void Nefry_lib::setWebUpdate(String program_domain, String program_url) {
 	pushSW_flg = 1;
+	ClearConsole();
 	IPAddress ip = WiFi.localIP();
 	String content = F(
 		"<!DOCTYPE HTML><html><head><meta charset=\"UTF-8\">"
-		"<title>Nefry Web Update</title>"
-		"<link rel = \"stylesheet\" type = \"text/css\" href = \"/nefry_content\">"
+		"<title>Nefry Web Update</title><script type=\"text/javascript\" src=\"consolejs\"></script><script type=\"text/javascript\">reload(10000);</script>"
 		"<link rel = \"stylesheet\" type = \"text/css\" href = \"/nefry_css\">"
-		"</head><body><div><h1>Nefry Web Update</h1><div class=\"updateHS\">"
-		"</div><a href='/'>Back to top</a></div><body></html>");
+		"</head><body><div><h1>Nefry Web Update</h1><p>自動で読み込まれるのでしばらくお待ちください。</p><div id=\"Divupdate\"></div>"
+		"<a href='/'>Back to top</a></div><body></html>");
+		nefry_server.send(200, "text/html", content);
+		ndelay(500);
 	if (ip.toString().equals("0.0.0.0")) {
-		println(F("not connected to the Internet"));
-		cssAdd("updateHS", F("It is not connected to the Internet.Please connect to the Internet ."));
+		println(F("Internet connection ... NG"));
+		println(F("[UPDATE]It is not connected to the Internet.Please connect to the Internet ."));
 	}
 	else {
-		println(F("connected to the Internet"));
+		println(F("Internet connection ... OK"));
 		if (program_domain.length() > 0) {
 			if (program_url.length() > 0)program_url = escapeParameter(program_url);
-			print(program_url);
+			//print(program_url);
 			program_url.concat("/arduino.bin");
 			ESPhttpUpdate.rebootOnUpdate(false);
+			String UPurl;
 			switch (ESPhttpUpdate.update(program_domain, 80, program_url)) {
 			case HTTP_UPDATE_FAILED:
 				Serial.println(program_url);
-				Serial.println(F("[update] Update failed."));
-				cssAdd("updateHS", F("[update] Update failed."));
+				UPurl += program_domain;
+				UPurl += program_url;
+				print(F("[UPDATE]アップデートに必要な情報が"));
+				println(F("正しくありません。Update failed."));
+				print(F("[UPDATE]URLを確認してください。"));
+				print(F("Please check this URL : http://"));
+				println(UPurl);
 				break;
 			case HTTP_UPDATE_NO_UPDATES:
-				Serial.println(F("[update] Update no Update."));
-				cssAdd("updateHS", F("[update] Update no Update."));
+				print(F("[UPDATE] アップデートはありません。"));
+				println(F("	Update no Updates."));
 				break;
 			case HTTP_UPDATE_OK:
-				cssAdd("updateHS", F("[update] Update ok."));
-				nefry_server.send(200, "text/html", content);
+				print(F("[UPDATE] 更新完了、再起動します。"));
+				println(F("Update OK"));
 				ndelay(1000);
 				Nefry_LED_blink(0x00, 0xff, 0xff, 250, 10);
 				Serial.println(F("[update] Update ok."));
-				ndelay(2000);
+				ndelay(4000);
 				setLed(0x00, 0xff, 0xff);
+				ndelay(1000);
 				reset();
 				break;
 			}
@@ -616,10 +625,10 @@ void Nefry_lib::setWebUpdate(String program_domain, String program_url) {
 		else {
 			Serial.println(F("Rejected empty URL."));
 			pushSW_flg = 0;
-			cssAdd("updateHS", F("Empty URL is not acceptable."));
+			println(F("[UPDATE]Empty URL is not acceptable."));
 		}
 	}
-	nefry_server.send(200, "text/html", content);
+	
 	pushSW_flg = 0;
 }
 
@@ -930,8 +939,23 @@ void Nefry_lib::setupWebConsole(void) {
 		}
 		String content = F(
 			"<!DOCTYPE HTML><html><head><meta charset=\"UTF-8\">"
-			"<title>Nefry Console</title><link rel = \"stylesheet\" type = \"text/css\" href = \"/nefry_css\">"
-			"\n<script type = \"text/javascript\">\n"
+			"<title>Nefry Console</title><link rel = \"stylesheet\" type = \"text/css\" href = \"/nefry_css\"><script type=\"text/javascript\" src=\"consolejs\"></script>"
+			"</head><body><div><h1>Nefry Console</h1>"
+			"<p>It can be used as a terminal.</p>"
+			"<form  name='msg' method='post' action='console'><div class=\"row\"> <label for=\"console\">console:</label> <div> <input name=\"console\" id='cos' maxlength=\"100\" value=\"\"></div></div>"
+			"<div class=\"footer\"><input type='button' value='Send' onclick='pushDoc();' /></div></form>"
+			"<div><div id=\"ajaxDiv\"></div><div class=\"row\"><button type=\"button\" onclick=\"loadDoc()\">reload</button>"
+			"<button type = \"button\" onclick=\"reload(500);\">0.5sec reload</button>"
+			"<button type = \"button\" onclick=\"reload(2000);\">2sec reload</button>"
+			"<button type = \"button\" onclick=\"reload(5000);\">5sec reload</button>"
+			"<button type = \"button\" onclick=\"clearInterval(timer);\">stop</button></div>"
+			"<div class=\"row\"><button type = \"button\" onclick=\"cclear();\">Clear</button></div>"
+			"</div><br><a href=\"/\">Back to top</a></div>"
+			"</body></html>");
+		nefry_server.send(200, "text/html", content);
+	});
+	nefry_server.on("/consolejs", [&]() {
+		String content = F(
 			"  if (window.XMLHttpRequest) {\n"
 			"    xmlhttp = new XMLHttpRequest();\n"
 			"  } else {\n"
@@ -951,7 +975,7 @@ void Nefry_lib::setupWebConsole(void) {
 			"  function loadDoc() {\n"
 			"  xmlhttp.onreadystatechange = function() {\n"
 			"    if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {\n var newtext=xmlhttp.responseText;if(newtext.match(/UPDNF/)){clearInterval(timer);alert(\"プログラム更新ページが開かれたため、自動更新を停止しました。更新を終えた場合や更新しない場合Clearを押してから間隔を選択してください。\");}"
-			"      else{document.getElementById(\"ajaxDiv\").innerHTML=newtext;\n"
+			"      else if(newtext.match(/[UPDATE]/)){document.getElementById(\"Divupdate\").innerHTML=newtext;}else{document.getElementById(\"ajaxDiv\").innerHTML=newtext;\n"
 			"      console.log(\"get\");\n}"
 			"    }\n"
 			"  }\n"
@@ -967,20 +991,7 @@ void Nefry_lib::setupWebConsole(void) {
 			"function reload(time) {\n"
 			"  clearInterval(timer); \n"
 			"  timer = setInterval(\"loadDoc()\",time);\n"
-			"}\n"
-			"</script>\n"
-			"</head><body><div><h1>Nefry Console</h1>"
-			"<p>It can be used as a terminal.</p>"
-			"<form  name='msg' method='post' action='console'><div class=\"row\"> <label for=\"console\">console:</label> <div> <input name=\"console\" id='cos' maxlength=\"100\" value=\"\"></div></div>"
-			"<div class=\"footer\"><input type='button' value='Send' onclick='pushDoc();' /></div></form>"
-			"<div><div id=\"ajaxDiv\"></div><div class=\"row\"><button type=\"button\" onclick=\"loadDoc()\">reload</button>"
-			"<button type = \"button\" onclick=\"reload(500);\">0.5sec reload</button>"
-			"<button type = \"button\" onclick=\"reload(2000);\">2sec reload</button>"
-			"<button type = \"button\" onclick=\"reload(5000);\">5sec reload</button>"
-			"<button type = \"button\" onclick=\"clearInterval(timer);\">stop</button></div>"
-			"<div class=\"row\"><button type = \"button\" onclick=\"cclear();\">Clear</button></div>"
-			"</div><br><a href=\"/\">Back to top</a></div>"
-			"</body></html>");
+			"}");
 		nefry_server.send(200, "text/html", content);
 	});
 	nefry_server.on("/cons", HTTP_GET, [&]() {
@@ -995,10 +1006,14 @@ void Nefry_lib::setupWebConsole(void) {
 		nefry_server.send(200, "text/html", content);
 	});
 	nefry_server.on("/consc", HTTP_GET, [&]() {
-		mojicount= 0;
-		printcun = 0;
+		ClearConsole();
 		nefry_server.send(200, "text/html", "");
 	});
+}
+
+void Nefry_lib::ClearConsole(){
+	mojicount = 0;
+	printcun = 0;
 }
 
 //LED
@@ -1007,9 +1022,9 @@ void Nefry_lib::Nefry_LED_blink(const char r, const char g, const char b, const 
 	int i = 0;
 	while (i < loop) {
 		setLed(r, g, b, 122, pin);
-		delay(wait);
+		ndelay(wait);
 		setLed(r, g, b, 0, pin);
-		delay(wait);
+		ndelay(wait);
 		i++;
 	}
 }
