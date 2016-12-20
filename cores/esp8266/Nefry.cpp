@@ -232,6 +232,54 @@ int Nefry_lib::getConfValue(const int num) {
 }
 
 //web
+
+
+
+String Nefry_lib::serectForm(int formNumber)
+{
+	String content;
+	if (formNumber < 0)return "";
+
+	if (formNumber < 3) {
+		if (htmlPrint[formNumber] == 1) {
+			content = F("<div class = \"row\"><label>");
+			content += module_input[formNumber];
+			content += F("</label> <div> <input name=\"smode");
+			content += formNumber;
+			content += F("\" maxlength=\"128\" value=\"");
+			content += WiFiConf.str128[formNumber];
+			content += F("\"></div></div>");
+			return content;
+		}
+	}
+	if (formNumber < 8) {
+		if (htmlPrint[formNumber] == 1) {
+			content = F("<div class = \"row\"><label>");
+			content += module_input[formNumber];
+			content += F("</label> <div> <input name=\"smode");
+			content += formNumber;
+			content += F("\" maxlength=\"64\" value=\"");
+			content += WiFiConf.str64[formNumber - 3];
+			content += F("\"></div></div>");
+			return content;
+		}
+	}
+	if (formNumber < 10)return "";
+	if (formNumber < 18) {
+		if (htmlPrint[formNumber] == 1) {
+			content += F("<div class = \"row\"> <label>");
+			content += module_input[formNumber-10];
+			content += F("</label> <div> <input name=\"imode");
+			content += formNumber - 10;
+			content += F("\" type=\"number\" value=\"");
+			content += WiFiConf.mode[formNumber - 10];
+			content += F("\"></div></div>");
+			return content;
+		}
+	}
+	return "";
+}
+
 String ipaddress;
 void Nefry_lib::setupWebModuleConf(void) {
 	nefry_server.on("/module_id", [&]() {
@@ -252,27 +300,8 @@ void Nefry_lib::setupWebModuleConf(void) {
 		content += WiFiConf.Nefry_user;
 		content += F("\"></div></div>"
 			"<div class = \"row\"><label>Nefry User Pass: </label> <div> <input type=\"password\" name=\"uPas\"maxlength=\"32\" value=\"\"></div></div>");
-		for (int i = 0; i < 3; i++) {
-			if (htmlPrint[i] == 1) {
-				content += F("<div class = \"row\"><label>");
-				content += module_input[i];
-				content += F("</label> <div> <input name=\"mode");
-				content += i;
-				content += F("\" maxlength=\"128\" value=\"");
-				content += WiFiConf.str128[i];
-				content += F("\"></div></div>");
-			}
-		}
-		for (int i = 3; i < 8; i++) {
-			if (htmlPrint[i] == 1) {
-				content += F("<div class = \"row\"><label>");
-				content += module_input[i];
-				content += F("</label> <div> <input name=\"mode");
-				content += i;
-				content += F("\" maxlength=\"64\" value=\"");
-				content += WiFiConf.str64[i - 3];
-				content += F("\"></div></div>");
-			}
+		for (int i = 0; i < 18; i++) {
+			content += serectForm(i);
 		}
 		content += F("<div class=\"psrow\"><div><input type=\"button\" value=\"Save\" onclick=\"return jsSubmit(this.form);\"></div></form>"
 			"<div><form method = 'get' action = 'reset'><input type=\"button\" value=\"Restart\" onclick=\"return jsSubmit(this.form);\"></form></div>"
@@ -283,7 +312,21 @@ void Nefry_lib::setupWebModuleConf(void) {
 		content += getVersion();
 		content += F("</div><div>Running ProgramName:");
 		content += getProgramName();
-		content += F("</div><div class=\"writemode\"></div><a href=\"/module_id_next\">Next page</a></br><a href=\"/\">Back to top</a></div></body></html>");
+		content += content = F("</br>macAddress : ");
+		content += WiFi.macAddress();
+		IPAddress ip = WiFi.localIP();
+		String ipStr = String(ip[0]) + '.' + String(ip[1]) + '.' + String(ip[2]) + '.' + String(ip[3]);
+		content += F("</br>IPAddress : ");
+		content += ipStr;
+		ip = WiFi.subnetMask();
+		ipStr = String(ip[0]) + '.' + String(ip[1]) + '.' + String(ip[2]) + '.' + String(ip[3]);
+		content += F("</br>subNetMask : ");
+		content += ipStr;
+		ip = WiFi.gatewayIP();
+		ipStr = String(ip[0]) + '.' + String(ip[1]) + '.' + String(ip[2]) + '.' + String(ip[3]);
+		content += F("</br>Gateway IPAddress : ");
+		content += ipStr;;
+		content += F("</div><div class=\"writemode\"></div><a href=\"/\">Back to top</a></div></body></html>");
 		nefry_server.send(200, "text/html", content);
 	});
 
@@ -293,20 +336,26 @@ void Nefry_lib::setupWebModuleConf(void) {
 		String new_pwd = nefry_server.arg("pwd");
 		String new_user = nefry_server.arg("user");
 		String new_user_pass = nefry_server.arg("uPas");
-		char webarg[10] = { "mode0" };
+		char webarg[10] = { "smode0" };
 		for (int i = 0; i < 3; i++) {
-			webarg[4] = '0' + i;
+			webarg[5] = '0' + i;
 			print(webarg);
 			String memo1 = nefry_server.arg(webarg);
 			memo1.toCharArray(WiFiConf.str128[i], sizeof(WiFiConf.str128[i]));
 		}
 		for (int i = 3; i < 8; i++) {
-			webarg[4] = '0' + i;
+			webarg[5] = '0' + i;
 			print(webarg);
 			String memo1 = nefry_server.arg(webarg);
 			memo1.toCharArray(WiFiConf.str64[i - 3], sizeof(WiFiConf.str64[i - 3]));
 		}
-
+		webarg[0] = 'i';
+		for (int i = 0; i < 8; i++) {
+			webarg[5] = '0' + i;
+			print(webarg);
+			String memo1 = nefry_server.arg(webarg);
+			WiFiConf.mode[i] = memo1.toInt();
+		}
 		String content = F("<!DOCTYPE HTML><html><head><meta charset=\"UTF-8\">"
 			"<title>Nefry Module Set</title>"
 			"<link rel = \"stylesheet\" type = \"text/css\" href = \"/nefry_css\">"
@@ -333,69 +382,6 @@ void Nefry_lib::setupWebModuleConf(void) {
 		ndelay(2000);
 		reset();
 	});
-	nefry_server.on("/module_id_next", [&]() {
-		int pCount = 0;
-		String content = F("<!DOCTYPE HTML><html><head><meta charset=\"UTF-8\"><script type=\"text/javascript\" src=\"jsform\"></script>"
-			"<title>Nefry Module ID</title><link rel = \"stylesheet\" type = \"text/css\" href = \"/nefry_css\"><link rel=\"stylesheet\" type=\"text/css\" href = \"/nefry_content\">"
-			"</head><body><div><h1>Nefry Module Setup</h1>"
-			"<div class=\"moduleid\">Module ID: </div>"
-			"<form method='get' action='set_module_id_next'>");
-		for (int i = 0; i < 8; i++) {
-			if (htmlPrint[i + 10] == 1) {
-				content += F("<div class = \"row\"> <label>");
-				content += module_input[10 + i];
-				content += F("</label> <div> <input name=\"mode");
-				content += i;
-				content += F("\" type=\"number\" value=\"");
-				content += WiFiConf.mode[i];
-				content += F("\"></div></div>");
-				pCount++;
-			}
-		}
-		if (pCount > 0) {
-			content += F("<div class=\"psrow\"><div><input type=\"button\" value=\"Save\" onclick=\"return jsSubmit(this.form);\"></div>"
-				"<div><form method ='get'actio ='reset'><input type=\"button\" value=\"Restart\" onclick=\"return jsSubmit(this.form);\"></form></div></div>");
-		}
-		content += F("</form></br>macAddress : ");
-		content += WiFi.macAddress();
-		IPAddress ip = WiFi.localIP();
-		String ipStr = String(ip[0]) + '.' + String(ip[1]) + '.' + String(ip[2]) + '.' + String(ip[3]);
-		content += F("</br>IPAddress : ");
-		content += ipStr;
-		ip = WiFi.subnetMask();
-		ipStr = String(ip[0]) + '.' + String(ip[1]) + '.' + String(ip[2]) + '.' + String(ip[3]);
-		content += F("</br>subNetMask : ");
-		content += ipStr;
-		ip = WiFi.gatewayIP();
-		ipStr = String(ip[0]) + '.' + String(ip[1]) + '.' + String(ip[2]) + '.' + String(ip[3]);
-		content += F("</br>Gateway IPAddress : ");
-		content += ipStr;
-		content += F("</br><a href=\"/module_id\">Prev page</a></br><a href=\"/\">Back to top</a></div></body></html>");
-		nefry_server.send(200, "text/html", content);
-	});
-
-	nefry_server.on("/set_module_id_next", [&]() {
-		char webarg[10] = { "mode0" };
-		for (int i = 0; i < 8; i++) {
-			webarg[4] = '0' + i;
-			print(webarg);
-			String memo1 = nefry_server.arg(webarg);
-			WiFiConf.mode[i] = memo1.toInt();
-		}
-		saveConf();
-		String content = F("<!DOCTYPE HTML><html><head><meta charset=\"UTF-8\">"
-			"<title>Nefry Module Set</title>"
-			"<link rel = \"stylesheet\" type = \"text/css\" href = \"/nefry_css\">"
-			"</head><body><div><h1>Nefry Module Set</h1>");
-
-		content += F("<p>Set Module ID to '");
-		content += WiFiConf.module_id;
-		content += F("' ... Restart. </p><a href=\"/\">Back to top</a></div></body></html>");
-		nefry_server.send(200, "text/html", content);
-		ndelay(2000);
-		reset();
-	});
-
 }
 
 void Nefry_lib::setupWebWiFiConf(void) {
@@ -492,7 +478,8 @@ void Nefry_lib::setupWebLocalUpdate(void) {
 				WiFiUDP::stopAll();
 				uint32_t maxSketchSpace = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
 				if (!Update.begin(maxSketchSpace))Update.printError(Serial);
-			}else if (upload.status == UPLOAD_FILE_WRITE) {
+			}
+			else if (upload.status == UPLOAD_FILE_WRITE) {
 				if (Update.write(upload.buf, upload.currentSize) != upload.currentSize) {
 					Update.printError(Serial);
 					setLed(0xFF, 0x0, 0x0);
@@ -502,15 +489,17 @@ void Nefry_lib::setupWebLocalUpdate(void) {
 					println(F("File Err. Failed to update"));
 					pushSW_flg = 0;
 				}
-			}else if (upload.status == UPLOAD_FILE_END) {
+			}
+			else if (upload.status == UPLOAD_FILE_END) {
 				if (Update.end(true)) {
 					Serial.printf("Update Success: %u\nRebooting...\n", upload.totalSize);
 					pushSW_flg = 0;
 					setLed(0x0, 0x0, 0xFF);
 					delay(1500);
 					setLed(0xFF, 0x0, 0x0, 0);
-					
-				} else {
+
+				}
+				else {
 					Update.printError(Serial);
 					setLed(0xFF, 0x0, 0x0);
 					delay(1000);
@@ -522,7 +511,8 @@ void Nefry_lib::setupWebLocalUpdate(void) {
 				Serial.setDebugOutput(false);
 			}
 			yield();
-		} else {
+		}
+		else {
 			pushSW_flg = 0;
 			if (count % 15 == 1) {
 				setLed(0xFF, 0x0, 0x0);
@@ -540,7 +530,8 @@ void Nefry_lib::setupWebLocalUpdate(void) {
 		ClearConsole();
 		if (err == false) {
 			println((Update.hasError()) ? "Update Err" : "Upload Success");
-		} else {
+		}
+		else {
 			println(F("Failed to update"));
 		}
 		String content = F(

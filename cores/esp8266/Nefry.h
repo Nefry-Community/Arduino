@@ -148,7 +148,8 @@ private:
 		setupWebWiFiConf(void),
 		setupModule(void),
 		setupWifi(void);
-	String escapeParameter(String param);
+	String escapeParameter(String param),
+		serectForm(int formNumber);
 	void setConf(char *old, const char *newdata); 
 	void printIpaddress();
 	int hextonum(char c);
