@@ -149,7 +149,7 @@ private:
 		setupModule(void),
 		setupWifi(void);
 	String escapeParameter(String param),
-		serectForm(int formNumber);
+		serectForm();
 	void setConf(char *old, const char *newdata); 
 	void printIpaddress();
 	int hextonum(char c);
