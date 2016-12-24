@@ -8,7 +8,7 @@
 #include <Adafruit_NeoPixel.h>
 #include <ESP8266httpUpdate.h>	
 #include <DNSServer.h>
-
+#include <ESP8266WiFiMulti.h>
 #define WIFI_CONF_FORMAT {37, 0, 0, 1}
 #define WIFI_CONF_START 0
 
@@ -95,11 +95,15 @@ public:
 		nefry_init(),
 		nefry_loop(),
 		ndelay(unsigned long ms),
-		setWebUpdate(String program_domain,String program_url);
+		setWebUpdate(String program_domain,String program_url),
 
+		addWifi(String ssid, String pwd),
+		deleteWifi(int id, bool lastdata=false);
+	
 	int available(),
 		getConfValue(const int num),
-		autoUpdate(String url,String uri);
+		autoUpdate(String url,String domain="auto.nefry.studio"),
+		scanWifi();
 
 	bool push_SW(),
 		autoConnect(int sec=2),
@@ -114,7 +118,8 @@ public:
 
 	String read(),
 		getVersion(),
-		getProgramName();
+		getProgramName(),
+		listWifi();
 	char* getModuleName();
 	//void webpage(const char url[20],String page,String link);
 	ESP8266WebServer* getWebServer(void);
@@ -123,6 +128,7 @@ private:
 	String indexlink;
 	ESP8266WebServer nefry_server;
 	DNSServer _dnsServer;
+	ESP8266WiFiMulti wifiMulti;
 	void cssAdd(const char* id, String data, bool afterflg = 1);
 	String network_html, network_list, input_console;
 	void Nefry_LED_blink(const char r, const char g, const char b, const int wait, const int loop, const char pin = 0);
@@ -149,9 +155,14 @@ private:
 		setupModule(void),
 		setupWifi(void);
 	String escapeParameter(String param),
-		serectForm();
-	void setConf(char *old, const char *newdata); 
-	void printIpaddress();
+		serectForm(),
+		createHtml(String title,String head="",String body="");
+	void setConf(char *old, const char *newdata),
+		printIpaddress(),
+		sortWifi(),
+		saveWifi(),
+		startWifi();
+
 	int hextonum(char c);
 };
 extern Nefry_lib Nefry;
