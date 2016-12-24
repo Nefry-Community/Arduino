@@ -665,17 +665,13 @@ void Nefry_lib::setupWebMain(void) {
 	if (ip.toString().equals("0.0.0.0")) ipaddress = "192.168.4.1";
 	else ipaddress = ip.toString();
 	nefry_server.on("/", [&]() {
-		String content = F(
-			"<!DOCTYPE HTML><html><head><meta charset=\"UTF-8\">"
-			"<title>Nefry Menu</title><link rel = \"stylesheet\" type = \"text/css\" href = \"/nefry_css\">"
-			"<link rel = \"stylesheet\" type = \"text/css\" href = \"/nefry_content\">"
-			"</head><body><div><h1>Hello from Nefry!</h1>"
-			"<div class=\"cssid\">Wifi Sport: "
-			"</div><div class=\"ipaddress\">IP Address: "
+		String content = F("<h1>Hello from Nefry!</h1>"
+			"<div>Wifi Sport: ");
+		content += WiFi.SSID();
+		content += F("</div><div class=\"ipaddress\">IP Address: "
 			"</div><div class=\"moduleid\">Module ID: "
 			"</div><div class=\"writemode\">"
-			"</div>"
-			"<ul>"
+			"</div><ul>"
 			"<li><a href='/wifi_conf'>Setup WiFi</a>"
 			"<li><a href='/module_id'>Setup Module</a>"
 			"<li><a href='/web_update'>Web Sketch Download</a>"
@@ -686,20 +682,20 @@ void Nefry_lib::setupWebMain(void) {
 		content += getVersion();
 		content += F("</br>Running ProgramName:");
 		content += getProgramName();
-		content += F("</p></div></body></html>");
-		nefry_server.send(200, "text/html", content);
+		content += F("</p>");
+		nefry_server.send(200, "text/html", createHtml(F("Nefry Menu"),"",content));
 	});
 	nefry_server.on("/nefry_css", [&]() {
-		String content = F(
-			"@charset \"UTF-8\"; *, :after, : before{ box - sizing:border - box }body{ font:16px / 1.65 \"Noto Sans\",\"HelveticaNeue\",\"Helvetica Neue\",Helvetica,Arial,sans-serif;margin:0;padding:0 20px;color:#555}"
+		nefry_server.send(200, "text/css", 
+			F("@charset \"UTF-8\"; *, :after, : before{ box - sizing:border - box }body{ font:16px / 1.65 \"Noto Sans\",\"HelveticaNeue\",\"Helvetica Neue\",Helvetica,Arial,sans-serif;margin:0;padding:0 20px;color:#555}"
 			"ol,ul{padding-left:20px;margin:0}a{color:#54AFBA}a:hover{text-decoration:none}body>div{background:#fff;margin:20px auto;padding:20px 24px;box-shadow:0 0 1px 1px rgba(0,0,0,.1);border-radius:4px;max-width:540px}"
 			"body>div input,body>div li{word-wrap:break-word}body>div>h1{font-size:1.4em;line-height:1.3;padding-bottom:4px;border-bottom:1px solid #efefef;margin-top:0;margin-bottom:20px}input,select,textarea{font:inherit inherit inherit}"
 			"input{background:rgba(0,0,0,0);padding:.4em .6em;border:1px solid rgba(0,0,0,.12);border-radius:3px;-webkit-appearance:none;-moz-appearance:none;appearance:none}input:focus{border:1px solid #6E5F57;outline:0}"
-			"input[type=submit],input[type=button],button[type=button]{margin-left:6px;cursor:pointer;line-height:2.6;display:inline-block;padding:0 1.2rem;text-align:center;vertical-align:middle;color:#FFF;border:0;border-radius:3px;background:#6E5F57;-webkit-appearance:none;-moz-appearance:none;appearance:none}"
+			"input[type=submit],input[type=button],button[type=button]{margin:6px;cursor:pointer;line-height:2.6;display:inline-block;padding:0 1.2rem;text-align:center;vertical-align:middle;color:#FFF;border:0;border-radius:3px;background:#6E5F57;-webkit-appearance:none;-moz-appearance:none;appearance:none}"
 			".row,.row>div,.row>label{display:block}input[type=submit]:hover{color:#FFF;background:#372F2A}input[type=submit]:focus{outline:0}input[type=file]{width:100%}.row{margin-bottom:14px}"
 			".row>label{float:left;width:110px;font-size:14px;position:relative;top:8px}.row>div{margin-left:120px;margin-bottom:12px}.row>div>input{width:100%;display:inline-block}.footer{text-align:right;margin-top:16px}"
-			".psrow{text-align: center;}.psrow>div{display:inline-block;margin:10px;}.writemode{color:#ff0000}");
-		nefry_server.send(200, "text/css", content);
+			".psrow{text-align: center;}.psrow>div{display:inline-block;margin:10px;}.writemode{color:#ff0000}input[type=\"checkbox\"] {-webkit-appearance: checkbox;appearance: checkbox;}")
+		);
 
 	});
 	nefry_server.on("/nefry_content", [&]() {
@@ -707,14 +703,8 @@ void Nefry_lib::setupWebMain(void) {
 	});
 
 	nefry_server.on("/reset", [&]() {
-		String content = F(
-			"<!DOCTYPE HTML><html><head><meta charset=\"UTF-8\">"
-			"<title>Nefry Reset</title>"
-			"<link rel = \"stylesheet\" type = \"text/css\" href = \"/nefry_css\">"
-			"</head><body><div><h1>Nefry Reset</h1>"
-			"<p>Reset start!</p>"
-			"<a href=\"/\">Back to top</a></div></body></html>");
-		nefry_server.send(200, "text/html", content);
+		nefry_server.send(200, "text/html", createHtml(F("Nefry Reset"),"",
+			F("<h1>Nefry Reset</h1><p>Reset start!</p><a href=\"/\">Back to top</a>")));
 		ndelay(2000);
 		reset();
 	});
@@ -727,40 +717,27 @@ void Nefry_lib::setupWebMain(void) {
 		WiFiConf.bootmode = 1;
 		delay(10);
 		saveConf();
-		String content = F(
-			"<!DOCTYPE HTML><html><head><meta charset=\"UTF-8\">"
-			"<title>Nefry Write mode</title>"
-			"<link rel = \"stylesheet\" type = \"text/css\" href = \"/nefry_css\">"
-			"</head><body><div><h1>Nefry Write mode</h1>"
-			"<p>Reset start!</p>"
-			"<a href=\"/\">Back to top</a></div></body></html>");
-		nefry_server.send(200, "text/html", content);
+		nefry_server.send(200, "text/html", createHtml(F("Nefry Write mode"),"",
+			F("<h1>Nefry Write mode</h1><p>Reset start!</p><a href=\"/\">Back to top</a>")));
 		ndelay(2000);
 		reset();
+	});
+	nefry_server.on("/favicon.ico", [&]() {
+		nefry_server.send(200, "text/html", "");
 	});
 }
 
 void Nefry_lib::setupWebCaptivePortal(void) {
 	_dnsServer.start(53, "*", IPAddress(192, 168, 4, 1));
 	nefry_server.onNotFound([&]() {
-		String content = F(
-			"<!DOCTYPE html><html><head><meta charset=\"UTF-8\">"
-			"<link rel = \"stylesheet\" type = \"text/css\" href = \"/nefry_content\">"
-			"<title>CaptivePortal</title></head><link rel = \"stylesheet\" type = \"text/css\" href = \"/nefry_css\">"
-			"<meta http-equiv=\"Refresh\" content=\"10; URL = http://");
-		content += ipaddress;
-		content += F("\"><body><div><h1 >Move to main page!</h1><p>このままの画面で動作させた場合、<br>予期しない動作をする可能性があります。<br>できれば、別ブラウザで開くことを推奨します。<br>そのときブラウザに『192.168.4.1』とURL欄に入力してください。</p><p>Please wait...10sec</p><a href=\"http://");
-		content += ipaddress;
-		content += F("\">Move to main page!</a></div></body></html>");
-		nefry_server.send(200, "text/html", content);
+		nefry_server.send(200, "text/html", createHtml(F("CaptivePortal"),(String)F("<meta http-equiv=\"Refresh\" content=\"10; URL = http://")+ ipaddress+(String)F("\">"),
+			(String)F("<h1>Move to main page!</h1><p>このままの画面で動作させた場合、<br>予期しない動作をする可能性があります。<br>できれば、別ブラウザで開くことを推奨します。<br>そのときブラウザに『192.168.4.1』とURL欄に入力してください。</p><p>Please wait...10sec</p><a href=\"http://")+ ipaddress +(String)F("\">Move to main page!</a>")));
 	});
 }
 
 void Nefry_lib::setupWebCss(void) {
 	cssAdd("ipaddress", ipaddress);
-	cssAdd("cssid", WiFiConf.sta_ssid);
 	cssAdd("moduleid", WiFiConf.module_id);
-	cssAdd("wifi", F("Move to Wi-Fi set!"));
 }
 
 
@@ -952,10 +929,9 @@ void Nefry_lib::setupWebConsole(void) {
 			input_console = escapeParameter(input_console);
 			println(input_console);
 		}
-		String content = F(
-			"<!DOCTYPE HTML><html><head><meta charset=\"UTF-8\">"
-			"<title>Nefry Console</title><link rel = \"stylesheet\" type = \"text/css\" href = \"/nefry_css\"><script type=\"text/javascript\" src=\"consolejs\"></script>"
-			"</head><body><div><h1>Nefry Console</h1>"
+		nefry_server.send(200, "text/html", 
+			createHtml("Nefry Console",F("<script type=\"text/javascript\" src=\"consolejs\"></script>"),
+				F("<h1>Nefry Console</h1>"
 			"<p>It can be used as a terminal.</p>"
 			"<form  name='msg' method='post' action='console'><div class=\"row\"> <label for=\"console\">console:</label> <div> <input name=\"console\" id='cos' maxlength=\"100\" value=\"\"></div></div>"
 			"<div class=\"footer\"><input type='button' value='Send' onclick='pushDoc();' /></div></form>"
@@ -965,9 +941,7 @@ void Nefry_lib::setupWebConsole(void) {
 			"<button type = \"button\" onclick=\"reload(5000);\">5sec reload</button>"
 			"<button type = \"button\" onclick=\"clearInterval(timer);\">stop</button></div>"
 			"<div class=\"row\"><button type = \"button\" onclick=\"cclear();\">Clear</button></div>"
-			"</div><br><a href=\"/\">Back to top</a></div>"
-			"</body></html>");
-		nefry_server.send(200, "text/html", content);
+			"</div><br><a href=\"/\">Back to top</a>")));
 	});
 	nefry_server.on("/consolejs", [&]() {
 		String content = F(
@@ -989,9 +963,8 @@ void Nefry_lib::setupWebConsole(void) {
 			"  }\n"
 			"  function loadDoc() {\n"
 			"  xmlhttp.onreadystatechange = function() {\n"
-			"    if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {\n var newtext=xmlhttp.responseText;if(newtext.match(/UPDNF/)){clearInterval(timer);alert(\"プログラム更新ページが開かれたため、自動更新を停止しました。更新を終えた場合や更新しない場合Clearを押してから間隔を選択してください。\");}"
-			"      else{document.getElementById(\"ajaxDiv\").innerHTML=newtext;\n"
-			"      console.log(\"get\");\n}"
+			"    if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {\n var newtext=xmlhttp.responseText;if(newtext.match(/ENDUP/)){clearInterval(timer);}if(newtext.match(/UPDNF/)){clearInterval(timer);alert(\"プログラム更新ページが開かれたため、自動更新を停止しました。更新を終えた場合や更新しない場合Clearを押してから間隔を選択してください。\");}"
+			"      document.getElementById(\"ajaxDiv\").innerHTML=newtext;\n"
 			"    }\n"
 			"  }\n"
 			"  xmlhttp.open(\"GET\",\"cons\",true);\n"
