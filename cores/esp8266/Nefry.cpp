@@ -887,7 +887,7 @@ void Nefry_lib::setupModule(void) {
 	nefry_server = ESP8266WebServer(80);
 	Serial.println(F("server On"));
 	Serial.println(sizeof(WiFiConf));
-	EEPROM.begin(1034);
+	EEPROM.begin(1534);
 	setLed(0x00, 0x4f, 0x00);
 	if (!loadConf()) {
 		resetModule();
