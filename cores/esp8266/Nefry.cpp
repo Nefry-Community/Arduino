@@ -560,10 +560,10 @@ int Nefry_lib::autoUpdate( String url, String domain) {
 	else {
 		println(F("autoUpdateStart"));
 		ESPhttpUpdate.rebootOnUpdate(false);
-		switch (ESPhttpUpdate.update(url, 80, "/nefry.php", uri)) {
+		switch (ESPhttpUpdate.update(domain, 80, "/nefry.php", url)) {
 		case HTTP_UPDATE_FAILED:
 			pushSW_flg = 0;
-			Serial.println(uri);
+			Serial.println(url);
 			println(F("[update] Update failed."));
 			Serial.printf("HTTP_UPDATE_FAILD Error (%d): %s", ESPhttpUpdate.getLastError(), ESPhttpUpdate.getLastErrorString().c_str());
 			println(ESPhttpUpdate.getLastErrorString().c_str());
@@ -589,13 +589,9 @@ void Nefry_lib::setWebUpdate(String program_domain, String program_url) {
 	pushSW_flg = 1;
 	ClearConsole();
 	IPAddress ip = WiFi.localIP();
-	String content = F(
-		"<!DOCTYPE HTML><html><head><meta charset=\"UTF-8\">"
-		"<title>Nefry Web Update</title><script type=\"text/javascript\" src=\"consolejs\"></script><script type=\"text/javascript\">reload(10000);</script>"
-		"<link rel = \"stylesheet\" type = \"text/css\" href = \"/nefry_css\">"
-		"</head><body><div><h1>Nefry Web Update</h1><p>自動で読み込まれるのでしばらくお待ちください。</p><div id=\"ajaxDiv\"></div>"
-		"<a href='/'>Back to top</a></div><body></html>");
-	nefry_server.send(200, "text/html", content);
+	nefry_server.send(200, "text/html", createHtml(F("Nefry Web Update"),
+		F("<script type=\"text/javascript\" src=\"consolejs\"></script><script type=\"text/javascript\">reload(10000);</script>"),
+		F("<h1>Nefry Web Update</h1><p>自動で読み込まれるのでしばらくお待ちください。</p><div id=\"ajaxDiv\"></div><a href='/'>Back to top</a>")));
 	ndelay(500);
 	if (ip.toString().equals("0.0.0.0")) {
 		println(F("Internet connection ... NG"));
@@ -619,14 +615,17 @@ void Nefry_lib::setWebUpdate(String program_domain, String program_url) {
 				print(F("[UPDATE]URLを確認してください。"));
 				print(F("Please check this URL : http://"));
 				println(UPurl);
+				print("ENDUP");
 				break;
 			case HTTP_UPDATE_NO_UPDATES:
 				print(F("[UPDATE] アップデートはありません。"));
 				println(F("	Update no Updates."));
+				print("ENDUP");
 				break;
 			case HTTP_UPDATE_OK:
 				print(F("[UPDATE] 更新完了、再起動します。"));
 				println(F("Update OK"));
+				print("ENDUP");
 				ndelay(1000);
 				Nefry_LED_blink(0x00, 0xff, 0xff, 250, 10);
 				Serial.println(F("[update] Update ok."));
@@ -641,6 +640,7 @@ void Nefry_lib::setWebUpdate(String program_domain, String program_url) {
 			Serial.println(F("Rejected empty URL."));
 			pushSW_flg = 0;
 			println(F("[UPDATE]Empty URL is not acceptable."));
+			print("ENDUP");
 		}
 	}
 
@@ -649,14 +649,10 @@ void Nefry_lib::setWebUpdate(String program_domain, String program_url) {
 
 void Nefry_lib::setupWebOnlineUpdate(void) {
 	nefry_server.on("/web_update", [&]() {
-		String content = F(
-			"<!DOCTYPE HTML><html><head><meta charset=\"UTF-8\"><link rel = \"stylesheet\" type = \"text/css\" href = \"/nefry_css\"><script type=\"text/javascript\" src=\"jsform\"></script>"
-			"<title>Nefry Web Update</title><style>.row>input,input[type=file]{width:100%}.row label{line-height:1.3;display:block;margin-bottom:5px;width:300px}.row>input{display:inline-block}</style>"
-			"</head><body><div><h1>Nefry Web Update</h1>"
-			"<form method='get' action='program'><div class=\"row\"> <label for=\"File\">Program download Domain: </label><input name='domain'id='URL' value='program.nefry.studio'><label for='File'>Program download URL: </label><input name='URL'id='URL'  value=''>"
-			"</div><div class=\"footer\"><input type=\"button\" value=\"update\" onclick=\"return jsSubmit(this.form);\"></div></form><br><p>Default Program Download URL : program.nefry.studio </p><a href='/'>Back to top</a></div>"
-			"</body></html>");
-		nefry_server.send(200, "text/html", content);
+		nefry_server.send(200, "text/html", createHtml(F("Nefry Web Update"), F("<style>label{margin:6px;width:200px;}input{margin:6px;width:95%;}</style>"),
+			F("<h1>Nefry Web Update</h1>"
+			"<form method='get' action='program'><label>Program download Domain</label><input name='domain'id='URL' value='program.nefry.studio'><label>Program download URL</label><input name='URL'id='URL'  value=''>"
+			"<input type=\"button\" value=\"update\" onclick=\"return jsSubmit(this.form);\"></form><br><p>Default Program Download URL : program.nefry.studio</p><a href='/'>Back to top</a>")));
 	});
 	nefry_server.on("/program", [&]() {
 		setWebUpdate(nefry_server.arg("domain"), nefry_server.arg("URL"));
