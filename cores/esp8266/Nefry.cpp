@@ -460,14 +460,10 @@ void Nefry_lib::setupWebLocalUpdate(void) {
 	int count = 0;
 	bool err = false;
 	nefry_server.on("/update", HTTP_GET, [&]() {
-		String content = F(
-			"<!DOCTYPE HTML><head><meta charset=\"UTF-8\">"
-			"<link rel = \"stylesheet\" type = \"text/css\" href = \"/nefry_css\">"
-			"<title>Nefry Upload Sketch</title></head><body><div><h1>Upload Sketch</h1> <p>Upload a binary file of sketch.</p><form method=\"POST\" action=\"/upload_sketch\" enctype=\"multipart/form-data\">"
-			"<input type=\"file\" name=\"sketch\"><div class=\"footer\"> <input type=\"submit\" value=\"Upload\" onclick=\"return confirm(&quotAre you sure you want to update the Sketch?&quot)\">"
-			"</div></form><a href=\"/\">Back to top</a></div></body></html>");
 		print("UPDNF");
-		nefry_server.send(200, "text/html", content);
+		nefry_server.send(200, "text/html", createHtml(F("Nefry Upload Sketch"),"",
+			F("<h1>Upload Sketch</h1> <p>Upload a binary file of sketch.</p><form method=\"POST\" action=\"/upload_sketch\" enctype=\"multipart/form-data\">"
+			"<input type=\"file\" name=\"sketch\"><div class=\"footer\"><input type=\"submit\"value=\"Upload\"></div></form><a href=\"/\">Back to top</a>")));
 	});
 
 	nefry_server.onFileUpload([&]() {
@@ -546,21 +542,16 @@ void Nefry_lib::setupWebLocalUpdate(void) {
 		else {
 			println(F("Failed to update"));
 		}
-		String content = F(
-			"<!DOCTYPE HTML><html><head><meta charset=\"UTF-8\">"
-			"<title>Nefry Upload Sketch</title><script type=\"text/javascript\" src=\"consolejs\"></script><script type=\"text/javascript\">clearInterval(timer);loadDoc();</script>"
-			"<link rel = \"stylesheet\" type = \"text/css\" href = \"/nefry_content\">"
-			"<link rel = \"stylesheet\" type = \"text/css\" href = \"/nefry_css\">"
-			"</head><body><div><h1>Nefry Update</h1><div id=\"ajaxDiv\">"
-			"</div><a href='/'>Back to top</a></div></body></html>");
-		nefry_server.send(200, "text/html", content);
+		nefry_server.send(200, "text/html", createHtml(F("Nefry Upload Sketch"),
+			F("<script type=\"text/javascript\" src=\"consolejs\"></script><script type=\"text/javascript\">clearInterval(timer);loadDoc();</script>"),
+			F("<h1>Nefry Update</h1><div id=\"ajaxDiv\"></div><a href='/'>Back to top</a>")));
 		ndelay(5000);
 		if (err == false) {
 			reset();
 		}
 	});
 }
-int Nefry_lib::autoUpdate(String url, String uri) {
+int Nefry_lib::autoUpdate( String url, String domain) {
 	pushSW_flg = 1;
 	IPAddress ip = WiFi.localIP();
 	if (ip.toString().equals("0.0.0.0")) {
