@@ -1120,8 +1120,6 @@ void Nefry_lib::printModule(void) {
 	Serial.println();
 	Serial.print(F("Name: "));
 	Serial.println(WiFiConf.module_id);
-	Serial.print(F("SSID: "));
-	Serial.println(WiFiConf.sta_ssid);
 	Serial.print(F("Module ID: "));
 	Serial.println(WiFiConf.module_id);
 }
@@ -1136,14 +1134,13 @@ void Nefry_lib::saveConf(void) {
 	Serial.println(F("writing WiFiConf"));
 	for (int i = 0; i < 4; i++) {
 		WiFiConf.format[i] = wifi_conf_format[i];
-		Serial.println(WiFiConf.format[i]);
 	}
 	EEPROM.write(0, 0);
 	for (unsigned int t = 0; t < sizeof(WiFiConf); t++) {
 		EEPROM.write(WIFI_CONF_START + t, *((char*)&WiFiConf + t));
 	}
 	EEPROM.commit();
-	delay(1);
+	delay(10);
 }
 
 bool Nefry_lib::loadConf() {
