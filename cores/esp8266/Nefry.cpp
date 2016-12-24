@@ -928,7 +928,7 @@ void Nefry_lib::print(String text, int ln) {
 	Serial.print(text);
 	if (ln == 1)text += "<br>";
 	text.toCharArray(printweb[printcun++], 50);
-	if (mojicount < max_console)mojicount++;
+	if (mojicount <= max_console)mojicount++;
 }
 
 void Nefry_lib::println(String text) {
