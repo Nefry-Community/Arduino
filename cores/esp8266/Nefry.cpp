@@ -391,59 +391,68 @@ void Nefry_lib::setupWebWiFiConf(void) {
 	nefry_server.on("/wifi_conf", [&]() {
 		ndelay(1);
 		String content = F(
-			"<!DOCTYPE HTML><html><head><meta charset=\"UTF-8\"><script type=\"text/javascript\" src=\"jsform\"></script>"
-			"<title>Nefry Wifi Set</title><link rel = \"stylesheet\" type = \"text/css\" href = \"/nefry_css\"><style>.row>label{width:50px}</style>"
-			"</head><body><div><h1>Nefry Wifi Set</h1>"
+			"<h1>Nefry Wifi Set</h1>"
 			"<form  name=\"myForm\" method='get' action='set_wifi'><div class=\"row\"> <label for=\"ssid\">SSID: </label> <div> <input name=\"ssid\" id=\"ssid\" maxlength=\"32\"list=\"network_list\" value=\"\"> </div></div>"
 			"<div class=\"row\"> <label for=\"pwd\">PASS: </label> <div> <input type=\"password\" name=\"pwd\" id=\"pwd\"maxlength=\"64\"> </div></div>"
 			"<div class=\"footer\"><button type = \"button\" onclick=\"location.href='/wifiReload'\">Reload</button><input type=\"button\" value=\"Sava\" onclick=\"return jsSubmit(this.form);\"></div></form><a href=\"/\">Back to top</a></div><div>"
 			);
 		content += network_html;
 		content += network_list;
-		content += F("</div></body></html>");
-		nefry_server.send(200, "text/html", content);
+		content += F("</div><div><h1>Saved WiFi List</h1><p>Delete WiFi Select</p><form  name=\"myForm\" method='get' action='delete_wifi'>");
+		for (int i = 0; i < 5; i++) {
+			if (WiFiConf.ptssid[i] != 0) {
+				content += F("<input type=\"checkbox\" value=\"1\"name=\"");
+				content += i;
+				content += F("\">");
+				content += WiFiConf.save_ssid[i];
+				content += F("<br>");
+			}
+		}
+		content += F("<input type=\"button\" value=\"Delete\" onclick=\"return jsSubmit(this.form);\"></form>");
+		nefry_server.send(200, "text/html", createHtml(F("Nefry Wifi Confing"),"",content));
 	});
 	nefry_server.on("/wifiReload", [&]() {
 		scanWiFi();
 		IPAddress ip = WiFi.localIP();
 		if (ip.toString().equals("0.0.0.0")) ipaddress = "192.168.4.1";
 		else ipaddress = ip.toString();
-		String content = F(
-			"<!DOCTYPE html><html><head><meta charset=\"UTF-8\">"
-			"<title>Wifi Reload</title></head><link rel = \"stylesheet\" type = \"text/css\" href = \"/nefry_css\">"
-			"<link rel = \"stylesheet\" type = \"text/css\" href = \"/nefry_content\">"
-			"<meta http-equiv=\"Refresh\" content=\"0; URL = http://");
-		content += ipaddress;
-		content += F("/wifi_conf\"><body><div><h1 class=\"wifi\"></h1><p>Please wait...</p><a href=\"http://");
-		content += ipaddress;
-		content += F("/wifi_conf\"><p class=\"wifi\"></p></a></div></body></html>");
-		nefry_server.send(200, "text/html", content);
+		nefry_server.send(200, "text/html", createHtml(F("Wifi Reload"),
+			(String)F("<meta http-equiv=\"Refresh\" content=\"0; URL = http://")+ ipaddress +(String)F("/wifi_conf\">"),
+			(String)F("<p>Please wait...</p><a href=\"http://")+ ipaddress +(String)F("/wifi_conf\">")));
 	});
 	nefry_server.on("/set_wifi", [&]() {
 		String new_ssid = escapeParameter(nefry_server.arg("ssid"));
 		String new_pwd = escapeParameter(nefry_server.arg("pwd"));
-		String content = F(
-			"<!DOCTYPE HTML><html><head><meta charset=\"UTF-8\">"
-			"<title>Nefry Wifi Set</title>"
-			"<link rel = \"stylesheet\" type = \"text/css\" href = \"/nefry_content\">"
-			"<link rel = \"stylesheet\" type = \"text/css\" href = \"/nefry_css\">"
-			"</head><body><div><h1>Nefry Wifi Set</h1>"
-			"<p class=\"wifiSave\"></p>"
-			"<a href=\"/\">Back to top</a></div><body></html>");
+		String content;
 		if (new_ssid.length() > 0) {
-			new_ssid.toCharArray(WiFiConf.sta_ssid, sizeof(WiFiConf.sta_ssid));
-			new_pwd.toCharArray(WiFiConf.sta_pwd, sizeof(WiFiConf.sta_pwd));
-			saveConf();
-			String Ccontent = F("Save SSID:");
-			Ccontent += WiFiConf.sta_ssid;
-			Ccontent += F(" Restart to boot into new WiFi");
-			cssAdd("wifiSave", Ccontent);
-			nefry_server.send(200, "text/html", content);
+			addWifi(new_ssid, new_pwd);
+			content = F("Save SSID:");
+			content += new_ssid;
+			content += F(" Restart to boot into new WiFi");
+		}
+		else content=F("Empty SSID is not acceptable.");
+		nefry_server.send(200, "text/html", createHtml(F("Nefry Wifi Set"), "",
+			(String)F("<h1>Nefry Wifi Set</h1><p>")+content+(String)F("</p><a href=\"/\">Back to top</a>")));
+		if (new_ssid.length() > 0) {
 			ndelay(1000);
 			reset();
 		}
-		else cssAdd("wifiSave", F("Empty SSID is not acceptable."));
-		nefry_server.send(200, "text/html", content);
+	});
+	nefry_server.on("/delete_wifi", [&]() {
+		String del="";
+		for (int i = 0; i < 5; i++) {
+			String data = nefry_server.arg(i);
+			if (data.equals("1")) {
+				del += "<li>";
+				del += WiFiConf.save_ssid[i];
+				del += "</li>";
+				deleteWifi(i);
+			}
+		}
+		sortWifi();
+		saveWifi();
+		nefry_server.send(200, "text/html", createHtml(F("Nefry Wifi Delete"),"",
+			(String)F("<h1>Nefry Wifi Delete</h1><p>Delete List</p><ul>")+ del +(String)F("</ul><a href=\"/\">Back to top</a>")));
 	});
 }
 
