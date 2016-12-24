@@ -22,6 +22,9 @@ struct WiFiConfStruct {
 	char str128[3][128];
 	char str64[5][64];
 	int bootmode;
+	char save_ssid[5][32];
+	char save_pwd[5][64];
+	int ptssid[5];
 } WiFiConf = {
 	WIFI_CONF_FORMAT,//1
 	"Nefry",//2
@@ -34,7 +37,10 @@ struct WiFiConfStruct {
 	{0,0,0,0,0,0,0,0},//9
 	{"","",""},
 	{"","","","",""},
-	0
+	0,
+	{ "Nefry","","","",""},
+	{ "Nefry-Wifi","","","",""},
+	{1,0,0,0,0}
 };
 Adafruit_NeoPixel _NefryLED[17];
 
