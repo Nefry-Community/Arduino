@@ -412,7 +412,7 @@ void Nefry_lib::setupWebWiFiConf(void) {
 		nefry_server.send(200, "text/html", createHtml(F("Nefry Wifi Confing"),"",content));
 	});
 	nefry_server.on("/wifiReload", [&]() {
-		scanWiFi();
+		scanWiFiHtml();
 		nefry_server.send(200, "text/html", createHtml(F("Wifi Reload"),
 			(String)F("<meta http-equiv=\"Refresh\" content=\"0; URL = http://")+ ipaddressStr(WiFi.localIP()) +(String)F("/wifi_conf\">"),F("<p>Please wait...</p><a href=\"/wifi_conf\">")));
 	});
@@ -1263,7 +1263,7 @@ int Nefry_lib::searchWiFi()
 }
 
 void Nefry_lib::setupWifi(void) {
-	scanWiFi();
+	scanWiFiHtml();
 	push_sw_();
 	// start WiFi
 	WiFi.persistent(false);
