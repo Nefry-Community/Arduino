@@ -40,7 +40,16 @@ getModuleName			KEYWORD2
 autoUpdate				KEYWORD2
 setIndexLink			KEYWORD2
 getWebServer			KEYWORD2
-
+setConfHtmlStr			KEYWORD2
+setConfHtmlValue		KEYWORD2
+readSW					KEYWORD2
+setWifiTimeout			KEYWORD2
+getWifiTimeout			KEYWORD2
+getWifiAuto				KEYWORD2
+addWifi					KEYWORD2
+deleteWifi				KEYWORD2
+searchWiFi				KEYWORD2
+getlistWifi				KEYWORD2
 #######################################
 # Constants
 #######################################

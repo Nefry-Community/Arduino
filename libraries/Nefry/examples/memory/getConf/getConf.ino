@@ -3,6 +3,8 @@ void setup() {
   // put your setup code here, to run once:
   for (int i = 0; i < 8; i++) {
     Nefry.println(i);
+    Nefry.setConfHtmlStr("str" + i, i);
+    Nefry.setConfHtmlValue("value" + i, i);
     Nefry.println(Nefry.getConfValue(i));
     Nefry.println(Nefry.getConfStr(i));
   }
