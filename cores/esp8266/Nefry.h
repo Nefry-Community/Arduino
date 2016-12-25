@@ -61,7 +61,7 @@ public:
 		reset(),
 		sleep(const int sec),
 		setProgramName(const char * pn),
-		setIndexLink(const char title[32],const char url[32]),
+		setIndexLink(const char title[32], const char url[32]),
 		setConfHtmlPrint(const bool data, const int num),
 		setConfWifi(const char SSID[32], const char pass[64]),
 		setConfModule(const char module_id_[32], const char module_class_[32], const char module_wifi_pass_[64]),
@@ -89,38 +89,43 @@ public:
 		print(unsigned char text),
 		print(unsigned int text),
 		print(unsigned long text),
-		print(String text,int ln=0),
+		print(String text, int ln = 0),
 		println(String text),
 
 		nefry_init(),
 		nefry_loop(),
 		ndelay(unsigned long ms),
-		setWebUpdate(String program_domain,String program_url),
+		setWebUpdate(String program_domain, String program_url),
 
 		addWifi(String ssid, String pwd),
-		deleteWifi(int id, bool lastdata=false);
-	
+		deleteWifi(int id, bool lastdata = false),
+		setWifiTimeout(int count),
+		setWiifAuto(bool AutoFlg);
+
 	int available(),
 		getConfValue(const int num),
-		autoUpdate(String url,String domain="auto.nefry.studio"),
-		searchWiFi();
+		autoUpdate(String url, String domain = "auto.nefry.studio"),
+		searchWiFi(),
+		getWifiTimeout();
 
 	bool push_SW(),
-		autoConnect(int sec=2),
+		readSW(),
+		autoConnect(int sec = 2),
 		getConfHtmlPrint(const int num),
 		setConfValue(const int pt, const int num),
 		setConfStr(const char *pt, const int num),
 		login(const char *UserID, const char *User_pass),
-		Auth(const char *Nefryclass, const char *NefryID);
+		Auth(const char *Nefryclass, const char *NefryID),
+		getWifiAuto(), 
+		push_sw_();
 
 	char* getConfStr(const int num);
-		
+
 
 	String read(),
 		getVersion(),
 		getProgramName(),
-		listWifi(),
-		ipaddressStr(IPAddress ip);
+		getlistWifi();
 	char* getModuleName();
 	//void webpage(const char url[20],String page,String link);
 	ESP8266WebServer* getWebServer(void);
@@ -129,22 +134,20 @@ private:
 	String indexlink;
 	ESP8266WebServer nefry_server;
 	DNSServer _dnsServer;
-	
-	void cssAdd(const char* id, String data, bool afterflg = 1);
 	String network_html, network_list, input_console;
-	void Nefry_LED_blink(const char r, const char g, const char b, const int wait, const int loop, const char pin = 0);
 	char module_input[20][15];
-	bool push_sw_();
-	void module_set();
-	bool loadConf();
-	void saveConf(void);
-	void setDefaultModuleId(char* dst);
-	void resetModule(void);
-	void scanWiFiHtml(void);
-	bool  waitConnected(void);
-	void printModule(void);
-	void ClearConsole();
-	void setupWeb(void),
+
+	void cssAdd(const char* id, String data, bool afterflg = 1),
+		setLedBlink(const char r, const char g, const char b, const int wait, const int loop, const char pin = 0),
+		module_set(),
+		saveConf(void),
+		setDefaultModuleId(char* dst),
+		resetModule(void),
+		scanWiFiHtml(void),
+		printModule(void),
+		ClearConsole(),
+
+		setupWeb(void),
 		setupWebModuleConf(void),
 		setupWebLocalUpdate(void),
 		setupWebOnlineUpdate(void),
@@ -154,16 +157,25 @@ private:
 		setupWebCss(void),
 		setupWebWiFiConf(void),
 		setupModule(void),
-		setupWifi(void);
+
+		setupWifi(void),
+		sortWifi(),
+		saveWifi(),
+
+		setConf(char *old, const char *newdata),
+		printIpaddress();
+
 	String escapeParameter(String param),
 		serectForm(),
-		createHtml(String title,String head="",String body="");
-	void setConf(char *old, const char *newdata),
-		printIpaddress(),
-		sortWifi(),
-		saveWifi();
+		ipaddressStr(IPAddress ip),
+		createHtml(String title, String head = "", String body = "");
 
-	int hextonum(char c);
+
+	bool loadConf(),
+		_WifiAutoFlg=true;
+	int hextonum(char c),
+		_WifiTimeOutCountMax,
+		_WifiTimeOutCount=0;
 };
 extern Nefry_lib Nefry;
 #endif
