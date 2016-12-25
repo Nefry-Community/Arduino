@@ -103,7 +103,7 @@ public:
 	int available(),
 		getConfValue(const int num),
 		autoUpdate(String url,String domain="auto.nefry.studio"),
-		scanWifi();
+		searchWiFi();
 
 	bool push_SW(),
 		autoConnect(int sec=2),
@@ -119,7 +119,8 @@ public:
 	String read(),
 		getVersion(),
 		getProgramName(),
-		listWifi();
+		listWifi(),
+		ipaddressStr(IPAddress ip);
 	char* getModuleName();
 	//void webpage(const char url[20],String page,String link);
 	ESP8266WebServer* getWebServer(void);
@@ -128,7 +129,7 @@ private:
 	String indexlink;
 	ESP8266WebServer nefry_server;
 	DNSServer _dnsServer;
-	ESP8266WiFiMulti wifiMulti;
+	
 	void cssAdd(const char* id, String data, bool afterflg = 1);
 	String network_html, network_list, input_console;
 	void Nefry_LED_blink(const char r, const char g, const char b, const int wait, const int loop, const char pin = 0);
@@ -139,8 +140,8 @@ private:
 	void saveConf(void);
 	void setDefaultModuleId(char* dst);
 	void resetModule(void);
-	void scanWiFi(void);
-	int  waitConnected(void);
+	void scanWiFiHtml(void);
+	bool  waitConnected(void);
 	void printModule(void);
 	void ClearConsole();
 	void setupWeb(void),
@@ -160,8 +161,7 @@ private:
 	void setConf(char *old, const char *newdata),
 		printIpaddress(),
 		sortWifi(),
-		saveWifi(),
-		startWifi();
+		saveWifi();
 
 	int hextonum(char c);
 };

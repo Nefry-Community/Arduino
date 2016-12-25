@@ -43,7 +43,7 @@ struct WiFiConfStruct {
 	{1,0,0,0,0}
 };
 Adafruit_NeoPixel _NefryLED[17];
-
+ESP8266WiFiMulti wifiMulti;
 //public
 
 //etc
@@ -64,6 +64,12 @@ void Nefry_lib::setProgramName(const char *pn) {
 
 String Nefry_lib::getVersion() {
 	return LIBVERSION;
+}
+
+String Nefry_lib::ipaddressStr(IPAddress ip)
+{
+	if (ip.toString().equals("0.0.0.0"))return "192.168.4.1";
+	else return ip.toString();
 }
 
 bool Nefry_lib::push_SW() {
@@ -299,7 +305,7 @@ String Nefry_lib::createHtml(String title, String head, String body)
 	return content;
 }
 
-String ipaddress;
+//String ipaddress;
 void Nefry_lib::setupWebModuleConf(void) {
 	nefry_server.on("/module_id", [&]() {
 		char defaultId[sizeof(WiFiConf.module_id)];
@@ -323,19 +329,12 @@ void Nefry_lib::setupWebModuleConf(void) {
 		content += defaultId;
 		content += F("</div><p>macAddress : ");
 		content += WiFi.macAddress();
-		IPAddress ip = WiFi.localIP();
-		String ipStr = String(ip[0]) + '.' + String(ip[1]) + '.' + String(ip[2]) + '.' + String(ip[3]);
 		content += F("</br>IPAddress : ");
-		content += ipStr;
-		ip = WiFi.subnetMask();
-		ipStr = String(ip[0]) + '.' + String(ip[1]) + '.' + String(ip[2]) + '.' + String(ip[3]);
-		delay(1);
+		content += ipaddressStr(WiFi.localIP());
 		content += F("</br>subNetMask : ");
-		content += ipStr;
-		ip = WiFi.gatewayIP();
-		ipStr = String(ip[0]) + '.' + String(ip[1]) + '.' + String(ip[2]) + '.' + String(ip[3]);
+		content += ipaddressStr(WiFi.subnetMask());
 		content += F("</br>Gateway IPAddress : ");
-		content += ipStr;
+		content += ipaddressStr(WiFi.gatewayIP());
 		content += F("</p><div class=\"writemode\"></div><a href=\"/\">Back to top</a>");
 		nefry_server.send(200, "text/html", createHtml(F("Nefry Module Config"),"",content));
 	});
@@ -413,12 +412,8 @@ void Nefry_lib::setupWebWiFiConf(void) {
 	});
 	nefry_server.on("/wifiReload", [&]() {
 		scanWiFi();
-		IPAddress ip = WiFi.localIP();
-		if (ip.toString().equals("0.0.0.0")) ipaddress = "192.168.4.1";
-		else ipaddress = ip.toString();
 		nefry_server.send(200, "text/html", createHtml(F("Wifi Reload"),
-			(String)F("<meta http-equiv=\"Refresh\" content=\"0; URL = http://")+ ipaddress +(String)F("/wifi_conf\">"),
-			(String)F("<p>Please wait...</p><a href=\"http://")+ ipaddress +(String)F("/wifi_conf\">")));
+			(String)F("<meta http-equiv=\"Refresh\" content=\"0; URL = http://")+ ipaddressStr(WiFi.localIP()) +(String)F("/wifi_conf\">"),F("<p>Please wait...</p><a href=\"/wifi_conf\">")));
 	});
 	nefry_server.on("/set_wifi", [&]() {
 		String new_ssid = escapeParameter(nefry_server.arg("ssid"));
@@ -453,6 +448,8 @@ void Nefry_lib::setupWebWiFiConf(void) {
 		saveWifi();
 		nefry_server.send(200, "text/html", createHtml(F("Nefry Wifi Delete"),"",
 			(String)F("<h1>Nefry Wifi Delete</h1><p>Delete List</p><ul>")+ del +(String)F("</ul><a href=\"/\">Back to top</a>")));
+		ndelay(1000);
+		reset();
 	});
 }
 
@@ -661,15 +658,13 @@ void Nefry_lib::setupWebOnlineUpdate(void) {
 
 String cssConten;
 void Nefry_lib::setupWebMain(void) {
-	IPAddress ip = WiFi.localIP();
-	if (ip.toString().equals("0.0.0.0")) ipaddress = "192.168.4.1";
-	else ipaddress = ip.toString();
 	nefry_server.on("/", [&]() {
 		String content = F("<h1>Hello from Nefry!</h1>"
 			"<div>Wifi Sport: ");
 		content += WiFi.SSID();
-		content += F("</div><div class=\"ipaddress\">IP Address: "
-			"</div><div class=\"moduleid\">Module ID: "
+		content += F("</div><div>IP Address: ");
+		content += ipaddressStr(WiFi.localIP());
+		content += F("</div><div class=\"moduleid\">Module ID: "
 			"</div><div class=\"writemode\">"
 			"</div><ul>"
 			"<li><a href='/wifi_conf'>Setup WiFi</a>"
@@ -730,13 +725,12 @@ void Nefry_lib::setupWebMain(void) {
 void Nefry_lib::setupWebCaptivePortal(void) {
 	_dnsServer.start(53, "*", IPAddress(192, 168, 4, 1));
 	nefry_server.onNotFound([&]() {
-		nefry_server.send(200, "text/html", createHtml(F("CaptivePortal"),(String)F("<meta http-equiv=\"Refresh\" content=\"10; URL = http://")+ ipaddress+(String)F("\">"),
-			(String)F("<h1>Move to main page!</h1><p>このままの画面で動作させた場合、<br>予期しない動作をする可能性があります。<br>できれば、別ブラウザで開くことを推奨します。<br>そのときブラウザに『192.168.4.1』とURL欄に入力してください。</p><p>Please wait...10sec</p><a href=\"http://")+ ipaddress +(String)F("\">Move to main page!</a>")));
+		nefry_server.send(200, "text/html", createHtml(F("CaptivePortal"),(String)F("<meta http-equiv=\"Refresh\" content=\"10; URL = http://")+ ipaddressStr(WiFi.localIP()) +(String)F("\">"),
+			(String)F("<h1>Move to main page!</h1><p>このままの画面で動作させた場合、<br>予期しない動作をする可能性があります。<br>できれば、別ブラウザで開くことを推奨します。<br>そのときブラウザに『192.168.4.1』とURL欄に入力してください。</p><p>Please wait...10sec</p><a href=\"http://")+ ipaddressStr(WiFi.localIP()) +(String)F("\">Move to main page!</a>")));
 	});
 }
 
 void Nefry_lib::setupWebCss(void) {
-	cssAdd("ipaddress", ipaddress);
 	cssAdd("moduleid", WiFiConf.module_id);
 }
 
@@ -787,7 +781,8 @@ void Nefry_lib::nefry_init() {
 	Serial.println(F("\nServer started"));
 	setupWeb();
 	push_sw_();
-
+	println("WiFi List");
+	println(listWifi());
 	setLed(0x00, 0xaf, 0x00);
 	push_sw_();
 	setLed(0x00, 0xff, 0xff);
@@ -802,49 +797,15 @@ void Nefry_lib::nefry_init() {
 	}
 }
 
+int _locp = 0;
 void Nefry_lib::nefry_loop() {
 	_dnsServer.processNextRequest();
 	nefry_server.handleClient();
-}
-
-void Nefry_lib::setupWifi(void) {
-	scanWiFi();
-	push_sw_();
-	// start WiFi
-	WiFi.persistent(false);
-	WiFi.mode(WIFI_AP_STA);
-	WiFi.begin(WiFiConf.sta_ssid, WiFiConf.sta_pwd);
-	waitConnected();
-	if (WiFi.status() != WL_CONNECTED) {
-		Nefry_LED_blink(0x00, 0x0, 0xFF, 100, 10);
-		WiFi.mode(WIFI_AP);
+	if (_locp == 100) {
+		searchWiFi();
+		_locp = 0;
 	}
-	String module_pass = WiFiConf.module_wifi_pwd;
-	if (module_pass.length() == 0) {
-		WiFi.softAP(WiFiConf.module_id);
-	}
-	else {
-		WiFi.softAP(WiFiConf.module_id, WiFiConf.module_wifi_pwd);
-	}
-}
-bool Nefry_lib::autoConnect(int sec) {
-	if (WiFi.status() != WL_CONNECTED) {
-		int wait = 0;
-		while (wait < 10 * sec) {
-			if (WiFi.status() == WL_CONNECTED) {
-				println(F("WiFi connected"));
-				return true;
-			}
-			Nefry_LED_blink(0x00, 0x4f, 0x00, 200, 1);
-			print(".");
-			wait++;
-			ndelay(100);
-		}
-		WiFi.disconnect();
-		println(F("Connect timed out"));
-		return false;
-	}
-	return true;
+	_locp++;
 }
 
 void Nefry_lib::setupModule(void) {
@@ -1146,7 +1107,215 @@ bool Nefry_lib::loadConf() {
 	}
 }
 
-void Nefry_lib::scanWiFi(void) {
+
+String Nefry_lib::escapeParameter(String param) {
+	param.replace("+", " ");
+	param.replace("%21", "!");
+	param.replace("%22", "\"");
+	param.replace("%23", "#");
+	param.replace("%24", "$");
+	param.replace("%25", "%");
+	param.replace("%26", "&");
+	param.replace("%27", "'");
+	param.replace("%28", "(");
+	param.replace("%29", ")");
+	param.replace("%2A", "*");
+	param.replace("%2B", "+");
+	param.replace("%2C", ",");
+	param.replace("%2F", "/");
+	param.replace("%3A", ":");
+	param.replace("%3B", ";");
+	param.replace("%3C", "<");
+	param.replace("%3D", "=");
+	param.replace("%3E", ">");
+	param.replace("%3F", "?");
+	param.replace("%40", "@");
+	param.replace("%5B", "[");
+	param.replace("%5C", "\\");
+	param.replace("%5D", "]");
+	param.replace("%5E", "^");
+	param.replace("%60", "'");
+	param.replace("%7B", "{");
+	param.replace("%7C", "|");
+	param.replace("%7D", "}");
+	return param;
+}
+
+//WiFi
+
+void Nefry_lib::deleteWifi(int id, bool lastdata)
+{
+	if (id < 0)return;
+	if (id >= 5)return;
+	WiFiConf.ptssid[id] = 0;
+	strcpy(WiFiConf.save_ssid[id], "Nefry");
+	strcpy(WiFiConf.save_pwd[id], "Nefry-Wifi");
+	if (lastdata == true) {
+		sortWifi();
+		saveWifi();
+	}
+}
+
+void Nefry_lib::addWifi(String ssid, String pwd)
+{
+	sortWifi();
+	for (int i = 0; i < 5; i++) {
+		if (WiFiConf.ptssid[i] == 0) {
+			strcpy(WiFiConf.save_ssid[i], ssid.c_str());
+			strcpy(WiFiConf.save_pwd[i], pwd.c_str());
+			WiFiConf.ptssid[i] = 1;
+			saveConf();
+			return;
+		}
+	}
+	deleteWifi(0, true);
+	strcpy(WiFiConf.save_ssid[4], ssid.c_str());
+	strcpy(WiFiConf.save_pwd[4], pwd.c_str());
+	saveConf();
+	WiFiConf.ptssid[4] = 1;
+}
+void Nefry_lib::sortWifi()
+{
+	for (int i = 0; i < 4; i++) {
+		if (WiFiConf.ptssid[i] == 0) {
+			int j;
+			for (j = i + 1; j < 5; j++) {
+				if (WiFiConf.ptssid[j] != 0) {
+					strcpy(WiFiConf.save_ssid[i], WiFiConf.save_ssid[j]);
+					strcpy(WiFiConf.save_pwd[i], WiFiConf.save_pwd[j]);
+					strcpy(WiFiConf.save_ssid[j], "");
+					strcpy(WiFiConf.save_pwd[j], "");
+					WiFiConf.ptssid[i] = 1;
+					WiFiConf.ptssid[j] = 0;
+					break;
+				}
+			}
+			if (j == 5)return;
+		}
+	}
+}
+String Nefry_lib::listWifi()
+{
+	String lisWifi = "";
+	for (int i = 0; i < 5; i++) {
+		if (WiFiConf.ptssid[i] != 0) {
+			lisWifi += "ID : ";
+			lisWifi += i;
+			lisWifi += " SSID : ";
+			lisWifi += WiFiConf.save_ssid[i];
+			lisWifi += "\n";
+		}
+	}
+	//println("listWifi");
+	//println(lisWifi);
+	return lisWifi;
+}
+
+void Nefry_lib::saveWifi()
+{
+	saveConf();
+}
+
+wl_status_t prevWifiStatus = WL_IDLE_STATUS;
+int Nefry_lib::searchWiFi()
+{
+	wl_status_t wifiStatus = wifiMulti.run();
+	if (prevWifiStatus != wifiStatus) {
+		prevWifiStatus = wifiStatus;
+		if (wifiStatus == WL_CONNECTED) {
+			Serial.println("WiFi connected");
+			Serial.println("SSID: ");
+			Serial.println(WiFi.SSID());
+			Serial.println("IP address: ");
+			Serial.println(WiFi.localIP());
+			return 0;
+		}
+		else {
+			Serial.print(F("WiFi errorCode : "));
+			switch (wifiStatus)
+			{
+			case WL_IDLE_STATUS:
+				Serial.println(F("Network Idle"));
+				break;
+			case WL_NO_SSID_AVAIL:
+				Serial.println(F("SSID Not Found"));
+				break;
+			case WL_SCAN_COMPLETED:
+				Serial.println(F("Scan Complete"));
+				break;
+			case WL_CONNECT_FAILED:
+				Serial.println(F("Connect Failed"));
+				break;
+			case WL_CONNECTION_LOST:
+				Serial.println(F("Connection Lost"));
+				break;
+			case WL_DISCONNECTED:
+				Serial.println(F("Disconnected"));
+				break;
+			default:
+				break;
+			}
+			return 1;
+		}
+	}
+	return 2;
+}
+
+void Nefry_lib::setupWifi(void) {
+	scanWiFi();
+	push_sw_();
+	// start WiFi
+	WiFi.persistent(false);
+	WiFi.mode(WIFI_AP_STA);
+	if (strcmp(WiFiConf.sta_ssid, "Nefry") != 0) {
+		strcpy(WiFiConf.save_ssid[0], WiFiConf.sta_ssid);
+		strcpy(WiFiConf.save_pwd[0], WiFiConf.sta_pwd);
+		WiFiConf.ptssid[0] = 1;
+		strcpy(WiFiConf.sta_ssid, "Nefry");
+	}
+	for (int i = 0; i < 5; i++) {
+		if (WiFiConf.ptssid[i] != 0) {
+			wifiMulti.addAP(WiFiConf.save_ssid[i], WiFiConf.save_pwd[i]);
+			println("setup Wifi");
+			println(WiFiConf.save_ssid[i]);
+			println(WiFiConf.save_pwd[i]);
+		}
+	}
+
+	waitConnected();
+	if (WiFi.status() != WL_CONNECTED) {
+		Nefry_LED_blink(0x00, 0x0, 0xFF, 100, 10);
+		WiFi.mode(WIFI_AP);
+	}
+	String module_pass = WiFiConf.module_wifi_pwd;
+	if (module_pass.length() == 0) {
+		WiFi.softAP(WiFiConf.module_id);
+	}
+	else {
+		WiFi.softAP(WiFiConf.module_id, WiFiConf.module_wifi_pwd);
+	}
+}
+bool Nefry_lib::autoConnect(int sec) {
+	if (WiFi.status() != WL_CONNECTED) {
+		int wait = 0;
+		while (wait < 10 * sec) {
+			if (searchWiFi() == 0) {
+				println(F("WiFi connected"));
+				return true;
+			}
+			Nefry_LED_blink(0x00, 0x4f, 0x00, 100, 1);
+			print(".");
+			wait++;
+			ndelay(100);
+		}
+		WiFi.disconnect();
+		println(F("Connect timed out"));
+		return false;
+	}
+	return true;
+}
+
+void Nefry_lib::scanWiFiHtml(void) {
 	int founds = WiFi.scanNetworks();
 	Serial.println();
 	Serial.println(F("scan done"));
@@ -1181,58 +1350,14 @@ void Nefry_lib::scanWiFi(void) {
 		network_list += F("</datalist>");
 	}
 }
-int Nefry_lib::waitConnected(void) {
+bool Nefry_lib::waitConnected(void) {
 	int wait = 0;
 	Serial.println();
 	Serial.println(F("Waiting for WiFi to connect"));
-	while (wait < 28) {
-		if (WiFi.status() == WL_CONNECTED) {
-			Serial.println(F("WiFi connected"));
-			return (1);
-			ESP.wdtFeed();
-		}
-		Nefry_LED_blink(0x00, 0x4f, 0x00, 200, 1);
-		Serial.print(".");
-		push_sw_();
-		wait++;
-		delay(250);
+	if (searchWiFi() == 0) {
+		Serial.println(F("WiFi connected"));
+		return true;
 	}
-	WiFi.disconnect();
-	Serial.println("");
-	Serial.println(F("Connect timed out"));
-	return (0);
-}
-
-String Nefry_lib::escapeParameter(String param) {
-	param.replace("+", " ");
-	param.replace("%21", "!");
-	param.replace("%22", "\"");
-	param.replace("%23", "#");
-	param.replace("%24", "$");
-	param.replace("%25", "%");
-	param.replace("%26", "&");
-	param.replace("%27", "'");
-	param.replace("%28", "(");
-	param.replace("%29", ")");
-	param.replace("%2A", "*");
-	param.replace("%2B", "+");
-	param.replace("%2C", ",");
-	param.replace("%2F", "/");
-	param.replace("%3A", ":");
-	param.replace("%3B", ";");
-	param.replace("%3C", "<");
-	param.replace("%3D", "=");
-	param.replace("%3E", ">");
-	param.replace("%3F", "?");
-	param.replace("%40", "@");
-	param.replace("%5B", "[");
-	param.replace("%5C", "\\");
-	param.replace("%5D", "]");
-	param.replace("%5E", "^");
-	param.replace("%60", "'");
-	param.replace("%7B", "{");
-	param.replace("%7C", "|");
-	param.replace("%7D", "}");
-	return param;
+	return false;
 }
 Nefry_lib Nefry;
