@@ -1300,10 +1300,12 @@ void Nefry_lib::setupWifi(void) {
 		WiFi.softAP(WiFiConf.module_id, WiFiConf.module_wifi_pwd);
 	}
 	if (strcmp(WiFiConf.sta_ssid, "Nefry") != 0) {//2.3以前のNefry向け
+		for (int i = 0; i < 5; i++)deleteWifi(i);
 		strcpy(WiFiConf.save_ssid[0], WiFiConf.sta_ssid);
 		strcpy(WiFiConf.save_pwd[0], WiFiConf.sta_pwd);
 		WiFiConf.ptssid[0] = 1;
 		strcpy(WiFiConf.sta_ssid, "Nefry");
+		saveWifi();
 	}
 	for (int i = 0; i < 5; i++) {
 		if (WiFiConf.ptssid[i] != 0) {
