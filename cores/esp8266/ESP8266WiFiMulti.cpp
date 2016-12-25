@@ -125,8 +125,10 @@ wl_status_t ESP8266WiFiMulti::run(void) {
                     status = WiFi.status();
 					if (s % 10 == 0) {
 						ledState(1);
-						if (s % 150 == 0)break;
+						if (s % 250 == 0)break;
 					}
+					if (status == WL_CONNECTED)break;
+					Nefry.push_sw_();
                 }
 				if(status==WL_CONNECTED)ledState(2);
 #ifdef DEBUG_ESP_WIFI
