@@ -100,7 +100,8 @@ public:
 		addWifi(String ssid, String pwd),
 		deleteWifi(int id, bool lastdata = false),
 		setWifiTimeout(int count),
-		setWiifAuto(bool AutoFlg);
+		setWiifAuto(bool AutoFlg),
+		setWifiTimeoutClear();
 
 	int available(),
 		getConfValue(const int num),

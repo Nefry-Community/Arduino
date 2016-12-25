@@ -1387,4 +1387,9 @@ void Nefry_lib::setWifiTimeout(int count)
 	_WifiTimeOutCountMax = count;
 }
 
+void Nefry_lib::setWifiTimeoutClear()
+{
+	_WifiTimeOutCount = 0;
+}
+
 Nefry_lib Nefry;
