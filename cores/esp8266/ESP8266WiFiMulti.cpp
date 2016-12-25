@@ -44,6 +44,7 @@ wl_status_t ESP8266WiFiMulti::run(void) {
     wl_status_t status = WiFi.status();
     if(status == WL_DISCONNECTED || status == WL_NO_SSID_AVAIL || status == WL_IDLE_STATUS || status == WL_CONNECT_FAILED) {
 
+		ledState(1);
         scanResult = WiFi.scanComplete();
         if(scanResult == WIFI_SCAN_RUNNING) {
             // scan is running
@@ -76,7 +77,6 @@ wl_status_t ESP8266WiFiMulti::run(void) {
                     bool known = false;
                     for(uint32_t x = 0; x < APlist.size(); x++) {
                         WifiAPlist_t entry = APlist[x];
-
                         if(ssid_scan == entry.ssid) { // SSID match
                             known = true;
                             if(rssi_scan > bestNetworkDb) { // best network
@@ -104,21 +104,31 @@ wl_status_t ESP8266WiFiMulti::run(void) {
 
             // clean up ram
             WiFi.scanDelete();
-
+			ledState(1);
             DEBUG_WIFI_MULTI("\n\n");
             delay(0);
 
             if(bestNetwork.ssid) {
                 DEBUG_WIFI_MULTI("[WIFI] Connecting BSSID: %02X:%02X:%02X:%02X:%02X:%02X SSID: %s Channal: %d (%d)\n", bestBSSID[0], bestBSSID[1], bestBSSID[2], bestBSSID[3], bestBSSID[4], bestBSSID[5], bestNetwork.ssid, bestChannel, bestNetworkDb);
-
+				/*Serial.println("wifi.begin");
+				Serial.println(bestNetwork.ssid);
+				Serial.println(bestNetwork.passphrase);
+				Serial.println(bestChannel);
+				Serial.println("-------------");*/
                 WiFi.begin(bestNetwork.ssid, bestNetwork.passphrase, bestChannel, bestBSSID);
                 status = WiFi.status();
-
+				int s = 0;
                 // wait for connection or fail
                 while(status != WL_CONNECTED && status != WL_NO_SSID_AVAIL && status != WL_CONNECT_FAILED) {
                     delay(10);
+					s++;
                     status = WiFi.status();
+					if (s % 10 == 0) {
+						ledState(1);
+						if (s % 150 == 0)break;
+					}
                 }
+				if(status==WL_CONNECTED)ledState(2);
 #ifdef DEBUG_ESP_WIFI
                 IPAddress ip;
                 uint8_t * mac;
@@ -144,9 +154,11 @@ wl_status_t ESP8266WiFiMulti::run(void) {
                 }
 #endif
             } else {
+				ledState(3);
                 DEBUG_WIFI_MULTI("[WIFI] no matching wifi found!\n");
             }
         } else {
+			ledState(3);
             // start scan
             DEBUG_WIFI_MULTI("[WIFI] delete old wifi config...\n");
             WiFi.disconnect();
@@ -209,5 +221,31 @@ void ESP8266WiFiMulti::APlistClean(void) {
         }
     }
     APlist.clear();
+}
+
+void ESP8266WiFiMulti::ledState(int i)
+{
+	int j = 0;
+	switch (i)
+	{
+	case 1://接続中
+		Nefry.setLed(0x00, 0x4f, 0x00);
+		delay(50);
+		Nefry.setLed(0x00, 0x00, 0x00);
+		break;
+	case 2://接続完了
+		Nefry.setLed(0x00, 0xff, 0xff);
+		break;
+	case 3://接続失敗
+		for (j = 0; j < 4; j++) {
+			Nefry.setLed(0xff, 0x00, 0x00);
+			delay(50);
+			Nefry.setLed(0x00, 0x00, 0x00);
+			delay(50);
+		}
+		break;
+	default:
+		break;
+	}
 }
 
