@@ -162,8 +162,9 @@ void Nefry_lib::setConf(char *old, const char *newdata) {
 }
 
 void Nefry_lib::setConfWifi(const char SSID[32], const char pass[64]) {
-	setConf(WiFiConf.sta_ssid, SSID);
-	setConf(WiFiConf.sta_pwd, pass);
+	addWifi(SSID, pass);
+	/*setConf(WiFiConf.sta_ssid, SSID);
+	setConf(WiFiConf.sta_pwd, pass);*/
 }
 
 void Nefry_lib::setConfModule(const char module_id_[32], const char module_class_[32], const char module_wifi_pass[64]) {
