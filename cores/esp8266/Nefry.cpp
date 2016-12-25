@@ -1289,7 +1289,7 @@ void Nefry_lib::setupWifi(void) {
 	Serial.println(getlistWifi());
 	push_sw_();
 	// start WiFi
-	setWifiTimeout(10);
+	setWifiTimeout(6);
 	WiFi.persistent(false);
 	WiFi.mode(WIFI_AP_STA);
 	String module_pass = WiFiConf.module_wifi_pwd;
