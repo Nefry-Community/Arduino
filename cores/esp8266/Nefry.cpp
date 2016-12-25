@@ -78,6 +78,11 @@ bool Nefry_lib::push_SW() {
 	return false;
 }
 
+bool Nefry_lib::readSW()
+{
+	return push_SW();
+}
+
 void Nefry_lib::ndelay(unsigned long ms) {
 	unsigned long beforetime = millis();
 	while (millis() - beforetime < ms) {
