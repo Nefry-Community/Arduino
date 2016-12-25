@@ -27,6 +27,7 @@
 #ifndef WIFICLIENTMULTI_H_
 #define WIFICLIENTMULTI_H_
 
+#include "Nefry.h"
 #include "ESP8266WiFi.h"
 #undef min
 #undef max
@@ -59,7 +60,8 @@ class ESP8266WiFiMulti {
     private:
         std::vector<WifiAPlist_t> APlist;
         bool APlistAdd(const char* ssid, const char *passphrase = NULL);
-        void APlistClean(void);
+        void APlistClean(void),
+		 ledState(int i);
 
 };
 
