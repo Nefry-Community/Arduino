@@ -1364,14 +1364,25 @@ void Nefry_lib::scanWiFiHtml(void) {
 		network_list += F("</datalist>");
 	}
 }
-bool Nefry_lib::waitConnected(void) {
-	int wait = 0;
-	Serial.println();
-	Serial.println(F("Waiting for WiFi to connect"));
-	if (searchWiFi() == 0) {
-		Serial.println(F("WiFi connected"));
-		return true;
-	}
-	return false;
+
+bool Nefry_lib::getWifiAuto()
+{
+	return _WifiAutoFlg;
 }
+
+void Nefry_lib::setWiifAuto(bool AutoFlg)
+{
+	_WifiAutoFlg = AutoFlg;
+}
+
+int Nefry_lib::getWifiTimeout()
+{
+	return _WifiTimeOutCountMax;
+}
+
+void Nefry_lib::setWifiTimeout(int count)
+{
+	_WifiTimeOutCountMax = count;
+}
+
 Nefry_lib Nefry;
