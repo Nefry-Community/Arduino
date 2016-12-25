@@ -78,3 +78,21 @@ WebConsoleの送信をAjax対応
 - CaptivePortal向けにFormを修正
 - Webからのダウンロードを簡単にするためにドメインを入力
 - easyEditor.NefryRESTAPI.CocoaBitライブラリを更新
+
+2.3.0
+5つまでのWiFiを登録し、その中から最も強いWiFiに接続する機能を追加
+WiFiが切断した場合、再接続する機能をデフォルトで追加（今までは関数としてあった）
+Nefry Web Configの全体的な改善
+
+関数の追加
+
+- readSW
+- setWifiTimeout
+- getWifiTimeout
+- setWiifAuto
+- getWifiAuto
+- addWifi
+- deleteWifi
+- searchWiFi
+- getlistWifi
+- autoUpdate　引数の変更
