@@ -111,3 +111,9 @@
 - searchWiFi
 - getlistWifi
 - autoUpdate　引数の変更
+
+
+2.3.1
+
+- IFTTT & Ambientライブラリー追加
+- 若干のバグ修正
