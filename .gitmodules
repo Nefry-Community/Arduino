@@ -8,3 +8,6 @@
 [submodule "libraries/easyEditor"]
 	path = libraries/easyEditor
 	url = https://github.com/Nefry-Community/easyEditor.git
+[submodule "libraries/Nefry_Ambient"]
+	path = libraries/Nefry_Ambient
+	url = https://github.com/Nefry-Community/Nefry_Ambient
